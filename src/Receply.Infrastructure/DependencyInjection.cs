@@ -2,7 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using Receply.Application.AiEngine;
+using Receply.Application.Channels;
 using Receply.Application.Common;
+using Receply.Infrastructure.AiEngine;
 using Receply.Infrastructure.Channels.WhatsApp;
 using Receply.Infrastructure.Multitenancy;
 using Receply.Infrastructure.Persistence;
@@ -25,6 +28,9 @@ public static class DependencyInjection
 
         services.Configure<WhatsAppOptions>(configuration.GetSection(WhatsAppOptions.SectionName));
         services.AddHttpClient<IChannelProvider, WhatsAppCloudApiProvider>();
+
+        services.Configure<ClaudeOptions>(configuration.GetSection(ClaudeOptions.SectionName));
+        services.AddSingleton<IAiConversationAgent, ClaudeConversationAgent>();
 
         services.AddQuartz();
         services.AddQuartzHostedService(opts => opts.WaitForJobsToComplete = true);

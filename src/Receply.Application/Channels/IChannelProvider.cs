@@ -1,12 +1,14 @@
 using Receply.Domain.Channels;
 
-namespace Receply.Infrastructure.Channels.WhatsApp;
+namespace Receply.Application.Channels;
 
 public record InboundChannelMessage(string FromExternalId, string CustomerPhoneNumber, string Body, DateTimeOffset ReceivedAtUtc);
 
 /// <summary>
 /// Abstraction over a messaging channel provider (WhatsApp Cloud API today; SMS/Instagram later
 /// implement the same interface so Conversations/AI code never depends on a specific provider).
+/// Lives in Application (not Infrastructure) because the AI reply pipeline needs to send messages
+/// back to the customer, and Application can't depend on Infrastructure.
 /// </summary>
 public interface IChannelProvider
 {

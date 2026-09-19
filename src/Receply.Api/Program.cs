@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Receply.Api.BackgroundProcessing;
 using Receply.Api.Middleware;
 using Receply.Application;
 using Receply.Infrastructure;
@@ -19,6 +20,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+builder.Services.AddHostedService<BackgroundTaskQueueHostedService>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 builder.Services

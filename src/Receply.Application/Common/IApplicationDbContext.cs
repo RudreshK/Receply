@@ -20,6 +20,8 @@ public interface IApplicationDbContext
     DbSet<ChannelAccount> ChannelAccounts { get; }
     DbSet<Service> Services { get; }
     DbSet<Resource> Resources { get; }
+    DbSet<AvailabilityRule> AvailabilityRules { get; }
+    DbSet<TimeBlock> TimeBlocks { get; }
     DbSet<Appointment> Appointments { get; }
     DbSet<Conversation> Conversations { get; }
     DbSet<Message> Messages { get; }
