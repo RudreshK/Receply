@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Quartz;
 using Receply.Application;
 using Receply.Infrastructure;
 using Receply.Workers.Jobs;
 
-var builder = Host.CreateApplicationBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -18,5 +20,10 @@ builder.Services.AddQuartz(q =>
         .WithSimpleSchedule(s => s.WithIntervalInHours(1).RepeatForever()));
 });
 
-var host = builder.Build();
-host.Run();
+var app = builder.Build();
+
+// Azure App Service for Containers pings this to confirm the container started - the worker
+// itself does its actual work via the Quartz-hosted background service registered above.
+app.MapGet("/healthz", () => Results.Ok());
+
+app.Run();

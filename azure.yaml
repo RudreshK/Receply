@@ -1,0 +1,23 @@
+# Azure Developer CLI (azd) manifest - see DEPLOYMENT.md for how to use this.
+# https://learn.microsoft.com/azure/developer/azure-developer-cli/azd-schema
+
+name: receply
+metadata:
+  template: receply@0.1.0
+
+services:
+  api:
+    project: ./src/Receply.Api
+    host: appservice
+    language: docker
+    docker:
+      path: Dockerfile
+      context: ../..
+
+  workers:
+    project: ./src/Receply.Workers
+    host: appservice
+    language: docker
+    docker:
+      path: Dockerfile
+      context: ../..

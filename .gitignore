@@ -26,3 +26,6 @@ Thumbs.db
 ## Secrets
 appsettings.*.local.json
 *.env
+
+## Azure Developer CLI (azd) local environment state - contains secrets set via `azd env set`
+.azure/

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "${AZURE_ENV_NAME}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "whatsAppAccessToken": {
+      "value": "${WHATSAPP_ACCESS_TOKEN}"
+    },
+    "whatsAppAppSecret": {
+      "value": "${WHATSAPP_APP_SECRET}"
+    },
+    "whatsAppWebhookVerifyToken": {
+      "value": "${WHATSAPP_WEBHOOK_VERIFY_TOKEN}"
+    },
+    "whatsAppDefaultPhoneNumberId": {
+      "value": "${WHATSAPP_DEFAULT_PHONE_NUMBER_ID}"
+    },
+    "anthropicApiKey": {
+      "value": "${ANTHROPIC_API_KEY}"
+    },
+    "jwtSigningKey": {
+      "value": "${JWT_SIGNING_KEY}"
+    },
+    "postgresAdminPassword": {
+      "value": "${POSTGRES_ADMIN_PASSWORD}"
+    }
+  }
+}
