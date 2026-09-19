@@ -79,27 +79,27 @@ public class WhatsAppWebhookController(
             return null;
         }
 
-        var customer = await db.Customers.FirstOrDefaultAsync(
+        var client = await db.Clients.FirstOrDefaultAsync(
             c => c.TenantId == channelAccount.TenantId && c.PhoneNumber == inbound.CustomerPhoneNumber, cancellationToken);
 
-        if (customer is null)
+        if (client is null)
         {
-            customer = Customer.Create(channelAccount.TenantId, inbound.CustomerPhoneNumber);
-            db.Customers.Add(customer);
+            client = Client.Create(channelAccount.TenantId, inbound.CustomerPhoneNumber);
+            db.Clients.Add(client);
         }
 
         var conversation = await db.Conversations
-            .Where(c => c.TenantId == channelAccount.TenantId && c.CustomerId == customer.Id && c.Status != HandoffStatus.Resolved)
+            .Where(c => c.TenantId == channelAccount.TenantId && c.ClientId == client.Id && c.Status != HandoffStatus.Resolved)
             .OrderByDescending(c => c.StartedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (conversation is null)
         {
-            conversation = Conversation.Start(channelAccount.TenantId, customer.Id, channelAccount.Id);
+            conversation = Conversation.Start(channelAccount.TenantId, client.Id, channelAccount.Id);
             db.Conversations.Add(conversation);
         }
 
-        conversation.AddMessage(MessageDirection.Inbound, MessageSender.Customer, inbound.Body);
+        conversation.AddMessage(MessageDirection.Inbound, MessageSender.Client, inbound.Body);
 
         await db.SaveChangesAsync(cancellationToken);
 

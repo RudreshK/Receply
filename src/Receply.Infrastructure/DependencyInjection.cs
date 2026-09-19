@@ -17,14 +17,17 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<ReceplyDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Postgres")));
+        services.AddScoped<AuditSaveChangesInterceptor>();
+        services.AddDbContext<ReceplyDbContext>((sp, options) =>
+            options.UseNpgsql(configuration.GetConnectionString("Postgres"))
+                .AddInterceptors(sp.GetRequiredService<AuditSaveChangesInterceptor>()));
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ReceplyDbContext>());
 
         services.AddSingleton<IConnectionMultiplexer>(_ =>
             ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
 
         services.AddScoped<ITenantContext, TenantContext>();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 
         services.Configure<WhatsAppOptions>(configuration.GetSection(WhatsAppOptions.SectionName));
         services.AddHttpClient<IChannelProvider, WhatsAppCloudApiProvider>();

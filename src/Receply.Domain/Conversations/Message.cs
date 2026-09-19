@@ -10,7 +10,7 @@ public enum MessageDirection
 
 public enum MessageSender
 {
-    Customer,
+    Client,
     Ai,
     Human
 }

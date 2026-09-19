@@ -8,10 +8,11 @@ public class ChannelAccountConfiguration : IEntityTypeConfiguration<ChannelAccou
 {
     public void Configure(EntityTypeBuilder<ChannelAccount> builder)
     {
-        builder.ToTable("channel_accounts");
-        builder.HasKey(c => c.Id);
+        builder.ToTable("ChannelAccount");
+        builder.HasKey(c => c.Id).HasName("PK_ChannelAccount");
+        builder.Property(c => c.Id).HasColumnName("ChannelAccountId");
         builder.Property(c => c.ExternalId).IsRequired().HasMaxLength(200);
         builder.Property(c => c.DisplayName).IsRequired().HasMaxLength(200);
-        builder.HasIndex(c => new { c.Type, c.ExternalId }).IsUnique();
+        builder.HasIndex(c => new { c.Type, c.ExternalId }).IsUnique().HasDatabaseName("UQ_ChannelAccount_Type_ExternalId");
     }
 }

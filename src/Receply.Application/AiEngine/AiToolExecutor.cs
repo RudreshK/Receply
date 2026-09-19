@@ -38,7 +38,7 @@ public class AiToolExecutor(ISender sender, IApplicationDbContext db) : IAiToolE
                 AiToolCatalog.BookAppointment => await BookAsync(root, context, cancellationToken),
 
                 AiToolCatalog.ListMyAppointments => await sender.Send(
-                    new ListUpcomingAppointmentsQuery(context.TenantId, context.CustomerId), cancellationToken),
+                    new ListUpcomingAppointmentsQuery(context.TenantId, context.ClientId), cancellationToken),
 
                 AiToolCatalog.RescheduleAppointment => await RescheduleAsync(root, context, cancellationToken),
 
@@ -78,7 +78,7 @@ public class AiToolExecutor(ISender sender, IApplicationDbContext db) : IAiToolE
             try
             {
                 var appointmentId = await sender.Send(
-                    new BookAppointmentCommand(context.TenantId, context.CustomerId, service.Id, resource.Id, resource.LocationId, startUtc),
+                    new BookAppointmentCommand(context.TenantId, context.ClientId, service.Id, resource.Id, resource.BranchId, startUtc),
                     cancellationToken);
 
                 return new
@@ -106,7 +106,7 @@ public class AiToolExecutor(ISender sender, IApplicationDbContext db) : IAiToolE
 
         await EnsureOwnedAppointment(appointmentId, context, cancellationToken);
 
-        await sender.Send(new RescheduleAppointmentCommand(appointmentId, newStartUtc), cancellationToken);
+        await sender.Send(new RescheduleAppointmentCommand(context.TenantId, appointmentId, newStartUtc), cancellationToken);
 
         return new { appointment_id = appointmentId, new_start_time = newStartUtc, status = "rescheduled" };
     }
@@ -118,7 +118,7 @@ public class AiToolExecutor(ISender sender, IApplicationDbContext db) : IAiToolE
 
         await EnsureOwnedAppointment(appointmentId, context, cancellationToken);
 
-        await sender.Send(new CancelAppointmentCommand(appointmentId, reason), cancellationToken);
+        await sender.Send(new CancelAppointmentCommand(context.TenantId, appointmentId, reason), cancellationToken);
 
         return new { appointment_id = appointmentId, status = "cancelled" };
     }
@@ -133,7 +133,7 @@ public class AiToolExecutor(ISender sender, IApplicationDbContext db) : IAiToolE
     private async Task EnsureOwnedAppointment(Guid appointmentId, AiToolContext context, CancellationToken cancellationToken)
     {
         var owned = await db.Appointments.AnyAsync(
-            a => a.Id == appointmentId && a.TenantId == context.TenantId && a.CustomerId == context.CustomerId, cancellationToken);
+            a => a.Id == appointmentId && a.TenantId == context.TenantId && a.ClientId == context.ClientId, cancellationToken);
 
         if (!owned)
             throw new KeyNotFoundException("No appointment with that id was found for this customer.");

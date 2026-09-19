@@ -2,27 +2,26 @@ using Receply.Domain.Common;
 
 namespace Receply.Domain.Crm;
 
-public class Customer : TenantOwnedEntity
+public class Client : TenantOwnedEntity
 {
     public string? FullName { get; private set; }
     public string PhoneNumber { get; private set; } = default!;
     public string? Email { get; private set; }
-    public DateTimeOffset CreatedAtUtc { get; private set; } = DateTimeOffset.UtcNow;
 
-    private Customer() { }
+    private Client() { }
 
-    public static Customer Create(Guid tenantId, string phoneNumber, string? fullName = null)
+    public static Client Create(Guid tenantId, string phoneNumber, string? fullName = null)
     {
         if (string.IsNullOrWhiteSpace(phoneNumber))
             throw new ArgumentException("Phone number is required.", nameof(phoneNumber));
 
-        var customer = new Customer
+        var client = new Client
         {
             PhoneNumber = phoneNumber,
             FullName = fullName
         };
-        customer.TenantId = tenantId;
-        return customer;
+        client.TenantId = tenantId;
+        return client;
     }
 
     public void UpdateProfile(string? fullName, string? email)

@@ -16,10 +16,9 @@ public class Tenant : AggregateRoot
     public BusinessType BusinessType { get; private set; }
     public string TimeZoneId { get; private set; } = "UTC";
     public TenantStatus Status { get; private set; } = TenantStatus.TrialActive;
-    public DateTimeOffset CreatedAtUtc { get; private set; } = DateTimeOffset.UtcNow;
 
-    private readonly List<Location> _locations = [];
-    public IReadOnlyCollection<Location> Locations => _locations.AsReadOnly();
+    private readonly List<Branch> _branches = [];
+    public IReadOnlyCollection<Branch> Branches => _branches.AsReadOnly();
 
     private Tenant() { }
 
@@ -36,11 +35,11 @@ public class Tenant : AggregateRoot
         };
     }
 
-    public Location AddLocation(string name, string address)
+    public Branch AddBranch(string name, string address)
     {
-        var location = Location.Create(Id, name, address);
-        _locations.Add(location);
-        return location;
+        var branch = Branch.Create(Id, name, address);
+        _branches.Add(branch);
+        return branch;
     }
 
     public void Suspend() => Status = TenantStatus.Suspended;

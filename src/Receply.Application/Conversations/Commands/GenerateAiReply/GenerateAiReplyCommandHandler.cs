@@ -29,21 +29,21 @@ public class GenerateAiReplyCommandHandler(
             return;
 
         var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Id == request.TenantId, cancellationToken);
-        var customer = await db.Customers.FirstOrDefaultAsync(c => c.Id == conversation.CustomerId, cancellationToken);
+        var client = await db.Clients.FirstOrDefaultAsync(c => c.Id == conversation.ClientId, cancellationToken);
         var channelAccount = await db.ChannelAccounts.FirstOrDefaultAsync(c => c.Id == conversation.ChannelAccountId, cancellationToken);
 
-        if (tenant is null || customer is null || channelAccount is null)
+        if (tenant is null || client is null || channelAccount is null)
             return;
 
         var systemPrompt = await BuildSystemPromptAsync(tenant.Id, tenant.Name, tenant.BusinessType.ToString(), tenant.TimeZoneId, cancellationToken);
 
         var messages = conversation.Messages
-            .Where(m => m.Sender is MessageSender.Customer or MessageSender.Ai)
+            .Where(m => m.Sender is MessageSender.Client or MessageSender.Ai)
             .OrderBy(m => m.SentAtUtc)
-            .Select(m => AiMessage.FromText(m.Sender == MessageSender.Customer ? AiMessageRole.User : AiMessageRole.Assistant, m.Body))
+            .Select(m => AiMessage.FromText(m.Sender == MessageSender.Client ? AiMessageRole.User : AiMessageRole.Assistant, m.Body))
             .ToList();
 
-        var toolContext = new AiToolContext(tenant.Id, conversation.Id, customer.Id);
+        var toolContext = new AiToolContext(tenant.Id, conversation.Id, client.Id);
 
         string? finalText = null;
 
@@ -79,7 +79,7 @@ public class GenerateAiReplyCommandHandler(
         conversation.AddMessage(MessageDirection.Outbound, MessageSender.Ai, finalText);
         await db.SaveChangesAsync(cancellationToken);
 
-        await channelProvider.SendMessageAsync(channelAccount, customer.PhoneNumber, finalText, cancellationToken);
+        await channelProvider.SendMessageAsync(channelAccount, client.PhoneNumber, finalText, cancellationToken);
     }
 
     private async Task<string> BuildSystemPromptAsync(Guid tenantId, string tenantName, string businessType, string timeZoneId, CancellationToken cancellationToken)

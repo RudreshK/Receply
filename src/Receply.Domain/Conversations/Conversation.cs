@@ -12,10 +12,10 @@ public enum HandoffStatus
 
 public class Conversation : TenantOwnedEntity
 {
-    public Guid CustomerId { get; private set; }
+    public Guid ClientId { get; private set; }
     public Guid ChannelAccountId { get; private set; }
     public HandoffStatus Status { get; private set; } = HandoffStatus.AiHandled;
-    public Guid? AssignedStaffMemberId { get; private set; }
+    public Guid? AssignedStaffId { get; private set; }
     public DateTimeOffset StartedAtUtc { get; private set; } = DateTimeOffset.UtcNow;
 
     private readonly List<Message> _messages = [];
@@ -23,11 +23,11 @@ public class Conversation : TenantOwnedEntity
 
     private Conversation() { }
 
-    public static Conversation Start(Guid tenantId, Guid customerId, Guid channelAccountId)
+    public static Conversation Start(Guid tenantId, Guid clientId, Guid channelAccountId)
     {
         var conversation = new Conversation
         {
-            CustomerId = customerId,
+            ClientId = clientId,
             ChannelAccountId = channelAccountId
         };
         conversation.TenantId = tenantId;
@@ -50,11 +50,11 @@ public class Conversation : TenantOwnedEntity
         Raise(new HandoffRequested(TenantId, Id, reason));
     }
 
-    public void AssignHuman(Guid staffMemberId)
+    public void AssignHuman(Guid staffId)
     {
         Status = HandoffStatus.HumanAssigned;
-        AssignedStaffMemberId = staffMemberId;
-        Raise(new HandoffAssigned(TenantId, Id, staffMemberId));
+        AssignedStaffId = staffId;
+        Raise(new HandoffAssigned(TenantId, Id, staffId));
     }
 
     public void Resolve()

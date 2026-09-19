@@ -6,6 +6,7 @@ public class CancelAppointmentCommandValidator : AbstractValidator<CancelAppoint
 {
     public CancelAppointmentCommandValidator()
     {
+        RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.AppointmentId).NotEmpty();
         RuleFor(x => x.Reason).MaximumLength(500);
     }

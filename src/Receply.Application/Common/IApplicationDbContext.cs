@@ -14,9 +14,9 @@ namespace Receply.Application.Common;
 public interface IApplicationDbContext
 {
     DbSet<Tenant> Tenants { get; }
-    DbSet<Location> Locations { get; }
-    DbSet<StaffMember> StaffMembers { get; }
-    DbSet<Customer> Customers { get; }
+    DbSet<Branch> Branches { get; }
+    DbSet<Staff> Staff { get; }
+    DbSet<Client> Clients { get; }
     DbSet<ChannelAccount> ChannelAccounts { get; }
     DbSet<Service> Services { get; }
     DbSet<Resource> Resources { get; }

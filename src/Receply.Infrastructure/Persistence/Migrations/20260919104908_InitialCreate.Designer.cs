@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Receply.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Receply.Infrastructure.Persistence;
 namespace Receply.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ReceplyDbContext))]
-    partial class ReceplyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260919104908_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

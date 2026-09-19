@@ -10,18 +10,18 @@ public enum StaffRole
     Provider
 }
 
-public class StaffMember : TenantOwnedEntity
+public class Staff : TenantOwnedEntity
 {
     public string FullName { get; private set; } = default!;
     public string Email { get; private set; } = default!;
     public StaffRole Role { get; private set; }
     public bool IsActive { get; private set; } = true;
 
-    private StaffMember() { }
+    private Staff() { }
 
-    public static StaffMember Create(Guid tenantId, string fullName, string email, StaffRole role)
+    public static Staff Create(Guid tenantId, string fullName, string email, StaffRole role)
     {
-        var staff = new StaffMember
+        var staff = new Staff
         {
             FullName = fullName,
             Email = email,

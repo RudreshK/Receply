@@ -16,7 +16,7 @@ public class ListUpcomingAppointmentsQueryHandler(IApplicationDbContext db)
             from appointment in db.Appointments
             join service in db.Services on appointment.ServiceId equals service.Id
             where appointment.TenantId == request.TenantId
-                  && appointment.CustomerId == request.CustomerId
+                  && appointment.ClientId == request.ClientId
                   && appointment.StartUtc >= now
                   && appointment.Status != AppointmentStatus.Cancelled
                   && appointment.Status != AppointmentStatus.Completed

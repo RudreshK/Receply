@@ -7,10 +7,10 @@ public class BookAppointmentCommandValidator : AbstractValidator<BookAppointment
     public BookAppointmentCommandValidator()
     {
         RuleFor(x => x.TenantId).NotEmpty();
-        RuleFor(x => x.CustomerId).NotEmpty();
+        RuleFor(x => x.ClientId).NotEmpty();
         RuleFor(x => x.ServiceId).NotEmpty();
         RuleFor(x => x.ResourceId).NotEmpty();
-        RuleFor(x => x.LocationId).NotEmpty();
+        RuleFor(x => x.BranchId).NotEmpty();
         RuleFor(x => x.StartUtc).GreaterThan(DateTimeOffset.UtcNow).WithMessage("Appointment must start in the future.");
     }
 }

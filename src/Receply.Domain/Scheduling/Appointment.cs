@@ -13,10 +13,10 @@ public enum AppointmentStatus
 
 public class Appointment : TenantOwnedEntity
 {
-    public Guid CustomerId { get; private set; }
+    public Guid ClientId { get; private set; }
     public Guid ServiceId { get; private set; }
     public Guid ResourceId { get; private set; }
-    public Guid LocationId { get; private set; }
+    public Guid BranchId { get; private set; }
     public DateTimeOffset StartUtc { get; private set; }
     public DateTimeOffset EndUtc { get; private set; }
     public AppointmentStatus Status { get; private set; }
@@ -25,7 +25,7 @@ public class Appointment : TenantOwnedEntity
     private Appointment() { }
 
     public static Appointment Book(
-        Guid tenantId, Guid customerId, Guid serviceId, Guid resourceId, Guid locationId,
+        Guid tenantId, Guid clientId, Guid serviceId, Guid resourceId, Guid branchId,
         DateTimeOffset startUtc, TimeSpan duration)
     {
         if (duration <= TimeSpan.Zero)
@@ -33,10 +33,10 @@ public class Appointment : TenantOwnedEntity
 
         var appointment = new Appointment
         {
-            CustomerId = customerId,
+            ClientId = clientId,
             ServiceId = serviceId,
             ResourceId = resourceId,
-            LocationId = locationId,
+            BranchId = branchId,
             StartUtc = startUtc,
             EndUtc = startUtc + duration,
             Status = AppointmentStatus.Booked

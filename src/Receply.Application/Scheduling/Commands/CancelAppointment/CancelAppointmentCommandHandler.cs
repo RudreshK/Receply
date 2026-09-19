@@ -8,7 +8,8 @@ public class CancelAppointmentCommandHandler(IApplicationDbContext db) : IReques
 {
     public async Task Handle(CancelAppointmentCommand request, CancellationToken cancellationToken)
     {
-        var appointment = await db.Appointments.FirstOrDefaultAsync(a => a.Id == request.AppointmentId, cancellationToken)
+        var appointment = await db.Appointments.FirstOrDefaultAsync(
+            a => a.Id == request.AppointmentId && a.TenantId == request.TenantId, cancellationToken)
             ?? throw new KeyNotFoundException($"Appointment '{request.AppointmentId}' not found.");
 
         appointment.Cancel(request.Reason);

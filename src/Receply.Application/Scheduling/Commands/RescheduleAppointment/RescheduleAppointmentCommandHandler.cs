@@ -8,7 +8,8 @@ public class RescheduleAppointmentCommandHandler(IApplicationDbContext db) : IRe
 {
     public async Task Handle(RescheduleAppointmentCommand request, CancellationToken cancellationToken)
     {
-        var appointment = await db.Appointments.FirstOrDefaultAsync(a => a.Id == request.AppointmentId, cancellationToken)
+        var appointment = await db.Appointments.FirstOrDefaultAsync(
+            a => a.Id == request.AppointmentId && a.TenantId == request.TenantId, cancellationToken)
             ?? throw new KeyNotFoundException($"Appointment '{request.AppointmentId}' not found.");
 
         var duration = appointment.EndUtc - appointment.StartUtc;

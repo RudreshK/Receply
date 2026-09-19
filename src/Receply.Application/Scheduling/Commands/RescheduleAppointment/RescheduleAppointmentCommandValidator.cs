@@ -6,6 +6,7 @@ public class RescheduleAppointmentCommandValidator : AbstractValidator<Reschedul
 {
     public RescheduleAppointmentCommandValidator()
     {
+        RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.AppointmentId).NotEmpty();
         RuleFor(x => x.NewStartUtc).GreaterThan(DateTimeOffset.UtcNow).WithMessage("New start time must be in the future.");
     }

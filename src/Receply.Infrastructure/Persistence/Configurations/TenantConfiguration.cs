@@ -8,38 +8,16 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {
-        builder.ToTable("tenants");
-        builder.HasKey(t => t.Id);
+        builder.ToTable("Tenant");
+        builder.HasKey(t => t.Id).HasName("PK_Tenant");
+        builder.Property(t => t.Id).HasColumnName("TenantId");
         builder.Property(t => t.Name).IsRequired().HasMaxLength(200);
         builder.Property(t => t.TimeZoneId).IsRequired().HasMaxLength(100);
 
-        builder.HasMany(t => t.Locations)
+        builder.HasMany(t => t.Branches)
             .WithOne()
-            .HasForeignKey(l => l.TenantId)
+            .HasForeignKey(b => b.TenantId)
+            .HasConstraintName("FK_Branch_Tenant")
             .OnDelete(DeleteBehavior.Cascade);
-    }
-}
-
-public class LocationConfiguration : IEntityTypeConfiguration<Location>
-{
-    public void Configure(EntityTypeBuilder<Location> builder)
-    {
-        builder.ToTable("locations");
-        builder.HasKey(l => l.Id);
-        builder.Property(l => l.Name).IsRequired().HasMaxLength(200);
-        builder.Property(l => l.Address).IsRequired().HasMaxLength(500);
-        builder.HasIndex(l => l.TenantId);
-    }
-}
-
-public class StaffMemberConfiguration : IEntityTypeConfiguration<StaffMember>
-{
-    public void Configure(EntityTypeBuilder<StaffMember> builder)
-    {
-        builder.ToTable("staff_members");
-        builder.HasKey(s => s.Id);
-        builder.Property(s => s.FullName).IsRequired().HasMaxLength(200);
-        builder.Property(s => s.Email).IsRequired().HasMaxLength(320);
-        builder.HasIndex(s => new { s.TenantId, s.Email }).IsUnique();
     }
 }

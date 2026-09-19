@@ -1,6 +1,6 @@
 namespace Receply.Application.AiEngine;
 
-public record AiToolContext(Guid TenantId, Guid ConversationId, Guid CustomerId);
+public record AiToolContext(Guid TenantId, Guid ConversationId, Guid ClientId);
 
 public interface IAiToolExecutor
 {

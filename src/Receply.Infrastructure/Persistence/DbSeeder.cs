@@ -28,12 +28,12 @@ public static class DbSeeder
             return;
 
         var tenant = Tenant.Create("Demo Business", BusinessType.Other, "Asia/Kolkata");
-        var location = tenant.AddLocation("Main Location", "");
+        var branch = tenant.AddBranch("Main Branch", "");
 
         var consultation = Service.Create(tenant.Id, "Consultation", TimeSpan.FromMinutes(30), 0m);
         var generalAppointment = Service.Create(tenant.Id, "General Appointment", TimeSpan.FromMinutes(30), 0m);
 
-        var resource = Resource.Create(tenant.Id, location.Id, "Front Desk", ResourceType.Staff);
+        var resource = Resource.Create(tenant.Id, branch.Id, "Front Desk", ResourceType.Staff);
         foreach (var day in new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday })
             resource.AddAvailabilityRule(day, new TimeOnly(9, 0), new TimeOnly(18, 0));
 

@@ -9,7 +9,7 @@ public class BookAppointmentCommandHandler(IApplicationDbContext db) : IRequestH
 {
     public async Task<Guid> Handle(BookAppointmentCommand request, CancellationToken cancellationToken)
     {
-        var service = await db.Services.FirstOrDefaultAsync(s => s.Id == request.ServiceId, cancellationToken)
+        var service = await db.Services.FirstOrDefaultAsync(s => s.Id == request.ServiceId && s.TenantId == request.TenantId, cancellationToken)
             ?? throw new KeyNotFoundException($"Service '{request.ServiceId}' not found.");
 
         var endUtc = request.StartUtc + service.Duration;
@@ -28,7 +28,7 @@ public class BookAppointmentCommandHandler(IApplicationDbContext db) : IRequestH
             throw new InvalidOperationException("The requested time slot is no longer available.");
 
         var appointment = Appointment.Book(
-            request.TenantId, request.CustomerId, request.ServiceId, request.ResourceId, request.LocationId,
+            request.TenantId, request.ClientId, request.ServiceId, request.ResourceId, request.BranchId,
             request.StartUtc, service.Duration);
 
         db.Appointments.Add(appointment);

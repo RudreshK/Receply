@@ -2,4 +2,4 @@ using MediatR;
 
 namespace Receply.Application.Scheduling.Commands.CancelAppointment;
 
-public record CancelAppointmentCommand(Guid AppointmentId, string? Reason) : IRequest;
+public record CancelAppointmentCommand(Guid TenantId, Guid AppointmentId, string? Reason) : IRequest;
