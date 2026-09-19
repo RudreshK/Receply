@@ -1,0 +1,28 @@
+using Microsoft.EntityFrameworkCore;
+using Receply.Domain.Channels;
+using Receply.Domain.Conversations;
+using Receply.Domain.Crm;
+using Receply.Domain.Scheduling;
+using Receply.Domain.Tenancy;
+
+namespace Receply.Application.Common;
+
+/// <summary>
+/// Persistence seam the Application layer codes against, implemented by Receply.Infrastructure's
+/// ReceplyDbContext. Keeps Application free of a direct EF/Infrastructure dependency.
+/// </summary>
+public interface IApplicationDbContext
+{
+    DbSet<Tenant> Tenants { get; }
+    DbSet<Location> Locations { get; }
+    DbSet<StaffMember> StaffMembers { get; }
+    DbSet<Customer> Customers { get; }
+    DbSet<ChannelAccount> ChannelAccounts { get; }
+    DbSet<Service> Services { get; }
+    DbSet<Resource> Resources { get; }
+    DbSet<Appointment> Appointments { get; }
+    DbSet<Conversation> Conversations { get; }
+    DbSet<Message> Messages { get; }
+
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+}

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Receply.Workers-06323892-1ee2-4248-8bd4-1a5f9cc44f45</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Receply.Application\Receply.Application.csproj" />
+    <ProjectReference Include="..\Receply.Infrastructure\Receply.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
