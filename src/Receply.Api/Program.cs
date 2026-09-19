@@ -1,10 +1,13 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Receply.Api.BackgroundProcessing;
 using Receply.Api.Middleware;
 using Receply.Application;
 using Receply.Infrastructure;
+using Receply.Infrastructure.Channels.WhatsApp;
+using Receply.Infrastructure.Persistence;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +46,14 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+using (var seedScope = app.Services.CreateScope())
+{
+    var db = seedScope.ServiceProvider.GetRequiredService<ReceplyDbContext>();
+    var whatsAppOptions = seedScope.ServiceProvider.GetRequiredService<IOptions<WhatsAppOptions>>();
+    var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await DbSeeder.SeedAsync(db, whatsAppOptions, seedLogger);
+}
 
 if (app.Environment.IsDevelopment())
 {
