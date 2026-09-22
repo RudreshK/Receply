@@ -48,6 +48,24 @@ export class AuthService {
       .pipe(tap((result) => this.storeSession(result)));
   }
 
+  requestSignupOtp(phoneNumber: string): Observable<RequestOtpResponse> {
+    return this.http.post<RequestOtpResponse>(`${environment.apiBaseUrl}/api/signup/request-otp`, { phoneNumber });
+  }
+
+  completeSignup(payload: {
+    phoneNumber: string;
+    code: string;
+    businessName: string;
+    businessType: string;
+    timeZoneId: string;
+    ownerFullName: string;
+    ownerEmail: string | null;
+  }): Observable<VerifyOtpResponse> {
+    return this.http
+      .post<VerifyOtpResponse>(`${environment.apiBaseUrl}/api/signup/complete`, payload)
+      .pipe(tap((result) => this.storeSession(result)));
+  }
+
   logout(): void {
     this.session.set(null);
     sessionStorage.removeItem(STORAGE_KEY);

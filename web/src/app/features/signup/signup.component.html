@@ -1,0 +1,54 @@
+<div class="signup-page">
+  <div class="signup-card">
+    <h1>Start your free trial</h1>
+    <p class="subtitle">Set up your business on Receply</p>
+
+    @if (step() === 'details') {
+      <form (ngSubmit)="requestOtp()">
+        <label for="businessName">Business name</label>
+        <input id="businessName" name="businessName" type="text" placeholder="Glow Salon" [(ngModel)]="businessName" required />
+
+        <label for="businessType">Business type</label>
+        <select id="businessType" name="businessType" [(ngModel)]="businessType">
+          @for (type of businessTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+
+        <label for="timeZoneId">Time zone (IANA ID)</label>
+        <input id="timeZoneId" name="timeZoneId" type="text" placeholder="Asia/Kolkata" [(ngModel)]="timeZoneId" required />
+
+        <label for="ownerFullName">Your name</label>
+        <input id="ownerFullName" name="ownerFullName" type="text" placeholder="Jordan Rivera" [(ngModel)]="ownerFullName" required />
+
+        <label for="ownerPhoneNumber">Mobile number</label>
+        <input id="ownerPhoneNumber" name="ownerPhoneNumber" type="tel" placeholder="+1 555 0100" [(ngModel)]="ownerPhoneNumber" required />
+
+        <label for="ownerEmail">Email (optional)</label>
+        <input id="ownerEmail" name="ownerEmail" type="email" placeholder="you@business.com" [(ngModel)]="ownerEmail" />
+
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Sending code...' : 'Send verification code' }}
+        </button>
+      </form>
+    } @else {
+      <form (ngSubmit)="completeSignup()">
+        <label for="code">6-digit code</label>
+        <input id="code" name="code" type="text" inputmode="numeric" maxlength="6" [(ngModel)]="code" required />
+        @if (devCode()) {
+          <p class="dev-hint">Dev mode - your code is <strong>{{ devCode() }}</strong></p>
+        }
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Creating account...' : 'Verify & create account' }}
+        </button>
+        <button type="button" class="link-button" (click)="backToDetails()">Edit details</button>
+      </form>
+    }
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <p class="signin-note">Already have an account? <a routerLink="/login">Sign in</a></p>
+  </div>
+</div>
