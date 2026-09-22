@@ -25,6 +25,10 @@ public interface IApplicationDbContext
     DbSet<Appointment> Appointments { get; }
     DbSet<Conversation> Conversations { get; }
     DbSet<Message> Messages { get; }
+    DbSet<LoginOtp> LoginOtps { get; }
+    DbSet<BranchWorkingHours> BranchWorkingHours { get; }
+    DbSet<Holiday> Holidays { get; }
+    DbSet<Faq> Faqs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -3,9 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Receply.Application.AiEngine;
+using Receply.Application.Auth;
 using Receply.Application.Channels;
 using Receply.Application.Common;
 using Receply.Infrastructure.AiEngine;
+using Receply.Infrastructure.Auth;
 using Receply.Infrastructure.Channels.WhatsApp;
 using Receply.Infrastructure.Multitenancy;
 using Receply.Infrastructure.Persistence;
@@ -34,6 +36,10 @@ public static class DependencyInjection
 
         services.Configure<ClaudeOptions>(configuration.GetSection(ClaudeOptions.SectionName));
         services.AddSingleton<IAiConversationAgent, ClaudeConversationAgent>();
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IOtpSender, LoggingOtpSender>();
 
         services.AddQuartz();
         services.AddQuartzHostedService(opts => opts.WaitForJobsToComplete = true);

@@ -89,6 +89,11 @@ public class GenerateAiReplyCommandHandler(
             .OrderBy(s => s.Name)
             .ToListAsync(cancellationToken);
 
+        var faqs = await db.Faqs
+            .Where(f => f.TenantId == tenantId && f.IsActive)
+            .OrderBy(f => f.Question)
+            .ToListAsync(cancellationToken);
+
         var nowLocal = TryGetNowLocal(timeZoneId);
 
         var sb = new StringBuilder();
@@ -110,6 +115,14 @@ public class GenerateAiReplyCommandHandler(
             sb.AppendLine("Services offered:");
             foreach (var service in services)
                 sb.AppendLine($"- {service.Name}: {service.Duration.TotalMinutes} min, {service.Price:C}");
+        }
+
+        if (faqs.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("Frequently asked questions - use these verbatim when a customer asks something covered here:");
+            foreach (var faq in faqs)
+                sb.AppendLine($"- Q: {faq.Question}\n  A: {faq.Answer}");
         }
 
         return sb.ToString();

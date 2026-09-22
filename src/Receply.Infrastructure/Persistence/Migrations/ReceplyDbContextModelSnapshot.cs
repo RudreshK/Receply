@@ -588,6 +588,230 @@ namespace Receply.Infrastructure.Persistence.Migrations
                     b.ToTable("Branch", (string)null);
                 });
 
+            modelBuilder.Entity("Receply.Domain.Tenancy.BranchWorkingHours", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("BranchWorkingHoursId");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly?>("CloseTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<TimeOnly?>("OpenTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_BranchWorkingHours");
+
+                    b.HasIndex("BranchId", "DayOfWeek")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_BranchWorkingHours_Branch_DayOfWeek");
+
+                    b.ToTable("BranchWorkingHours", (string)null);
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.Faq", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("FaqId");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_Faq");
+
+                    b.HasIndex("TenantId", "IsActive")
+                        .HasDatabaseName("IX_Faq_Tenant_IsActive");
+
+                    b.ToTable("Faq", (string)null);
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.Holiday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("HolidayId");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_Holiday");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("TenantId", "Date")
+                        .HasDatabaseName("IX_Holiday_Tenant_Date");
+
+                    b.ToTable("Holiday", (string)null);
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.LoginOtp", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("LoginOtpId");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset?>("ConsumedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_LoginOtp");
+
+                    b.HasIndex("StaffId")
+                        .HasDatabaseName("IX_LoginOtp_StaffId");
+
+                    b.ToTable("LoginOtp", (string)null);
+                });
+
             modelBuilder.Entity("Receply.Domain.Tenancy.Staff", b =>
                 {
                     b.Property<Guid>("Id")
@@ -625,6 +849,11 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasPrecision(0)
                         .HasColumnType("timestamp(0) with time zone");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
@@ -639,6 +868,10 @@ namespace Receply.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK_Staff");
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Staff_PhoneNumber");
 
                     b.HasIndex("TenantId", "Email")
                         .IsUnique()
@@ -727,6 +960,35 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Branch_Tenant");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.BranchWorkingHours", b =>
+                {
+                    b.HasOne("Receply.Domain.Tenancy.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_BranchWorkingHours_Branch");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.Holiday", b =>
+                {
+                    b.HasOne("Receply.Domain.Tenancy.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Holiday_Branch");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.LoginOtp", b =>
+                {
+                    b.HasOne("Receply.Domain.Tenancy.Staff", null)
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_LoginOtp_Staff");
                 });
 
             modelBuilder.Entity("Receply.Domain.Conversations.Conversation", b =>

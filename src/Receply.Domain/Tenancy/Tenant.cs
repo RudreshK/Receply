@@ -42,6 +42,16 @@ public class Tenant : AggregateRoot
         return branch;
     }
 
+    public void UpdateProfile(string name, BusinessType businessType, string timeZoneId)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Tenant name is required.", nameof(name));
+
+        Name = name;
+        BusinessType = businessType;
+        TimeZoneId = timeZoneId;
+    }
+
     public void Suspend() => Status = TenantStatus.Suspended;
 
     public void Reactivate() => Status = TenantStatus.Active;

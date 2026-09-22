@@ -27,6 +27,10 @@ public class ReceplyDbContext(DbContextOptions<ReceplyDbContext> options, ITenan
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<Message> Messages => Set<Message>();
+    public DbSet<LoginOtp> LoginOtps => Set<LoginOtp>();
+    public DbSet<BranchWorkingHours> BranchWorkingHours => Set<BranchWorkingHours>();
+    public DbSet<Holiday> Holidays => Set<Holiday>();
+    public DbSet<Faq> Faqs => Set<Faq>();
 
     /// <summary>Entities that opt out of optimistic concurrency tracking - immutable/high-volume rows where it adds no value.</summary>
     private static readonly Type[] RowVersionExemptTypes = [typeof(Message)];
