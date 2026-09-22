@@ -28,6 +28,7 @@ public class ReceplyDbContext(DbContextOptions<ReceplyDbContext> options, ITenan
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<LoginOtp> LoginOtps => Set<LoginOtp>();
+    public DbSet<SignupOtp> SignupOtps => Set<SignupOtp>();
     public DbSet<BranchWorkingHours> BranchWorkingHours => Set<BranchWorkingHours>();
     public DbSet<Holiday> Holidays => Set<Holiday>();
     public DbSet<Faq> Faqs => Set<Faq>();

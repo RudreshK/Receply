@@ -26,6 +26,7 @@ public interface IApplicationDbContext
     DbSet<Conversation> Conversations { get; }
     DbSet<Message> Messages { get; }
     DbSet<LoginOtp> LoginOtps { get; }
+    DbSet<SignupOtp> SignupOtps { get; }
     DbSet<BranchWorkingHours> BranchWorkingHours { get; }
     DbSet<Holiday> Holidays { get; }
     DbSet<Faq> Faqs { get; }
