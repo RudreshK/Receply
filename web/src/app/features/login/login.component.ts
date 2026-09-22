@@ -51,7 +51,7 @@ export class LoginComponent {
     this.auth.verifyOtp(this.phoneNumber.trim(), this.code.trim()).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigateByUrl('/dashboard');
+        this.router.navigateByUrl('/app/dashboard');
       },
       error: () => {
         this.loading.set(false);

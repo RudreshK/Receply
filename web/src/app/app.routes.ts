@@ -2,9 +2,13 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
-  { path: 'login', loadComponent: () => import('./features/login/login.component').then((m) => m.LoginComponent) },
   {
     path: '',
+    loadComponent: () => import('./features/landing/landing.component').then((m) => m.LandingComponent)
+  },
+  { path: 'login', loadComponent: () => import('./features/login/login.component').then((m) => m.LoginComponent) },
+  {
+    path: 'app',
     loadComponent: () => import('./features/shell/shell.component').then((m) => m.ShellComponent),
     canActivate: [authGuard],
     children: [
@@ -32,5 +36,5 @@ export const routes: Routes = [
       { path: 'faq', loadComponent: () => import('./features/faq/faq.component').then((m) => m.FaqComponent) }
     ]
   },
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: '' }
 ];

@@ -12,12 +12,12 @@ import { AuthService } from '../../core/auth.service';
 })
 export class ShellComponent {
   readonly navLinks = [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/settings', label: 'Business Settings' },
-    { path: '/working-hours', label: 'Working Hours' },
-    { path: '/holidays', label: 'Holidays' },
-    { path: '/appointments', label: 'Appointments' },
-    { path: '/faq', label: 'FAQ' }
+    { path: '/app/dashboard', label: 'Dashboard' },
+    { path: '/app/settings', label: 'Business Settings' },
+    { path: '/app/working-hours', label: 'Working Hours' },
+    { path: '/app/holidays', label: 'Holidays' },
+    { path: '/app/appointments', label: 'Appointments' },
+    { path: '/app/faq', label: 'FAQ' }
   ];
 
   constructor(readonly auth: AuthService, private readonly router: Router) {}
