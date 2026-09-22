@@ -1,0 +1,80 @@
+h1 {
+  margin: 0 0 20px;
+  font-size: 22px;
+  color: #1a1a2e;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 16px;
+  max-width: 240px;
+}
+
+.header button {
+  border: none;
+  background: #f3f4f6;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #f0f0f2;
+  font-size: 13px;
+}
+
+th {
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status.completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status.noshow {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 24px;
+}

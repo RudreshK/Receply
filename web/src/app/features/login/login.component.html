@@ -1,0 +1,32 @@
+<div class="login-page">
+  <div class="login-card">
+    <h1>Receply</h1>
+    <p class="subtitle">Sign in with your mobile number</p>
+
+    @if (step() === 'phone') {
+      <form (ngSubmit)="requestOtp()">
+        <label for="phone">Mobile number</label>
+        <input id="phone" name="phone" type="tel" placeholder="+1 555 0100" [(ngModel)]="phoneNumber" required />
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Sending code...' : 'Send code' }}
+        </button>
+      </form>
+    } @else {
+      <form (ngSubmit)="verifyOtp()">
+        <label for="code">6-digit code</label>
+        <input id="code" name="code" type="text" inputmode="numeric" maxlength="6" [(ngModel)]="code" required />
+        @if (devCode()) {
+          <p class="dev-hint">Dev mode - your code is <strong>{{ devCode() }}</strong></p>
+        }
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Verifying...' : 'Verify & sign in' }}
+        </button>
+        <button type="button" class="link-button" (click)="backToPhone()">Use a different number</button>
+      </form>
+    }
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+  </div>
+</div>

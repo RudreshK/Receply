@@ -1,0 +1,25 @@
+<h1>Business Settings</h1>
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else {
+  <form class="panel" (ngSubmit)="save()">
+    <label for="name">Business name</label>
+    <input id="name" name="name" type="text" [(ngModel)]="name" required />
+
+    <label for="businessType">Business type</label>
+    <select id="businessType" name="businessType" [(ngModel)]="businessType">
+      @for (type of businessTypes; track type) {
+        <option [value]="type">{{ type }}</option>
+      }
+    </select>
+
+    <label for="timeZoneId">Time zone (IANA ID)</label>
+    <input id="timeZoneId" name="timeZoneId" type="text" placeholder="Asia/Kolkata" [(ngModel)]="timeZoneId" required />
+
+    <button type="submit" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save changes' }}</button>
+    @if (saved()) {
+      <p class="success">Saved.</p>
+    }
+  </form>
+}
