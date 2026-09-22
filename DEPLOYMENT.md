@@ -54,12 +54,11 @@ For later deploys after a code change, `azd deploy` alone is faster (skips re-pr
    - **Verify Token**: the same value you set as `WHATSAPP_WEBHOOK_VERIFY_TOKEN` above.
 3. Subscribe to the `messages` webhook field once verification succeeds.
 
-## 5. Custom domain (once `receply.com` is registered)
+## 5. Custom domain — `receply.in` (registered on GoDaddy)
 
-1. Register the domain (any registrar, or Azure's own **App Service Domains** if you want it in the same billing account).
-2. In the Azure Portal, on the `api` App Service → **Custom domains** → add `www.receply.com` (or the apex, with the CNAME/A record Azure gives you to create at your registrar).
-3. Once DNS verifies, App Service issues a free **managed certificate** automatically — no manual TLS cert handling needed.
-4. Update Meta's Callback URL to the new domain once it's live, and re-verify.
+1. In the Azure Portal, on the `api` App Service → **Custom domains** → add `api.receply.in`, and separately on wherever the Angular UI ends up hosted, add `www.receply.in` (or the apex). Azure gives you the exact CNAME/TXT records to create; add them in GoDaddy's DNS management for `receply.in`.
+2. Once DNS verifies, App Service issues a free **managed certificate** automatically — no manual TLS cert handling needed.
+3. Update Meta's Callback URL to `https://api.receply.in/api/webhooks/whatsapp` once it's live, and re-verify.
 
 ## 6. CI/CD via GitHub Actions (optional)
 
