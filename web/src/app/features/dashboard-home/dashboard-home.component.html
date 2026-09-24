@@ -1,0 +1,22 @@
+<h1>Dashboard</h1>
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else if (stats()) {
+  <div class="cards">
+    <div class="card">
+      <div class="value">{{ stats()!.totalClients }}</div>
+      <div class="label">Total clients</div>
+    </div>
+    <div class="card">
+      <div class="value">{{ stats()!.newClientsThisMonth }}</div>
+      <div class="label">New this month</div>
+    </div>
+    <div class="card">
+      <div class="value">{{ stats()!.newClientsLastMonth }}</div>
+      <div class="label">New last month</div>
+    </div>
+  </div>
+} @else {
+  <p>Couldn't load stats.</p>
+}

@@ -32,6 +32,7 @@ var abbrs = {
   postgres: 'psql'
   logAnalytics: 'log'
   appInsights: 'appi'
+  staticWebApp: 'swa'
 }
 
 // --- Observability -----------------------------------------------------------------------
@@ -139,7 +140,11 @@ resource apiApp 'Microsoft.Web/sites@2023-12-01' = {
     siteConfig: {
       linuxFxVersion: 'DOCKER|mcr.microsoft.com/appsvc/staticsite:latest' // placeholder - `azd deploy` swaps in the real image
       acrUseManagedIdentityCreds: true
-      appSettings: commonAppSettings
+      // Appends the deployed Static Web App's default hostname to the Cors:AllowedOrigins array from
+      // appsettings.json (indices 0/1) so the Angular app can call the API before a custom domain is wired up.
+      appSettings: concat(commonAppSettings, [
+        { name: 'Cors__AllowedOrigins__2', value: 'https://${staticWebApp.properties.defaultHostname}' }
+      ])
     }
   }
 }
@@ -157,6 +162,23 @@ resource workersApp 'Microsoft.Web/sites@2023-12-01' = {
       linuxFxVersion: 'DOCKER|mcr.microsoft.com/appsvc/staticsite:latest' // placeholder - `azd deploy` swaps in the real image
       acrUseManagedIdentityCreds: true
       appSettings: commonAppSettings
+    }
+  }
+}
+
+// --- Static Web App (Angular frontend) ------------------------------------------------------
+// Pinned to a region Azure Static Web Apps actually supports, independent of `location` (SWA is only
+// offered in a handful of regions - centralus is broadly available and has no bearing on user latency
+// since SWA serves everything through its own global CDN regardless of the resource's "home" region).
+resource staticWebApp 'Microsoft.Web/staticSites@2023-12-01' = {
+  name: '${abbrs.staticWebApp}-${resourceToken}'
+  location: 'centralus'
+  tags: union(tags, { 'azd-service-name': 'web' })
+  sku: { name: 'Free', tier: 'Free' }
+  properties: {
+    // azd deploys via `azd deploy` (az cli / OIDC), not GitHub's own SWA action, so skip its auto-generated workflow.
+    buildProperties: {
+      skipGithubActionWorkflowGeneration: true
     }
   }
 }
@@ -187,3 +209,4 @@ resource workersAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 output containerRegistryLoginServer string = containerRegistry.properties.loginServer
 output apiUrl string = 'https://${apiApp.properties.defaultHostName}'
 output workersUrl string = 'https://${workersApp.properties.defaultHostName}'
+output webUrl string = 'https://${staticWebApp.properties.defaultHostname}'

@@ -9,5 +9,6 @@ public record CompleteSignupCommand(
     string BusinessName,
     string BusinessType,
     string TimeZoneId,
-    string OwnerFullName,
-    string? OwnerEmail) : IRequest<VerifyOtpResult>;
+    string OwnerFirstName,
+    string OwnerLastName,
+    string OwnerEmail) : IRequest<VerifyOtpResult>;

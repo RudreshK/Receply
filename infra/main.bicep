@@ -72,3 +72,4 @@ module resources 'resources.bicep' = {
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.containerRegistryLoginServer
 output API_BASE_URL string = resources.outputs.apiUrl
 output WORKERS_BASE_URL string = resources.outputs.workersUrl
+output WEB_BASE_URL string = resources.outputs.webUrl

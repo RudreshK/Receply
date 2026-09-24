@@ -3,8 +3,8 @@ namespace Receply.Domain.Tenancy;
 public enum BusinessType
 {
     Clinic,
-    Salon,
+    ScanningCenter,
+    Saloon,
     Gym,
-    CarService,
-    Other
+    ServiceCenter
 }

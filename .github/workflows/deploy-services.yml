@@ -1,13 +1,10 @@
-name: Deploy Everything to Azure (manual)
+name: Deploy Services to Azure
 
-# Manual full-stack deploy (api + workers + web) - for the initial `azd provision` or a full
-# redeploy. Day-to-day production deploys go through the two branch-specific workflows instead:
-#   - deploy-services.yml, triggered by pushes to release/services (api + workers only)
-#   - deploy-ui.yml, triggered by pushes to release/ui (web only)
-# This one no longer runs automatically on push to main - main is the integration branch, not
-# a deploy target - so trigger it by hand from the Actions tab when you need it.
+# Production deploy for the backend (api + workers) only. Merge into release/services when
+# you're ready to ship a backend change - this workflow then deploys just those two services,
+# leaving the Angular app (release/ui, deploy-ui.yml) untouched.
 #
-# Requires one-time setup before this will run successfully - see DEPLOYMENT.md:
+# Requires the same one-time setup as the original combined workflow - see DEPLOYMENT.md:
 #   - An azd environment already provisioned (`azd provision`), with its .azure/<env> state
 #     either committed to a private config store or recreated here via AZURE_ENV_NAME + vars.
 #   - Repo variables: AZURE_ENV_NAME, AZURE_LOCATION, AZURE_SUBSCRIPTION_ID.
@@ -17,6 +14,8 @@ name: Deploy Everything to Azure (manual)
 #     ANTHROPIC_API_KEY, JWT_SIGNING_KEY, POSTGRES_ADMIN_PASSWORD).
 
 on:
+  push:
+    branches: [release/services]
   workflow_dispatch:
 
 permissions:
@@ -58,5 +57,8 @@ jobs:
       - name: Provision infrastructure
         run: azd provision --no-prompt
 
-      - name: Deploy services
-        run: azd deploy --no-prompt
+      - name: Deploy api
+        run: azd deploy api --no-prompt
+
+      - name: Deploy workers
+        run: azd deploy workers --no-prompt

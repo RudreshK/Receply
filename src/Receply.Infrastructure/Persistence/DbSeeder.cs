@@ -27,7 +27,7 @@ public static class DbSeeder
         if (alreadySeeded)
             return;
 
-        var tenant = Tenant.Create("Demo Business", BusinessType.Other, "Asia/Kolkata");
+        var tenant = Tenant.Create("Demo Business", BusinessType.Clinic, "Asia/Kolkata");
         var branch = tenant.AddBranch("Main Branch", "");
 
         var consultation = Service.Create(tenant.Id, "Consultation", TimeSpan.FromMinutes(30), 0m);

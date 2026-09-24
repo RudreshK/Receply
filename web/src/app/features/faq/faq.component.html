@@ -1,0 +1,44 @@
+<h1>FAQ Auto-Reply</h1>
+<p class="hint">Active FAQs are given to the AI receptionist so it can answer common questions automatically on WhatsApp.</p>
+
+<div class="panel form">
+  <h2>Add a question</h2>
+  <label for="question">Question</label>
+  <input id="question" type="text" placeholder="Do you accept walk-ins?" [(ngModel)]="newQuestion" />
+  <label for="answer">Answer</label>
+  <textarea id="answer" rows="3" placeholder="Yes, subject to availability." [(ngModel)]="newAnswer"></textarea>
+  <button (click)="add()">Add FAQ</button>
+</div>
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else {
+  <div class="panel list">
+    @for (faq of faqs(); track faq.id) {
+      <div class="faq-row" [class.inactive]="!faq.isActive">
+        @if (editingId() === faq.id) {
+          <div class="edit-form">
+            <input type="text" [(ngModel)]="editQuestion" />
+            <textarea rows="2" [(ngModel)]="editAnswer"></textarea>
+            <div class="actions">
+              <button (click)="saveEdit(faq)">Save</button>
+              <button class="secondary" (click)="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+        } @else {
+          <div class="faq-content">
+            <div class="question">{{ faq.question }}</div>
+            <div class="answer">{{ faq.answer }}</div>
+          </div>
+          <div class="actions">
+            <button class="secondary" (click)="startEdit(faq)">Edit</button>
+            <button class="secondary" (click)="toggleActive(faq)">{{ faq.isActive ? 'Deactivate' : 'Activate' }}</button>
+            <button class="remove" (click)="remove(faq.id)">Delete</button>
+          </div>
+        }
+      </div>
+    } @empty {
+      <p class="empty">No FAQs yet.</p>
+    }
+  </div>
+}

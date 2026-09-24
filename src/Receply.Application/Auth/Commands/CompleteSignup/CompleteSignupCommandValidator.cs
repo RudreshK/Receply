@@ -11,7 +11,8 @@ public class CompleteSignupCommandValidator : AbstractValidator<CompleteSignupCo
         RuleFor(x => x.BusinessName).NotEmpty().MaximumLength(200);
         RuleFor(x => x.BusinessType).NotEmpty();
         RuleFor(x => x.TimeZoneId).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.OwnerFullName).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.OwnerEmail).MaximumLength(320);
+        RuleFor(x => x.OwnerFirstName).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.OwnerLastName).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.OwnerEmail).NotEmpty().MaximumLength(320).EmailAddress();
     }
 }

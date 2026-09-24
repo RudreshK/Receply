@@ -21,8 +21,9 @@ public class SignupController(ISender sender, IHostEnvironment environment) : Co
         string BusinessName,
         string BusinessType,
         string TimeZoneId,
-        string OwnerFullName,
-        string? OwnerEmail);
+        string OwnerFirstName,
+        string OwnerLastName,
+        string OwnerEmail);
 
     [HttpPost("request-otp")]
     public async Task<ActionResult<RequestSignupOtpResponse>> RequestOtp(RequestSignupOtpRequest request, CancellationToken cancellationToken)
@@ -40,7 +41,7 @@ public class SignupController(ISender sender, IHostEnvironment environment) : Co
         var result = await sender.Send(
             new CompleteSignupCommand(
                 request.PhoneNumber, request.Code, request.BusinessName, request.BusinessType,
-                request.TimeZoneId, request.OwnerFullName, request.OwnerEmail),
+                request.TimeZoneId, request.OwnerFirstName, request.OwnerLastName, request.OwnerEmail),
             cancellationToken);
 
         return Ok(result);
