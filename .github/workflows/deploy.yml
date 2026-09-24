@@ -1,0 +1,62 @@
+name: Deploy Everything to Azure (manual)
+
+# Manual full-stack deploy (api + workers + web) - for the initial `azd provision` or a full
+# redeploy. Day-to-day production deploys go through the two branch-specific workflows instead:
+#   - deploy-services.yml, triggered by pushes to release/services (api + workers only)
+#   - deploy-ui.yml, triggered by pushes to release/ui (web only)
+# This one no longer runs automatically on push to main - main is the integration branch, not
+# a deploy target - so trigger it by hand from the Actions tab when you need it.
+#
+# Requires one-time setup before this will run successfully - see DEPLOYMENT.md:
+#   - An azd environment already provisioned (`azd provision`), with its .azure/<env> state
+#     either committed to a private config store or recreated here via AZURE_ENV_NAME + vars.
+#   - Repo variables: AZURE_ENV_NAME, AZURE_LOCATION, AZURE_SUBSCRIPTION_ID.
+#   - Repo secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID (federated/OIDC app registration - no
+#     stored client secret) plus the app secrets azd needs to re-provision
+#     (WHATSAPP_ACCESS_TOKEN, WHATSAPP_APP_SECRET, WHATSAPP_WEBHOOK_VERIFY_TOKEN,
+#     ANTHROPIC_API_KEY, JWT_SIGNING_KEY, POSTGRES_ADMIN_PASSWORD).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # required for OIDC federated login
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+      WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET }}
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: ${{ secrets.WHATSAPP_WEBHOOK_VERIFY_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      JWT_SIGNING_KEY: ${{ secrets.JWT_SIGNING_KEY }}
+      POSTGRES_ADMIN_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Azure/setup-azd@v2
+
+      - name: Log in to Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: azd auth (federated)
+        run: |
+          azd auth login \
+            --client-id "${{ secrets.AZURE_CLIENT_ID }}" \
+            --federated-credential-provider "github" \
+            --tenant-id "${{ secrets.AZURE_TENANT_ID }}"
+
+      - name: Provision infrastructure
+        run: azd provision --no-prompt
+
+      - name: Deploy services
+        run: azd deploy --no-prompt

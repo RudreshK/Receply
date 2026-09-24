@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Receply.Workers-06323892-1ee2-4248-8bd4-1a5f9cc44f45</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Brings in Microsoft.Extensions.Hosting transitively. Needed for the minimal /healthz
+         endpoint - Azure App Service for Containers pings the container over HTTP to confirm it
+         started; a worker with no listener gets restarted in a loop otherwise. The actual work
+         stays in Quartz-hosted background services. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Receply.Application\Receply.Application.csproj" />
+    <ProjectReference Include="..\Receply.Infrastructure\Receply.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,52 @@
+<h1>Holidays</h1>
+
+<div class="layout">
+  <div class="panel calendar">
+    <div class="calendar-header">
+      <button (click)="changeMonth(-1)">&larr;</button>
+      <span>{{ monthLabel() }}</span>
+      <button (click)="changeMonth(1)">&rarr;</button>
+    </div>
+
+    @if (loading()) {
+      <p>Loading...</p>
+    } @else {
+      <div class="grid weekdays">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+      <div class="grid">
+        @for (cell of cells(); track $index) {
+          <div class="cell" [class.empty]="!cell.day" [class.holiday]="cell.holiday">
+            @if (cell.day) {
+              <span class="day-number">{{ cell.day }}</span>
+              @if (cell.holiday) {
+                <span class="holiday-name">{{ cell.holiday.name }}</span>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="panel form">
+    <h2>Add a holiday</h2>
+    <label for="date">Date</label>
+    <input id="date" type="date" [(ngModel)]="newDate" />
+    <label for="name">Name</label>
+    <input id="name" type="text" placeholder="e.g. New Year" [(ngModel)]="newName" />
+    <button (click)="addHoliday()">Add holiday</button>
+
+    <h2>This year</h2>
+    <ul class="holiday-list">
+      @for (holiday of holidays(); track holiday.id) {
+        <li>
+          <span>{{ holiday.date }} - {{ holiday.name }}</span>
+          <button class="remove" (click)="removeHoliday(holiday.id)">Remove</button>
+        </li>
+      } @empty {
+        <li class="empty">No holidays yet.</li>
+      }
+    </ul>
+  </div>
+</div>

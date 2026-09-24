@@ -1,0 +1,45 @@
+<h1>Working Hours</h1>
+
+@if (branches().length > 1) {
+  <div class="branch-picker">
+    <label for="branch">Branch</label>
+    <select id="branch" (change)="selectBranch($any($event.target).value)">
+      @for (branch of branches(); track branch.id) {
+        <option [value]="branch.id" [selected]="branch.id === selectedBranchId()">{{ branch.name }}</option>
+      }
+    </select>
+  </div>
+}
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else if (!selectedBranchId()) {
+  <p>No branches yet.</p>
+} @else {
+  <div class="panel">
+    <table>
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Closed</th>
+          <th>Open</th>
+          <th>Close</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (day of hours(); track day.dayOfWeek) {
+          <tr>
+            <td>{{ day.dayOfWeek }}</td>
+            <td><input type="checkbox" [(ngModel)]="day.isClosed" /></td>
+            <td><input type="time" [(ngModel)]="day.openTime" [disabled]="day.isClosed" /></td>
+            <td><input type="time" [(ngModel)]="day.closeTime" [disabled]="day.isClosed" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <button (click)="save()" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save hours' }}</button>
+    @if (saved()) {
+      <p class="success">Saved.</p>
+    }
+  </div>
+}
