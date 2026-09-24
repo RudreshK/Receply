@@ -58,8 +58,9 @@ export class AuthService {
     businessName: string;
     businessType: string;
     timeZoneId: string;
-    ownerFullName: string;
-    ownerEmail: string | null;
+    ownerFirstName: string;
+    ownerLastName: string;
+    ownerEmail: string;
   }): Observable<VerifyOtpResponse> {
     return this.http
       .post<VerifyOtpResponse>(`${environment.apiBaseUrl}/api/signup/complete`, payload)

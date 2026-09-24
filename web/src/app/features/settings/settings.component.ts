@@ -15,7 +15,7 @@ export class SettingsComponent implements OnInit {
   readonly businessTypes = BUSINESS_TYPES;
 
   name = '';
-  businessType = 'Other';
+  businessType = 'Clinic';
   timeZoneId = '';
   loading = signal(true);
   saving = signal(false);

@@ -5,27 +5,24 @@
 
     @if (step() === 'details') {
       <form (ngSubmit)="requestOtp()">
-        <label for="businessName">Business name</label>
-        <input id="businessName" name="businessName" type="text" placeholder="Glow Salon" [(ngModel)]="businessName" required />
+        <label for="firstName">First name</label>
+        <input id="firstName" name="firstName" type="text" placeholder="Jordan" [(ngModel)]="firstName" required />
 
-        <label for="businessType">Business type</label>
+        <label for="lastName">Last name</label>
+        <input id="lastName" name="lastName" type="text" placeholder="Rivera" [(ngModel)]="lastName" required />
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@business.com" [(ngModel)]="email" required />
+
+        <label for="whatsappNumber">Business WhatsApp number</label>
+        <input id="whatsappNumber" name="whatsappNumber" type="tel" placeholder="+1 555 0100" [(ngModel)]="whatsappNumber" required />
+
+        <label for="businessType">Type of business</label>
         <select id="businessType" name="businessType" [(ngModel)]="businessType">
-          @for (type of businessTypes; track type) {
-            <option [value]="type">{{ type }}</option>
+          @for (type of businessTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
           }
         </select>
-
-        <label for="timeZoneId">Time zone (IANA ID)</label>
-        <input id="timeZoneId" name="timeZoneId" type="text" placeholder="Asia/Kolkata" [(ngModel)]="timeZoneId" required />
-
-        <label for="ownerFullName">Your name</label>
-        <input id="ownerFullName" name="ownerFullName" type="text" placeholder="Jordan Rivera" [(ngModel)]="ownerFullName" required />
-
-        <label for="ownerPhoneNumber">Mobile number</label>
-        <input id="ownerPhoneNumber" name="ownerPhoneNumber" type="tel" placeholder="+1 555 0100" [(ngModel)]="ownerPhoneNumber" required />
-
-        <label for="ownerEmail">Email (optional)</label>
-        <input id="ownerEmail" name="ownerEmail" type="email" placeholder="you@business.com" [(ngModel)]="ownerEmail" />
 
         <button type="submit" [disabled]="loading()">
           {{ loading() ? 'Sending code...' : 'Send verification code' }}
@@ -35,6 +32,7 @@
       <form (ngSubmit)="completeSignup()">
         <label for="code">6-digit code</label>
         <input id="code" name="code" type="text" inputmode="numeric" maxlength="6" [(ngModel)]="code" required />
+        <p class="otp-note">We sent a code to your WhatsApp number.</p>
         @if (devCode()) {
           <p class="dev-hint">Dev mode - your code is <strong>{{ devCode() }}</strong></p>
         }

@@ -41,7 +41,8 @@ public class CompleteSignupCommandHandler(IApplicationDbContext db, IJwtTokenGen
 
         var tenant = Tenant.Create(request.BusinessName, businessType, request.TimeZoneId);
         tenant.AddBranch("Main Branch", "");
-        var owner = Staff.Create(tenant.Id, request.OwnerFullName, request.OwnerEmail ?? "", request.PhoneNumber, StaffRole.Owner);
+        var ownerFullName = $"{request.OwnerFirstName} {request.OwnerLastName}".Trim();
+        var owner = Staff.Create(tenant.Id, ownerFullName, request.OwnerEmail, request.PhoneNumber, StaffRole.Owner);
 
         db.Tenants.Add(tenant);
         db.Staff.Add(owner);

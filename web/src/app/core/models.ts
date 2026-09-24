@@ -51,5 +51,16 @@ export interface AppointmentListItem {
   status: string;
 }
 
-export const BUSINESS_TYPES = ['Clinic', 'Salon', 'Gym', 'CarService', 'Other'] as const;
+export interface BusinessTypeOption {
+  value: string;
+  label: string;
+}
+
+export const BUSINESS_TYPES: readonly BusinessTypeOption[] = [
+  { value: 'Clinic', label: 'Clinic' },
+  { value: 'ScanningCenter', label: 'Scanning Center' },
+  { value: 'Saloon', label: 'Saloon' },
+  { value: 'Gym', label: 'Gym' },
+  { value: 'ServiceCenter', label: 'Service Center' }
+];
 export const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;

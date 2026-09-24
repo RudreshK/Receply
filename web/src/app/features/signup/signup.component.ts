@@ -22,23 +22,24 @@ export class SignupComponent {
   error = signal<string | null>(null);
   devCode = signal<string | null>(null);
 
-  businessName = '';
-  businessType = 'Other';
-  timeZoneId = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-  ownerFullName = '';
-  ownerPhoneNumber = '';
-  ownerEmail = '';
+  firstName = '';
+  lastName = '';
+  email = '';
+  whatsappNumber = '';
+  businessType = BUSINESS_TYPES[0].value;
   code = '';
+
+  private readonly timeZoneId = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
   constructor(private readonly auth: AuthService, private readonly router: Router) {}
 
   requestOtp(): void {
-    if (!this.businessName.trim() || !this.ownerFullName.trim() || !this.ownerPhoneNumber.trim() || !this.timeZoneId.trim()) {
+    if (!this.firstName.trim() || !this.lastName.trim() || !this.email.trim() || !this.whatsappNumber.trim()) {
       return;
     }
     this.loading.set(true);
     this.error.set(null);
-    this.auth.requestSignupOtp(this.ownerPhoneNumber.trim()).subscribe({
+    this.auth.requestSignupOtp(this.whatsappNumber.trim()).subscribe({
       next: (result) => {
         this.loading.set(false);
         this.devCode.set(result.code);
@@ -46,7 +47,7 @@ export class SignupComponent {
       },
       error: () => {
         this.loading.set(false);
-        this.error.set('That phone number is already registered - try signing in instead.');
+        this.error.set('That WhatsApp number is already registered - try signing in instead.');
       }
     });
   }
@@ -59,13 +60,14 @@ export class SignupComponent {
     this.error.set(null);
     this.auth
       .completeSignup({
-        phoneNumber: this.ownerPhoneNumber.trim(),
+        phoneNumber: this.whatsappNumber.trim(),
         code: this.code.trim(),
-        businessName: this.businessName.trim(),
+        businessName: `${this.firstName.trim()}'s Business`,
         businessType: this.businessType,
-        timeZoneId: this.timeZoneId.trim(),
-        ownerFullName: this.ownerFullName.trim(),
-        ownerEmail: this.ownerEmail.trim() || null
+        timeZoneId: this.timeZoneId,
+        ownerFirstName: this.firstName.trim(),
+        ownerLastName: this.lastName.trim(),
+        ownerEmail: this.email.trim()
       })
       .subscribe({
         next: () => {

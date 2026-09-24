@@ -9,8 +9,8 @@
 
     <label for="businessType">Business type</label>
     <select id="businessType" name="businessType" [(ngModel)]="businessType">
-      @for (type of businessTypes; track type) {
-        <option [value]="type">{{ type }}</option>
+      @for (type of businessTypes; track type.value) {
+        <option [value]="type.value">{{ type.label }}</option>
       }
     </select>
 
