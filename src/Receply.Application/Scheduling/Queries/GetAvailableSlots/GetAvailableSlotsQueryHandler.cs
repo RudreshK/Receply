@@ -28,7 +28,7 @@ public class GetAvailableSlotsQueryHandler(IApplicationDbContext db) : IRequestH
         var timeZone = ResolveTimeZone(tenant.TimeZoneId);
         var dayOfWeek = request.Date.DayOfWeek;
 
-        var dayStartUtc = new DateTimeOffset(request.Date.ToDateTime(TimeOnly.MinValue), timeZone.GetUtcOffset(request.Date.ToDateTime(TimeOnly.MinValue)));
+        var dayStartUtc = new DateTimeOffset(request.Date.ToDateTime(TimeOnly.MinValue), timeZone.GetUtcOffset(request.Date.ToDateTime(TimeOnly.MinValue))).ToUniversalTime();
         var dayEndUtc = dayStartUtc.AddDays(1);
 
         var resources = await db.Resources
@@ -61,7 +61,7 @@ public class GetAvailableSlotsQueryHandler(IApplicationDbContext db) : IRequestH
 
                 while (cursorLocal + service.Duration <= ruleEndLocal)
                 {
-                    var slotStartUtc = new DateTimeOffset(cursorLocal, timeZone.GetUtcOffset(cursorLocal));
+                    var slotStartUtc = new DateTimeOffset(cursorLocal, timeZone.GetUtcOffset(cursorLocal)).ToUniversalTime();
                     var slotEndUtc = slotStartUtc + service.Duration;
 
                     var blocked = timeBlocks.Any(b => b.ResourceId == resource.Id && b.StartUtc < slotEndUtc && b.EndUtc > slotStartUtc)
