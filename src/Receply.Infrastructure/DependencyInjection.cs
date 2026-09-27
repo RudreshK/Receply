@@ -35,8 +35,8 @@ public static class DependencyInjection
         services.Configure<WhatsAppOptions>(configuration.GetSection(WhatsAppOptions.SectionName));
         services.AddHttpClient<IChannelProvider, WhatsAppCloudApiProvider>();
 
-        services.Configure<ClaudeOptions>(configuration.GetSection(ClaudeOptions.SectionName));
-        services.AddSingleton<IAiConversationAgent, ClaudeConversationAgent>();
+        services.Configure<OpenAiOptions>(configuration.GetSection(OpenAiOptions.SectionName));
+        services.AddSingleton<IAiConversationAgent, OpenAiConversationAgent>();
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

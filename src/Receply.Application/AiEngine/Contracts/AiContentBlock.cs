@@ -9,6 +9,11 @@ public abstract record AiContentBlock;
 
 public record AiTextBlock(string Text) : AiContentBlock;
 
-public record AiToolUseBlock(string Id, string Name, string ArgumentsJson) : AiContentBlock;
+/// <summary>
+/// ProviderMetadata is an opaque, provider-specific payload some providers require echoed back
+/// verbatim when this tool call is replayed as history (e.g. Gemini's thought_signature). Null for
+/// providers with no such requirement.
+/// </summary>
+public record AiToolUseBlock(string Id, string Name, string ArgumentsJson, string? ProviderMetadata = null) : AiContentBlock;
 
 public record AiToolResultBlock(string ToolUseId, string ResultJson, bool IsError = false) : AiContentBlock;
