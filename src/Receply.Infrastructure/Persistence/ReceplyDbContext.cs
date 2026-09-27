@@ -55,6 +55,12 @@ public class ReceplyDbContext(DbContextOptions<ReceplyDbContext> options, ITenan
             else if (entityType.ClrType == typeof(Tenant))
                 entityBuilder.HasQueryFilter(BuildFilter(nameof(BuildSoftDeleteFilter), entityType.ClrType));
 
+            // Every Id is a client-generated Guid (see Entity.cs) - without this, EF Core can't tell
+            // whether a non-default key on an entity discovered via graph traversal (e.g. appended to
+            // an already-loaded collection navigation, rather than passed to DbSet.Add) means "new" or
+            // "already persisted", and can misclassify a brand-new child as Modified instead of Added.
+            entityBuilder.Property(nameof(Entity.Id)).ValueGeneratedNever();
+
             entityBuilder.Property(nameof(Entity.CreatedOn)).HasPrecision(0);
 
             // Message ignores ModifiedOn/ModifiedBy/RowVersion entirely (see MessageConfiguration) -
