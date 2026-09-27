@@ -89,6 +89,7 @@ public class WhatsAppWebhookController(
         }
 
         var conversation = await db.Conversations
+            .Include(c => c.Messages)
             .Where(c => c.TenantId == channelAccount.TenantId && c.ClientId == client.Id && c.Status != HandoffStatus.Resolved)
             .OrderByDescending(c => c.StartedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
