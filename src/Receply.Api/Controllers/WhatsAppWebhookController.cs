@@ -6,6 +6,7 @@ using Receply.Api.BackgroundProcessing;
 using Receply.Application.Channels;
 using Receply.Application.Common;
 using Receply.Application.Conversations.Commands.GenerateAiReply;
+using Receply.Application.Conversations.Commands.SendWelcomeMessage;
 using Receply.Domain.Channels;
 using Receply.Domain.Conversations;
 using Receply.Domain.Crm;
@@ -58,7 +59,15 @@ public class WhatsAppWebhookController(
             var ingested = await IngestMessageAsync(inbound, cancellationToken);
             if (ingested is not null)
             {
-                var (tenantId, conversationId) = ingested.Value;
+                var (tenantId, conversationId, isNewConversation) = ingested.Value;
+
+                // Queued in order - the queue is single-reader/FIFO, so the welcome always lands before the AI's reply.
+                if (isNewConversation)
+                {
+                    taskQueue.QueueWorkItem((services, ct) =>
+                        services.GetRequiredService<ISender>().Send(new SendWelcomeMessageCommand(tenantId, conversationId), ct));
+                }
+
                 taskQueue.QueueWorkItem((services, ct) =>
                     services.GetRequiredService<ISender>().Send(new GenerateAiReplyCommand(tenantId, conversationId), ct));
             }
@@ -68,7 +77,8 @@ public class WhatsAppWebhookController(
         return Ok();
     }
 
-    private async Task<(Guid TenantId, Guid ConversationId)?> IngestMessageAsync(InboundChannelMessage inbound, CancellationToken cancellationToken)
+    private async Task<(Guid TenantId, Guid ConversationId, bool IsNewConversation)?> IngestMessageAsync(
+        InboundChannelMessage inbound, CancellationToken cancellationToken)
     {
         var channelAccount = await db.ChannelAccounts.FirstOrDefaultAsync(
             c => c.Type == ChannelType.WhatsApp && c.ExternalId == inbound.FromExternalId, cancellationToken);
@@ -93,6 +103,7 @@ public class WhatsAppWebhookController(
             .OrderByDescending(c => c.StartedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
 
+        var isNewConversation = conversation is null;
         if (conversation is null)
         {
             conversation = Conversation.Start(channelAccount.TenantId, client.Id, channelAccount.Id);
@@ -103,6 +114,6 @@ public class WhatsAppWebhookController(
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return (channelAccount.TenantId, conversation.Id);
+        return (channelAccount.TenantId, conversation.Id, isNewConversation);
     }
 }

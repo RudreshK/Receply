@@ -76,7 +76,11 @@ public class GenerateAiReplyCommandHandler(
             conversation.RequestHandoff("AI could not resolve the request after several attempts.");
         }
 
-        conversation.AddMessage(MessageDirection.Outbound, MessageSender.Ai, finalText);
+        // Explicit Add matters: appending to an already-tracked (queried) parent's collection is
+        // ambiguous for a client-generated GUID key - EF Core can mark the new child Modified
+        // instead of Added, then issue a doomed UPDATE. Add() makes the new-entity intent explicit.
+        var outboundMessage = conversation.AddMessage(MessageDirection.Outbound, MessageSender.Ai, finalText);
+        db.Messages.Add(outboundMessage);
         await db.SaveChangesAsync(cancellationToken);
 
         await channelProvider.SendMessageAsync(channelAccount, client.PhoneNumber, finalText, cancellationToken);
