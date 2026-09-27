@@ -17,6 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Receply.Workers", "src\Rece
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{544FBE8A-9CA5-42D7-BA88-8262C2074657}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "database", "database", "{502844B8-ED5A-488B-ABA4-C17CC9D45F73}"
+	ProjectSection(SolutionItems) = preProject
+		database\README.md = database\README.md
+		database\publish-local.ps1 = database\publish-local.ps1
+		database\schema.sql = database\schema.sql
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Receply.UnitTests", "tests\Receply.UnitTests\Receply.UnitTests.csproj", "{A9E04ADB-D72E-4FF2-974E-EFCE639BD50B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Receply.IntegrationTests", "tests\Receply.IntegrationTests\Receply.IntegrationTests.csproj", "{8D2D74C6-FF0B-4ECD-BDDC-B440DB01003E}"
