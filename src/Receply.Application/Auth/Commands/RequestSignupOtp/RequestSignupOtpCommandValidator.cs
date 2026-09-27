@@ -7,5 +7,6 @@ public class RequestSignupOtpCommandValidator : AbstractValidator<RequestSignupO
     public RequestSignupOtpCommandValidator()
     {
         RuleFor(x => x.PhoneNumber).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
     }
 }

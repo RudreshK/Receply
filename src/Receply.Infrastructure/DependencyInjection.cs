@@ -9,6 +9,7 @@ using Receply.Application.Common;
 using Receply.Infrastructure.AiEngine;
 using Receply.Infrastructure.Auth;
 using Receply.Infrastructure.Channels.WhatsApp;
+using Receply.Infrastructure.Email;
 using Receply.Infrastructure.Multitenancy;
 using Receply.Infrastructure.Persistence;
 using StackExchange.Redis;
@@ -40,6 +41,9 @@ public static class DependencyInjection
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IOtpSender, LoggingOtpSender>();
+
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
 
         services.AddQuartz();
         services.AddQuartzHostedService(opts => opts.WaitForJobsToComplete = true);

@@ -12,7 +12,7 @@ namespace Receply.Api.Controllers;
 [Route("api/signup")]
 public class SignupController(ISender sender, IHostEnvironment environment) : ControllerBase
 {
-    public record RequestSignupOtpRequest(string PhoneNumber);
+    public record RequestSignupOtpRequest(string PhoneNumber, string? Email);
     public record RequestSignupOtpResponse(string? Code);
 
     public record CompleteSignupRequest(
@@ -27,7 +27,7 @@ public class SignupController(ISender sender, IHostEnvironment environment) : Co
     [HttpPost("request-otp")]
     public async Task<ActionResult<RequestSignupOtpResponse>> RequestOtp(RequestSignupOtpRequest request, CancellationToken cancellationToken)
     {
-        var code = await sender.Send(new RequestSignupOtpCommand(request.PhoneNumber), cancellationToken);
+        var code = await sender.Send(new RequestSignupOtpCommand(request.PhoneNumber, request.Email), cancellationToken);
 
         // The code is only ever echoed back in Development, where no real OTP gateway is wired up -
         // in every other environment it's delivered exclusively via IOtpSender.
