@@ -1,6 +1,7 @@
 namespace Receply.Application.AiEngine;
 
-public record AiToolContext(Guid TenantId, Guid ConversationId, Guid ClientId);
+/// <summary>StaffId is set only for staff-originated conversations (see StaffAiToolCatalog) - null for customer chats.</summary>
+public record AiToolContext(Guid TenantId, Guid ConversationId, Guid ClientId, Guid? StaffId = null);
 
 public interface IAiToolExecutor
 {

@@ -11,6 +11,10 @@ using Receply.Application.Scheduling.Commands.RescheduleAppointment;
 using Receply.Application.Scheduling.Queries.GetAvailableSlots;
 using Receply.Application.Scheduling.Queries.ListServices;
 using Receply.Application.Scheduling.Queries.ListUpcomingAppointments;
+using Receply.Application.Tenancy.Commands.CreateHoliday;
+using Receply.Application.Tenancy.Commands.DeleteHoliday;
+using Receply.Application.Tenancy.Commands.UpdateStaffDetails;
+using Receply.Application.Tenancy.Queries.ListHolidays;
 using Receply.Domain.Scheduling;
 
 namespace Receply.Application.AiEngine;
@@ -45,6 +49,18 @@ public class AiToolExecutor(ISender sender, IApplicationDbContext db) : IAiToolE
                 AiToolCatalog.CancelAppointment => await CancelAsync(root, context, cancellationToken),
 
                 AiToolCatalog.RequestHumanHandoff => await HandoffAsync(root, context, cancellationToken),
+
+                StaffAiToolCatalog.UpdateMyDetails => await UpdateMyDetailsAsync(root, context, cancellationToken),
+
+                StaffAiToolCatalog.AddHoliday => await sender.Send(
+                    new CreateHolidayCommand(context.TenantId, null, DateOnly.Parse(GetString(root, "date")), GetString(root, "name")),
+                    cancellationToken),
+
+                StaffAiToolCatalog.RemoveHoliday => await RemoveHolidayAsync(root, context, cancellationToken),
+
+                StaffAiToolCatalog.ListHolidays => await sender.Send(
+                    new ListHolidaysQuery(context.TenantId, DateOnly.Parse(GetString(root, "from_date")), DateOnly.Parse(GetString(root, "to_date"))),
+                    cancellationToken),
 
                 _ => throw new InvalidOperationException($"Unknown tool '{toolName}'.")
             };
@@ -121,6 +137,27 @@ public class AiToolExecutor(ISender sender, IApplicationDbContext db) : IAiToolE
         await sender.Send(new CancelAppointmentCommand(context.TenantId, appointmentId, reason), cancellationToken);
 
         return new { appointment_id = appointmentId, status = "cancelled" };
+    }
+
+    private async Task<object> UpdateMyDetailsAsync(JsonElement args, AiToolContext context, CancellationToken cancellationToken)
+    {
+        if (context.StaffId is not { } staffId)
+            throw new InvalidOperationException("This action is only available to staff.");
+
+        var fullName = TryGetString(args, "full_name", out var fn) ? fn : null;
+        var email = TryGetString(args, "email", out var em) ? em : null;
+        var phoneNumber = TryGetString(args, "phone_number", out var ph) ? ph : null;
+
+        await sender.Send(new UpdateStaffDetailsCommand(context.TenantId, staffId, fullName, email, phoneNumber), cancellationToken);
+
+        return new { status = "updated" };
+    }
+
+    private async Task<object> RemoveHolidayAsync(JsonElement args, AiToolContext context, CancellationToken cancellationToken)
+    {
+        var holidayId = GetGuid(args, "holiday_id");
+        await sender.Send(new DeleteHolidayCommand(context.TenantId, holidayId), cancellationToken);
+        return new { holiday_id = holidayId, status = "removed" };
     }
 
     private async Task<object> HandoffAsync(JsonElement args, AiToolContext context, CancellationToken cancellationToken)

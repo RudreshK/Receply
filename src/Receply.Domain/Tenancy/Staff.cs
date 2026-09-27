@@ -37,4 +37,14 @@ public class Staff : TenantOwnedEntity
     }
 
     public void Deactivate() => IsActive = false;
+
+    public void UpdateOwnDetails(string fullName, string email, string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+            throw new ArgumentException("Phone number is required.", nameof(phoneNumber));
+
+        FullName = fullName;
+        Email = email;
+        PhoneNumber = phoneNumber;
+    }
 }

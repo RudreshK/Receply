@@ -6,9 +6,11 @@ using Receply.Api.BackgroundProcessing;
 using Receply.Application.Channels;
 using Receply.Application.Common;
 using Receply.Application.Conversations.Commands.GenerateAiReply;
+using Receply.Application.Tenancy.Commands.GenerateStaffAiReply;
 using Receply.Domain.Channels;
 using Receply.Domain.Conversations;
 using Receply.Domain.Crm;
+using Receply.Domain.Tenancy;
 using Receply.Infrastructure.Channels.WhatsApp;
 
 namespace Receply.Api.Controllers;
@@ -79,6 +81,9 @@ public class WhatsAppWebhookController(
             return null;
         }
 
+        if (await TryHandleStaffMessageAsync(channelAccount.TenantId, inbound, cancellationToken))
+            return null;
+
         var client = await db.Clients.FirstOrDefaultAsync(
             c => c.TenantId == channelAccount.TenantId && c.PhoneNumber == inbound.CustomerPhoneNumber, cancellationToken);
 
@@ -105,5 +110,25 @@ public class WhatsAppWebhookController(
         await db.SaveChangesAsync(cancellationToken);
 
         return (channelAccount.TenantId, conversation.Id);
+    }
+
+    /// <summary>
+    /// Owner/Admin staff get a separate, stateless admin-tools flow (holidays, own details) instead of
+    /// being onboarded as a customer. Other staff roles fall through and are treated as customers.
+    /// </summary>
+    private async Task<bool> TryHandleStaffMessageAsync(Guid tenantId, InboundChannelMessage inbound, CancellationToken cancellationToken)
+    {
+        var staff = await db.Staff.FirstOrDefaultAsync(
+            s => s.TenantId == tenantId && s.PhoneNumber == inbound.CustomerPhoneNumber && s.IsActive
+                 && (s.Role == StaffRole.Owner || s.Role == StaffRole.Admin),
+            cancellationToken);
+
+        if (staff is null)
+            return false;
+
+        taskQueue.QueueWorkItem((services, ct) =>
+            services.GetRequiredService<ISender>().Send(new GenerateStaffAiReplyCommand(tenantId, staff.Id, inbound.Body), ct));
+
+        return true;
     }
 }
