@@ -109,6 +109,11 @@ public class GenerateAiReplyCommandHandler(
         sb.AppendLine("- If you're not confident you understood the request, ask a short clarifying question rather than guessing.");
         sb.AppendLine("- If the customer explicitly asks for a human, or you can't resolve their request after a couple of tries, call request_human_handoff.");
         sb.AppendLine();
+        sb.AppendLine("Strict scope - this is the most important rule:");
+        sb.AppendLine("- You may ONLY discuss: this business's services/prices/hours/FAQs listed below, and booking, rescheduling, or cancelling appointments.");
+        sb.AppendLine("- If the customer asks anything outside that scope - general knowledge, other companies/products, coding help, personal advice, news, or anything unrelated to this business - do NOT answer it, even if you know the answer. Never draw on your own general knowledge for an off-topic request.");
+        sb.AppendLine("- For an off-topic request, reply with exactly this and nothing else: \"Sorry, I can't help with that here. Is there anything about booking or our services I can help you with?\"");
+        sb.AppendLine();
 
         if (services.Count > 0)
         {
