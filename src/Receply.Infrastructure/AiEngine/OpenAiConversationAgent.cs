@@ -7,6 +7,7 @@ using Receply.Application.AiEngine.Contracts;
 namespace Receply.Infrastructure.AiEngine;
 
 /// <summary>IAiConversationAgent implementation against OpenAI's Chat Completions API.</summary>
+#pragma warning disable OPENAI001 // ReasoningEffortLevel is experimental - required to use function tools with gpt-6-luna
 public class OpenAiConversationAgent : IAiConversationAgent
 {
     private readonly ChatClient _client;
@@ -25,7 +26,13 @@ public class OpenAiConversationAgent : IAiConversationAgent
         var messages = new List<ChatMessage> { new SystemChatMessage(request.SystemPrompt) };
         messages.AddRange(request.Messages.SelectMany(ToChatMessages));
 
-        var chatOptions = new ChatCompletionOptions { MaxOutputTokenCount = _options.MaxTokens };
+        // gpt-6-luna rejects function tools combined with reasoning on the Chat Completions endpoint -
+        // reasoning must be explicitly turned off to use tools here.
+        var chatOptions = new ChatCompletionOptions
+        {
+            MaxOutputTokenCount = _options.MaxTokens,
+            ReasoningEffortLevel = ChatReasoningEffortLevel.None
+        };
         foreach (var tool in request.Tools)
         {
             chatOptions.Tools.Add(ChatTool.CreateFunctionTool(
@@ -91,3 +98,4 @@ public class OpenAiConversationAgent : IAiConversationAgent
         yield return assistantMessage;
     }
 }
+#pragma warning restore OPENAI001
