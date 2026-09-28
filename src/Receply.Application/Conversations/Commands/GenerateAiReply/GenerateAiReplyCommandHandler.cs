@@ -72,7 +72,8 @@ public class GenerateAiReplyCommandHandler(
             messages.Add(new AiMessage(AiMessageRole.User, toolResults));
         }
 
-        if (string.IsNullOrWhiteSpace(finalText))
+        var escalated = string.IsNullOrWhiteSpace(finalText);
+        if (escalated)
         {
             finalText = "Sorry, I'm having trouble with that right now - let me get a team member to help you.";
             conversation.RequestHandoff("AI could not resolve the request after several attempts.");
@@ -86,6 +87,9 @@ public class GenerateAiReplyCommandHandler(
             conversation.Id,
             new ConversationMessageDto(reply.Id, reply.Direction, reply.Sender, reply.Body, reply.SentAtUtc),
             cancellationToken);
+
+        if (escalated)
+            await conversationNotifier.StatusChangedAsync(conversation.TenantId, conversation.Id, conversation.Status, cancellationToken);
 
         await channelProvider.SendMessageAsync(channelAccount, client.PhoneNumber, finalText, cancellationToken);
     }

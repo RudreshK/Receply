@@ -4,7 +4,7 @@ using Receply.Application.Common;
 
 namespace Receply.Application.Conversations.Commands.RequestHandoff;
 
-public class RequestHandoffCommandHandler(IApplicationDbContext db) : IRequestHandler<RequestHandoffCommand>
+public class RequestHandoffCommandHandler(IApplicationDbContext db, IConversationNotifier conversationNotifier) : IRequestHandler<RequestHandoffCommand>
 {
     public async Task Handle(RequestHandoffCommand request, CancellationToken cancellationToken)
     {
@@ -14,5 +14,7 @@ public class RequestHandoffCommandHandler(IApplicationDbContext db) : IRequestHa
         conversation.RequestHandoff(request.Reason);
 
         await db.SaveChangesAsync(cancellationToken);
+
+        await conversationNotifier.StatusChangedAsync(conversation.TenantId, conversation.Id, conversation.Status, cancellationToken);
     }
 }

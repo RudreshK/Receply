@@ -62,4 +62,12 @@ public class Conversation : TenantOwnedEntity
         Status = HandoffStatus.Resolved;
         Raise(new ConversationResolved(TenantId, Id));
     }
+
+    /// <summary>Hands the thread back to the AI - the dashboard's "back to AI" toggle.</summary>
+    public void ResumeAi()
+    {
+        Status = HandoffStatus.AiHandled;
+        AssignedStaffId = null;
+        Raise(new AiResumed(TenantId, Id));
+    }
 }

@@ -38,4 +38,12 @@ export class ConversationsService {
   messages(conversationId: string): Observable<ConversationMessage[]> {
     return this.http.get<ConversationMessage[]>(`${this.baseUrl}/${conversationId}/messages`);
   }
+
+  reply(conversationId: string, body: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${conversationId}/reply`, { body });
+  }
+
+  resumeAi(conversationId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${conversationId}/resume-ai`, {});
+  }
 }

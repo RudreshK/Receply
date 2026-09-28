@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using Receply.Api.Hubs;
 using Receply.Application.Conversations;
 using Receply.Application.Conversations.Queries.GetConversationMessages;
+using Receply.Domain.Conversations;
 
 namespace Receply.Api.Realtime;
 
@@ -20,6 +21,19 @@ public class SignalRConversationNotifier(IHubContext<ConversationsHub> hubContex
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Failed to push message {MessageId} to dashboards.", message.MessageId);
+        }
+    }
+
+    public async Task StatusChangedAsync(Guid tenantId, Guid conversationId, HandoffStatus status, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await hubContext.Clients.Group(ConversationsHub.TenantGroup(tenantId))
+                .SendAsync("statusChanged", new { conversationId, status }, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to push status change for conversation {ConversationId} to dashboards.", conversationId);
         }
     }
 }

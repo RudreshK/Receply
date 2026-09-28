@@ -94,6 +94,16 @@
             <div class="chat-name">{{ conversation.clientName }}</div>
             <div class="chat-sub">{{ conversation.clientPhoneNumber }} · {{ statusLabel(conversation.status) }}</div>
           </div>
+          @if (conversation.status !== 'AiHandled') {
+            <button
+              type="button"
+              class="ghost small back-to-ai"
+              (click)="resumeAi(conversation.conversationId)"
+              [disabled]="resumingAi()"
+            >
+              Back to AI
+            </button>
+          }
         </header>
 
         <div class="chat-body" #chatScroll>
@@ -119,7 +129,29 @@
           }
         </div>
 
-        <footer class="chat-footer">Replies are handled by the AI assistant. Replying from the dashboard is coming soon.</footer>
+        @if (canReplyManually(conversation)) {
+          <footer class="chat-footer reply">
+            <form class="reply-form" (ngSubmit)="sendReply(conversation.conversationId)">
+              <input
+                type="text"
+                placeholder="Type a reply…"
+                [ngModel]="draft()"
+                (ngModelChange)="draft.set($event)"
+                name="reply"
+                autocomplete="off"
+                [disabled]="sending()"
+              />
+              <button type="submit" class="send" [disabled]="sending() || !draft().trim()">
+                {{ sending() ? 'Sending…' : 'Send' }}
+              </button>
+            </form>
+            @if (replyError(); as error) {
+              <p class="reply-error">{{ error }}</p>
+            }
+          </footer>
+        } @else {
+          <footer class="chat-footer">Replies are handled by the AI assistant.</footer>
+        }
       } @else {
         <div class="chat-empty">
           <p>Select a client to see their WhatsApp conversation.</p>

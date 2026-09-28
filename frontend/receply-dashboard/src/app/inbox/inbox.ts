@@ -10,7 +10,7 @@ import {
   HandoffStatus,
   MessageSender,
 } from '../core/conversations.service';
-import { MessageAddedEvent, RealtimeService } from '../core/realtime.service';
+import { MessageAddedEvent, RealtimeService, StatusChangedEvent } from '../core/realtime.service';
 
 interface MessageGroup {
   label: string;
@@ -51,6 +51,11 @@ export class Inbox implements OnInit {
   protected readonly messages = signal<ConversationMessage[]>([]);
   protected readonly loadingMessages = signal(false);
   protected readonly messagesError = signal<string | null>(null);
+
+  protected readonly draft = signal('');
+  protected readonly sending = signal(false);
+  protected readonly replyError = signal<string | null>(null);
+  protected readonly resumingAi = signal(false);
 
   protected readonly sortedConversations = computed(() => {
     const term = this.search().trim().toLowerCase();
@@ -93,6 +98,10 @@ export class Inbox implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => this.onMessageAdded(event));
 
+    this.realtime.statusChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => this.onStatusChanged(event));
+
     this.realtime.reconnected$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.loadConversations();
       const selected = this.selectedId();
@@ -105,12 +114,54 @@ export class Inbox implements OnInit {
   protected select(conversation: ConversationListItem): void {
     if (this.selectedId() === conversation.conversationId) return;
     this.selectedId.set(conversation.conversationId);
+    this.draft.set('');
+    this.replyError.set(null);
     this.loadMessages(conversation.conversationId);
   }
 
   protected closeChat(): void {
     this.selectedId.set(null);
     this.messages.set([]);
+  }
+
+  protected canReplyManually(conversation: ConversationListItem): boolean {
+    return conversation.status === 'HandoffRequested' || conversation.status === 'HumanAssigned';
+  }
+
+  protected sendReply(conversationId: string): void {
+    const body = this.draft().trim();
+    if (!body || this.sending()) return;
+
+    this.sending.set(true);
+    this.replyError.set(null);
+    this.conversationsApi.reply(conversationId, body).subscribe({
+      next: () => {
+        this.draft.set('');
+        this.sending.set(false);
+        // The reply hands the thread to a human on the server; reflect that immediately without
+        // waiting on the statusChanged push (which still arrives and confirms it).
+        this.setStatus(conversationId, 'HumanAssigned');
+      },
+      error: () => {
+        this.sending.set(false);
+        this.replyError.set('Could not send. Please try again.');
+      },
+    });
+  }
+
+  protected resumeAi(conversationId: string): void {
+    if (this.resumingAi()) return;
+
+    this.resumingAi.set(true);
+    this.conversationsApi.resumeAi(conversationId).subscribe({
+      next: () => {
+        this.resumingAi.set(false);
+        this.setStatus(conversationId, 'AiHandled');
+      },
+      error: () => {
+        this.resumingAi.set(false);
+      },
+    });
   }
 
   protected async logout(): Promise<void> {
@@ -197,6 +248,14 @@ export class Inbox implements OnInit {
       this.messages.update(messages => [...messages, message]);
       this.scrollToBottom();
     }
+  }
+
+  private onStatusChanged({ conversationId, status }: StatusChangedEvent): void {
+    this.setStatus(conversationId, status);
+  }
+
+  private setStatus(conversationId: string, status: HandoffStatus): void {
+    this.conversations.update(items => items.map(c => c.conversationId === conversationId ? { ...c, status } : c));
   }
 
   private scrollToBottom(): void {
