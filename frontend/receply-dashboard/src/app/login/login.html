@@ -1,0 +1,50 @@
+<main class="login">
+  <section class="card">
+    <h1 class="brand">Receply</h1>
+    <p class="subtitle">Sign in to your business dashboard</p>
+
+    @if (step() === 'phone') {
+      <form (ngSubmit)="sendCode()">
+        <label for="phone">Mobile number</label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          autocomplete="tel"
+          placeholder="+91 98765 43210"
+          [(ngModel)]="phoneNumber"
+          [disabled]="busy()"
+          required
+        />
+        <p class="hint">Use the number registered to your staff account, including the country code.</p>
+        <button type="submit" [disabled]="busy() || !phoneNumber.trim()">
+          {{ busy() ? 'Sending…' : 'Send login code' }}
+        </button>
+      </form>
+    } @else {
+      <form (ngSubmit)="verify()">
+        <label for="code">Login code</label>
+        <input
+          id="code"
+          name="code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="6"
+          placeholder="6-digit code"
+          [(ngModel)]="code"
+          [disabled]="busy()"
+          required
+        />
+        <p class="hint">We emailed a 6-digit code to the address on your staff account. It expires in 5 minutes.</p>
+        <button type="submit" [disabled]="busy() || !code.trim()">
+          {{ busy() ? 'Verifying…' : 'Sign in' }}
+        </button>
+        <button type="button" class="link" (click)="back()" [disabled]="busy()">Use a different number</button>
+      </form>
+    }
+
+    @if (error(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+  </section>
+</main>
