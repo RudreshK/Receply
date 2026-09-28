@@ -31,6 +31,13 @@ const STATUS_LABELS: Record<HandoffStatus, string> = {
   Resolved: 'Resolved',
 };
 
+/** No language-detection service is wired up - this is a cheap, purely client-side heuristic
+ * (no AI call) to decide whether a message is plain English text, so the Translate button can hide
+ * itself for messages that are already in the staff member's target language. */
+function looksLikeEnglish(text: string): boolean {
+  return /^[\x00-\x7F]*$/.test(text);
+}
+
 /** Common languages a business owner/staff might want the dashboard translated into. */
 const LANGUAGES: { code: string; name: string }[] = [
   { code: 'en', name: 'English' },
@@ -201,6 +208,14 @@ export class Inbox implements OnInit {
         this.resumingAi.set(false);
       },
     });
+  }
+
+  /** Hides the Translate button when the message is already in the staff member's target language -
+   * today that only recognizes "target is English and the text is plain ASCII", since that's the
+   * one direction we can tell apart without spending an AI call just to detect the language. */
+  protected canTranslate(message: ConversationMessage): boolean {
+    const target = this.session()?.preferredLanguage || 'en';
+    return !(target === 'en' && looksLikeEnglish(message.body));
   }
 
   protected displayText(message: ConversationMessage): string {

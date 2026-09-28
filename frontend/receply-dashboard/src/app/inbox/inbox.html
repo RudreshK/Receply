@@ -135,7 +135,7 @@
                       <div class="bubble-sender">{{ senderLabel(message.sender) }}</div>
                     }
                     <div class="bubble-text">{{ displayText(message) }}</div>
-                    @if (featureEnabled('MessageTranslation')) {
+                    @if (featureEnabled('MessageTranslation') && canTranslate(message)) {
                       <button type="button" class="translate-link" (click)="toggleTranslate(message)">
                         {{ translateLabel(message) }}
                       </button>
