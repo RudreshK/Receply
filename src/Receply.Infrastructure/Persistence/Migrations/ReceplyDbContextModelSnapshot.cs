@@ -25,7 +25,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Channels.ChannelAccount", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("ChannelAccountId");
 
@@ -84,7 +83,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Conversations.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("ConversationId");
 
@@ -144,7 +142,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Conversations.Message", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("MessageId");
 
@@ -162,8 +159,15 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasPrecision(0)
                         .HasColumnType("timestamp(0) with time zone");
 
+                    b.Property<int>("DeliveryStatus")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Direction")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ExternalMessageId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -180,6 +184,9 @@ namespace Receply.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("PK_Message");
 
+                    b.HasIndex("ExternalMessageId")
+                        .HasDatabaseName("IX_Message_ExternalMessageId");
+
                     b.HasIndex("ConversationId", "SentAtUtc")
                         .HasDatabaseName("IX_Message_ConversationId_SentAtUtc");
 
@@ -189,7 +196,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Crm.Client", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("ClientId");
 
@@ -245,7 +251,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Scheduling.Appointment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("AppointmentId");
 
@@ -315,7 +320,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Scheduling.AvailabilityRule", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("AvailabilityRuleId");
 
@@ -369,7 +373,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Scheduling.Resource", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("ResourceId");
 
@@ -425,7 +428,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Scheduling.Service", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("ServiceId");
 
@@ -481,7 +483,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Scheduling.TimeBlock", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("TimeBlockId");
 
@@ -536,7 +537,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.Branch", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("BranchId");
 
@@ -591,7 +591,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.BranchWorkingHours", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("BranchWorkingHoursId");
 
@@ -649,7 +648,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.Faq", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("FaqId");
 
@@ -704,7 +702,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.Holiday", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("HolidayId");
 
@@ -759,7 +756,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.LoginOtp", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("LoginOtpId");
 
@@ -815,7 +811,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.SignupOtp", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("SignupOtpId");
 
@@ -873,7 +868,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.Staff", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("StaffId");
 
@@ -941,7 +935,6 @@ namespace Receply.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Receply.Domain.Tenancy.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("TenantId");
 

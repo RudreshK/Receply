@@ -30,11 +30,14 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.HasKey(m => m.Id).HasName("PK_Message");
         builder.Property(m => m.Id).HasColumnName("MessageId");
         builder.Property(m => m.Body).IsRequired();
+        builder.Property(m => m.ExternalMessageId).HasMaxLength(128);
         builder.HasIndex(m => new { m.ConversationId, m.SentAtUtc }).HasDatabaseName("IX_Message_ConversationId_SentAtUtc");
+        builder.HasIndex(m => m.ExternalMessageId).HasDatabaseName("IX_Message_ExternalMessageId");
 
-        // Messages are immutable, high-volume, and purely transactional - a sent/received message
-        // is never edited - so the "modified" and concurrency-versioning parts of the audit
-        // baseline don't apply here. CreatedOn/CreatedBy/IsDeleted still do.
+        // A message's body/sender/etc. are immutable once sent or received - CreatedOn/CreatedBy/
+        // IsDeleted still apply from the audit baseline, but ModifiedOn/ModifiedBy/RowVersion don't,
+        // even though DeliveryStatus itself does get updated in place as WhatsApp status webhooks
+        // (sent/delivered/read) arrive - that's a delivery-tracking field, not an edit to the message.
         builder.Ignore(m => m.ModifiedOn);
         builder.Ignore(m => m.ModifiedBy);
         builder.Ignore(m => m.RowVersion);

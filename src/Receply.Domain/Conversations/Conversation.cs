@@ -34,9 +34,9 @@ public class Conversation : TenantOwnedEntity
         return conversation;
     }
 
-    public Message AddMessage(MessageDirection direction, MessageSender sender, string body)
+    public Message AddMessage(MessageDirection direction, MessageSender sender, string body, string? externalMessageId = null)
     {
-        var message = Message.Create(TenantId, Id, direction, sender, body);
+        var message = Message.Create(TenantId, Id, direction, sender, body, externalMessageId);
         _messages.Add(message);
         return message;
     }

@@ -336,6 +336,25 @@ button {
   font-size: 0.6875rem;
   color: var(--muted);
   margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.tick {
+  display: inline-flex;
+  line-height: 0;
+
+  svg path { fill: var(--muted); }
+
+  &.Read svg path { fill: #53bdeb; }
+
+  &.Failed {
+    color: var(--danger);
+    font-weight: 700;
+    line-height: 1;
+  }
 }
 
 .chat-footer {

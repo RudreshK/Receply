@@ -36,4 +36,17 @@ public class SignalRConversationNotifier(IHubContext<ConversationsHub> hubContex
             logger.LogWarning(ex, "Failed to push status change for conversation {ConversationId} to dashboards.", conversationId);
         }
     }
+
+    public async Task MessageStatusChangedAsync(Guid tenantId, Guid conversationId, Guid messageId, MessageDeliveryStatus status, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await hubContext.Clients.Group(ConversationsHub.TenantGroup(tenantId))
+                .SendAsync("messageStatusChanged", new { conversationId, messageId, status }, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to push delivery status for message {MessageId} to dashboards.", messageId);
+        }
+    }
 }

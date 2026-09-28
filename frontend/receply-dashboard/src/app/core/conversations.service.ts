@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 export type HandoffStatus = 'AiHandled' | 'HandoffRequested' | 'HumanAssigned' | 'Resolved';
 export type MessageDirection = 'Inbound' | 'Outbound';
 export type MessageSender = 'Client' | 'Ai' | 'Human';
+export type MessageDeliveryStatus = 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed';
 
 export interface ConversationListItem {
   conversationId: string;
@@ -24,6 +25,7 @@ export interface ConversationMessage {
   sender: MessageSender;
   body: string;
   sentAtUtc: string;
+  deliveryStatus: MessageDeliveryStatus;
 }
 
 @Injectable({ providedIn: 'root' })

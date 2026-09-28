@@ -121,7 +121,24 @@
                       <div class="bubble-sender">{{ senderLabel(message.sender) }}</div>
                     }
                     <div class="bubble-text">{{ message.body }}</div>
-                    <div class="bubble-time">{{ messageTime(message.sentAtUtc) }}</div>
+                    <div class="bubble-time">
+                      {{ messageTime(message.sentAtUtc) }}
+                      @if (showTick(message)) {
+                        <span class="tick" [class]="'tick ' + message.deliveryStatus" aria-hidden="true">
+                          @if (message.deliveryStatus === 'Failed') {
+                            !
+                          } @else if (message.deliveryStatus === 'Sent') {
+                            <svg viewBox="0 0 16 16" width="15" height="15">
+                              <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+                            </svg>
+                          } @else {
+                            <svg viewBox="0 0 16 16" width="15" height="15">
+                              <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm3.5 0a.5.5 0 0 0-.708-.708L8.5 10.293l-.646-.647-.708.708.999.999a.5.5 0 0 0 .707 0z" />
+                            </svg>
+                          }
+                        </span>
+                      }
+                    </div>
                   </div>
                 </div>
               }

@@ -85,13 +85,14 @@ public class GenerateAiReplyCommandHandler(
         await conversationNotifier.MessageAddedAsync(
             conversation.TenantId,
             conversation.Id,
-            new ConversationMessageDto(reply.Id, reply.Direction, reply.Sender, reply.Body, reply.SentAtUtc),
+            new ConversationMessageDto(reply.Id, reply.Direction, reply.Sender, reply.Body, reply.SentAtUtc, reply.DeliveryStatus),
             cancellationToken);
 
         if (escalated)
             await conversationNotifier.StatusChangedAsync(conversation.TenantId, conversation.Id, conversation.Status, cancellationToken);
 
-        await channelProvider.SendMessageAsync(channelAccount, client.PhoneNumber, finalText, cancellationToken);
+        await ConversationMessagingHelper.SendAndTrackAsync(
+            db, channelProvider, conversationNotifier, conversation, reply, channelAccount, client.PhoneNumber, finalText, cancellationToken);
     }
 
     private async Task<string> BuildSystemPromptAsync(Guid tenantId, string tenantName, string businessType, string timeZoneId, CancellationToken cancellationToken)

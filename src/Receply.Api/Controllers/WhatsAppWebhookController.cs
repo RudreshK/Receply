@@ -69,6 +69,8 @@ public class WhatsAppWebhookController(
             }
         }
 
+        await ProcessStatusUpdatesAsync(rawPayload, cancellationToken);
+
         // Meta requires a fast 200 OK; the AI reply itself runs on the background queue above.
         return Ok();
     }
@@ -86,6 +88,13 @@ public class WhatsAppWebhookController(
 
         if (await TryHandleStaffMessageAsync(channelAccount.TenantId, inbound, cancellationToken))
             return null;
+
+        if (inbound.ExternalMessageId is not null)
+        {
+            // Best-effort (never throws) - shows the customer a blue tick on their message and a
+            // "typing…" indicator while we work out a reply below, so they don't wander off.
+            await channelProvider.ShowTypingIndicatorAsync(channelAccount, inbound.ExternalMessageId, cancellationToken);
+        }
 
         var client = await db.Clients.FirstOrDefaultAsync(
             c => c.TenantId == channelAccount.TenantId && c.PhoneNumber == inbound.CustomerPhoneNumber, cancellationToken);
@@ -112,18 +121,59 @@ public class WhatsAppWebhookController(
             db.Conversations.Add(conversation);
         }
 
-        var message = conversation.AddMessage(MessageDirection.Inbound, MessageSender.Client, inbound.Body);
+        var message = conversation.AddMessage(MessageDirection.Inbound, MessageSender.Client, inbound.Body, inbound.ExternalMessageId);
 
         await db.SaveChangesAsync(cancellationToken);
 
         await conversationNotifier.MessageAddedAsync(
             channelAccount.TenantId,
             conversation.Id,
-            new ConversationMessageDto(message.Id, message.Direction, message.Sender, message.Body, message.SentAtUtc),
+            new ConversationMessageDto(message.Id, message.Direction, message.Sender, message.Body, message.SentAtUtc, message.DeliveryStatus),
             cancellationToken);
 
         return (channelAccount.TenantId, conversation.Id);
     }
+
+    /// <summary>Delivery-status webhooks ("sent"/"delivered"/"read") for messages we previously sent -
+    /// drives the dashboard's WhatsApp-style ticks.</summary>
+    private async Task ProcessStatusUpdatesAsync(string rawPayload, CancellationToken cancellationToken)
+    {
+        var statusUpdates = channelProvider.ParseStatusUpdates(rawPayload);
+        if (statusUpdates.Count == 0)
+            return;
+
+        foreach (var update in statusUpdates)
+        {
+            var status = MapDeliveryStatus(update.Status);
+            if (status is null)
+                continue;
+
+            var channelAccount = await db.ChannelAccounts.FirstOrDefaultAsync(
+                c => c.Type == ChannelType.WhatsApp && c.ExternalId == update.FromExternalId, cancellationToken);
+            if (channelAccount is null)
+                continue;
+
+            var message = await db.Messages.FirstOrDefaultAsync(
+                m => m.TenantId == channelAccount.TenantId && m.ExternalMessageId == update.ExternalMessageId, cancellationToken);
+            if (message is null)
+                continue; // e.g. a status update for a message sent before this feature shipped
+
+            message.UpdateDeliveryStatus(status.Value);
+            await db.SaveChangesAsync(cancellationToken);
+
+            await conversationNotifier.MessageStatusChangedAsync(
+                channelAccount.TenantId, message.ConversationId, message.Id, message.DeliveryStatus, cancellationToken);
+        }
+    }
+
+    private static MessageDeliveryStatus? MapDeliveryStatus(string providerStatus) => providerStatus switch
+    {
+        "sent" => MessageDeliveryStatus.Sent,
+        "delivered" => MessageDeliveryStatus.Delivered,
+        "read" => MessageDeliveryStatus.Read,
+        "failed" => MessageDeliveryStatus.Failed,
+        _ => null
+    };
 
     /// <summary>
     /// Owner/Admin staff get a separate, stateless admin-tools flow (holidays, own details) instead of

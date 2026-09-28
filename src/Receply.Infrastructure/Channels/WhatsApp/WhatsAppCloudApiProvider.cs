@@ -20,7 +20,7 @@ public class WhatsAppCloudApiProvider(
 
     public ChannelType Type => ChannelType.WhatsApp;
 
-    public async Task SendMessageAsync(ChannelAccount account, string toPhoneNumber, string body, CancellationToken cancellationToken = default)
+    public async Task<string> SendMessageAsync(ChannelAccount account, string toPhoneNumber, string body, CancellationToken cancellationToken = default)
     {
         var url = $"{_options.GraphApiBaseUrl}/{_options.ApiVersion}/{account.ExternalId}/messages";
 
@@ -39,12 +39,50 @@ public class WhatsAppCloudApiProvider(
         request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.AccessToken);
 
         using var response = await httpClient.SendAsync(request, cancellationToken);
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
-            var error = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogError("WhatsApp send failed ({Status}): {Error}", response.StatusCode, error);
+            logger.LogError("WhatsApp send failed ({Status}): {Error}", response.StatusCode, responseBody);
             response.EnsureSuccessStatusCode();
+        }
+
+        var result = JsonSerializer.Deserialize<SendMessageResponse>(responseBody, JsonOptions);
+        return result?.Messages?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException($"WhatsApp send succeeded but returned no message id: {responseBody}");
+    }
+
+    public async Task ShowTypingIndicatorAsync(ChannelAccount account, string inboundExternalMessageId, CancellationToken cancellationToken = default)
+    {
+        // A single call that both marks the customer's message as read (their blue ticks) and shows
+        // a "typing…" indicator on their side for up to ~25s or until we actually send a reply -
+        // keeps them from wandering off while the AI/tool-call loop or a staff member is composing.
+        var url = $"{_options.GraphApiBaseUrl}/{_options.ApiVersion}/{account.ExternalId}/messages";
+
+        var payload = new
+        {
+            messaging_product = "whatsapp",
+            status = "read",
+            message_id = inboundExternalMessageId,
+            typing_indicator = new { type = "text" }
+        };
+
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = JsonContent.Create(payload) };
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.AccessToken);
+
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogWarning("WhatsApp mark-as-read/typing indicator failed ({Status}): {Error}", response.StatusCode, error);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Best-effort UX touch - never let this hold up or fail message ingestion.
+            logger.LogWarning(ex, "Failed to show typing indicator for message {MessageId}.", inboundExternalMessageId);
         }
     }
 
@@ -73,7 +111,35 @@ public class WhatsAppCloudApiProvider(
 
                 namesByWaId.TryGetValue(message.From, out var displayName);
 
-                results.Add(new InboundChannelMessage(phoneNumberId, message.From, message.Text.Body, receivedAt, displayName));
+                results.Add(new InboundChannelMessage(phoneNumberId, message.From, message.Text.Body, receivedAt, displayName, message.Id));
+            }
+        }
+
+        return results;
+    }
+
+    public IReadOnlyCollection<InboundStatusUpdate> ParseStatusUpdates(string rawPayload)
+    {
+        var envelope = JsonSerializer.Deserialize<WebhookEnvelope>(rawPayload, JsonOptions);
+        var results = new List<InboundStatusUpdate>();
+
+        foreach (var entry in envelope?.Entry ?? [])
+        foreach (var change in entry.Changes ?? [])
+        {
+            var phoneNumberId = change.Value?.Metadata?.PhoneNumberId;
+            if (phoneNumberId is null)
+                continue;
+
+            foreach (var status in change.Value?.Statuses ?? [])
+            {
+                if (status.Id is null || status.Status is null)
+                    continue;
+
+                var updatedAt = long.TryParse(status.Timestamp, out var unixSeconds)
+                    ? DateTimeOffset.FromUnixTimeSeconds(unixSeconds)
+                    : DateTimeOffset.UtcNow;
+
+                results.Add(new InboundStatusUpdate(phoneNumberId, status.Id, status.Status, updatedAt));
             }
         }
 
@@ -119,6 +185,7 @@ public class WhatsAppCloudApiProvider(
         [JsonPropertyName("metadata")] public WebhookMetadata? Metadata { get; set; }
         [JsonPropertyName("contacts")] public List<WebhookContact>? Contacts { get; set; }
         [JsonPropertyName("messages")] public List<WebhookMessage>? Messages { get; set; }
+        [JsonPropertyName("statuses")] public List<WebhookStatus>? Statuses { get; set; }
     }
 
     private sealed class WebhookMetadata
@@ -139,6 +206,7 @@ public class WhatsAppCloudApiProvider(
 
     private sealed class WebhookMessage
     {
+        [JsonPropertyName("id")] public string? Id { get; set; }
         [JsonPropertyName("from")] public string? From { get; set; }
         [JsonPropertyName("timestamp")] public string? Timestamp { get; set; }
         [JsonPropertyName("text")] public WebhookText? Text { get; set; }
@@ -147,5 +215,22 @@ public class WhatsAppCloudApiProvider(
     private sealed class WebhookText
     {
         [JsonPropertyName("body")] public string? Body { get; set; }
+    }
+
+    private sealed class WebhookStatus
+    {
+        [JsonPropertyName("id")] public string? Id { get; set; }
+        [JsonPropertyName("status")] public string? Status { get; set; }
+        [JsonPropertyName("timestamp")] public string? Timestamp { get; set; }
+    }
+
+    private sealed class SendMessageResponse
+    {
+        [JsonPropertyName("messages")] public List<SendMessageId>? Messages { get; set; }
+    }
+
+    private sealed class SendMessageId
+    {
+        [JsonPropertyName("id")] public string? Id { get; set; }
     }
 }

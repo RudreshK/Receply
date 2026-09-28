@@ -3,7 +3,7 @@ import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } fro
 import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
-import { ConversationMessage, HandoffStatus } from './conversations.service';
+import { ConversationMessage, HandoffStatus, MessageDeliveryStatus } from './conversations.service';
 
 export interface MessageAddedEvent {
   conversationId: string;
@@ -13,6 +13,12 @@ export interface MessageAddedEvent {
 export interface StatusChangedEvent {
   conversationId: string;
   status: HandoffStatus;
+}
+
+export interface MessageStatusChangedEvent {
+  conversationId: string;
+  messageId: string;
+  status: MessageDeliveryStatus;
 }
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
@@ -25,6 +31,7 @@ export class RealtimeService implements OnDestroy {
   readonly status = signal<ConnectionStatus>('disconnected');
   readonly messageAdded$ = new Subject<MessageAddedEvent>();
   readonly statusChanged$ = new Subject<StatusChangedEvent>();
+  readonly messageStatusChanged$ = new Subject<MessageStatusChangedEvent>();
   /** Fires after a dropped connection comes back, so callers can re-sync anything they missed. */
   readonly reconnected$ = new Subject<void>();
 
@@ -41,6 +48,7 @@ export class RealtimeService implements OnDestroy {
 
     this.connection.on('messageAdded', (event: MessageAddedEvent) => this.messageAdded$.next(event));
     this.connection.on('statusChanged', (event: StatusChangedEvent) => this.statusChanged$.next(event));
+    this.connection.on('messageStatusChanged', (event: MessageStatusChangedEvent) => this.messageStatusChanged$.next(event));
     this.connection.onreconnecting(() => this.status.set('reconnecting'));
     this.connection.onreconnected(() => {
       this.status.set('connected');

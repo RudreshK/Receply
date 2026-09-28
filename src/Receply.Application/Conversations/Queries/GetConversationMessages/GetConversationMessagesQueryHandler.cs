@@ -17,7 +17,7 @@ public class GetConversationMessagesQueryHandler(IApplicationDbContext db) : IRe
         return await db.Messages
             .Where(m => m.ConversationId == request.ConversationId && m.TenantId == request.TenantId)
             .OrderBy(m => m.SentAtUtc)
-            .Select(m => new ConversationMessageDto(m.Id, m.Direction, m.Sender, m.Body, m.SentAtUtc))
+            .Select(m => new ConversationMessageDto(m.Id, m.Direction, m.Sender, m.Body, m.SentAtUtc, m.DeliveryStatus))
             .ToListAsync(cancellationToken);
     }
 }

@@ -35,11 +35,12 @@ public class SendStaffReplyCommandHandler(
         await conversationNotifier.MessageAddedAsync(
             conversation.TenantId,
             conversation.Id,
-            new ConversationMessageDto(message.Id, message.Direction, message.Sender, message.Body, message.SentAtUtc),
+            new ConversationMessageDto(message.Id, message.Direction, message.Sender, message.Body, message.SentAtUtc, message.DeliveryStatus),
             cancellationToken);
 
         await conversationNotifier.StatusChangedAsync(conversation.TenantId, conversation.Id, conversation.Status, cancellationToken);
 
-        await channelProvider.SendMessageAsync(channelAccount, client.PhoneNumber, request.Body, cancellationToken);
+        await ConversationMessagingHelper.SendAndTrackAsync(
+            db, channelProvider, conversationNotifier, conversation, message, channelAccount, client.PhoneNumber, request.Body, cancellationToken);
     }
 }

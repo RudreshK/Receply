@@ -8,9 +8,10 @@ import {
   ConversationMessage,
   ConversationsService,
   HandoffStatus,
+  MessageDeliveryStatus,
   MessageSender,
 } from '../core/conversations.service';
-import { MessageAddedEvent, RealtimeService, StatusChangedEvent } from '../core/realtime.service';
+import { MessageAddedEvent, MessageStatusChangedEvent, RealtimeService, StatusChangedEvent } from '../core/realtime.service';
 
 interface MessageGroup {
   label: string;
@@ -101,6 +102,10 @@ export class Inbox implements OnInit {
     this.realtime.statusChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => this.onStatusChanged(event));
+
+    this.realtime.messageStatusChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => this.onMessageStatusChanged(event));
 
     this.realtime.reconnected$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.loadConversations();
@@ -196,6 +201,10 @@ export class Inbox implements OnInit {
     return new Date(value).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 
+  protected showTick(message: ConversationMessage): boolean {
+    return message.direction === 'Outbound' && message.deliveryStatus !== 'Pending';
+  }
+
   protected isNewToday(item: ConversationListItem): boolean {
     return this.dayLabel(item.clientCreatedOnUtc) === 'Today';
   }
@@ -252,6 +261,10 @@ export class Inbox implements OnInit {
 
   private onStatusChanged({ conversationId, status }: StatusChangedEvent): void {
     this.setStatus(conversationId, status);
+  }
+
+  private onMessageStatusChanged({ messageId, status }: MessageStatusChangedEvent): void {
+    this.messages.update(messages => messages.map(m => m.messageId === messageId ? { ...m, deliveryStatus: status } : m));
   }
 
   private setStatus(conversationId: string, status: HandoffStatus): void {

@@ -533,3 +533,36 @@ BEGIN
 END $EF$;
 COMMIT;
 
+START TRANSACTION;
+
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928200448_AddMessageDeliveryTracking') THEN
+    ALTER TABLE "Message" ADD "DeliveryStatus" integer NOT NULL DEFAULT 0;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928200448_AddMessageDeliveryTracking') THEN
+    ALTER TABLE "Message" ADD "ExternalMessageId" character varying(128);
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928200448_AddMessageDeliveryTracking') THEN
+    CREATE INDEX "IX_Message_ExternalMessageId" ON "Message" ("ExternalMessageId");
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928200448_AddMessageDeliveryTracking') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20260928200448_AddMessageDeliveryTracking', '8.0.10');
+    END IF;
+END $EF$;
+COMMIT;
+
