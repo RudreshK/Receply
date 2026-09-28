@@ -57,6 +57,11 @@ public class WhatsAppCloudApiProvider(
         foreach (var change in entry.Changes ?? [])
         {
             var phoneNumberId = change.Value?.Metadata?.PhoneNumberId;
+
+            var namesByWaId = (change.Value?.Contacts ?? [])
+                .Where(c => c.WaId is not null && c.Profile?.Name is not null)
+                .ToDictionary(c => c.WaId!, c => c.Profile!.Name!);
+
             foreach (var message in change.Value?.Messages ?? [])
             {
                 if (phoneNumberId is null || message.From is null || message.Text?.Body is null)
@@ -66,7 +71,9 @@ public class WhatsAppCloudApiProvider(
                     ? DateTimeOffset.FromUnixTimeSeconds(unixSeconds)
                     : DateTimeOffset.UtcNow;
 
-                results.Add(new InboundChannelMessage(phoneNumberId, message.From, message.Text.Body, receivedAt));
+                namesByWaId.TryGetValue(message.From, out var displayName);
+
+                results.Add(new InboundChannelMessage(phoneNumberId, message.From, message.Text.Body, receivedAt, displayName));
             }
         }
 
@@ -110,12 +117,24 @@ public class WhatsAppCloudApiProvider(
     private sealed class WebhookValue
     {
         [JsonPropertyName("metadata")] public WebhookMetadata? Metadata { get; set; }
+        [JsonPropertyName("contacts")] public List<WebhookContact>? Contacts { get; set; }
         [JsonPropertyName("messages")] public List<WebhookMessage>? Messages { get; set; }
     }
 
     private sealed class WebhookMetadata
     {
         [JsonPropertyName("phone_number_id")] public string? PhoneNumberId { get; set; }
+    }
+
+    private sealed class WebhookContact
+    {
+        [JsonPropertyName("wa_id")] public string? WaId { get; set; }
+        [JsonPropertyName("profile")] public WebhookProfile? Profile { get; set; }
+    }
+
+    private sealed class WebhookProfile
+    {
+        [JsonPropertyName("name")] public string? Name { get; set; }
     }
 
     private sealed class WebhookMessage

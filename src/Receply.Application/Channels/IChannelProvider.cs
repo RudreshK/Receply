@@ -2,7 +2,7 @@ using Receply.Domain.Channels;
 
 namespace Receply.Application.Channels;
 
-public record InboundChannelMessage(string FromExternalId, string CustomerPhoneNumber, string Body, DateTimeOffset ReceivedAtUtc);
+public record InboundChannelMessage(string FromExternalId, string CustomerPhoneNumber, string Body, DateTimeOffset ReceivedAtUtc, string? SenderDisplayName = null);
 
 /// <summary>
 /// Abstraction over a messaging channel provider (WhatsApp Cloud API today; SMS/Instagram later

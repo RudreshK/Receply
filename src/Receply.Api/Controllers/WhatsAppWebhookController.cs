@@ -89,8 +89,12 @@ public class WhatsAppWebhookController(
 
         if (client is null)
         {
-            client = Client.Create(channelAccount.TenantId, inbound.CustomerPhoneNumber);
+            client = Client.Create(channelAccount.TenantId, inbound.CustomerPhoneNumber, inbound.SenderDisplayName);
             db.Clients.Add(client);
+        }
+        else if (inbound.SenderDisplayName is not null)
+        {
+            client.UpdateProfile(inbound.SenderDisplayName, null);
         }
 
         var conversation = await db.Conversations
