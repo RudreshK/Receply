@@ -28,6 +28,11 @@ export interface ConversationMessage {
   deliveryStatus: MessageDeliveryStatus;
 }
 
+export interface TranslateResult {
+  translatedText: string;
+  languageCode: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ConversationsService {
   private readonly http = inject(HttpClient);
@@ -47,5 +52,9 @@ export class ConversationsService {
 
   resumeAi(conversationId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${conversationId}/resume-ai`, {});
+  }
+
+  translate(conversationId: string, messageId: string, languageCode: string): Observable<TranslateResult> {
+    return this.http.post<TranslateResult>(`${this.baseUrl}/${conversationId}/messages/${messageId}/translate`, { languageCode });
   }
 }

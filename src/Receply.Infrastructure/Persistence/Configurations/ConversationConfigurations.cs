@@ -43,3 +43,27 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Ignore(m => m.RowVersion);
     }
 }
+
+public class MessageTranslationConfiguration : IEntityTypeConfiguration<MessageTranslation>
+{
+    public void Configure(EntityTypeBuilder<MessageTranslation> builder)
+    {
+        builder.ToTable("MessageTranslation");
+        builder.HasKey(t => t.Id).HasName("PK_MessageTranslation");
+        builder.Property(t => t.Id).HasColumnName("MessageTranslationId");
+        builder.Property(t => t.LanguageCode).IsRequired().HasMaxLength(16);
+        builder.Property(t => t.TranslatedText).IsRequired();
+        builder.HasIndex(t => new { t.MessageId, t.LanguageCode }).IsUnique().HasDatabaseName("UQ_MessageTranslation_MessageId_LanguageCode");
+
+        builder.HasOne<Message>()
+            .WithMany()
+            .HasForeignKey(t => t.MessageId)
+            .HasConstraintName("FK_MessageTranslation_Message")
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // A cached translation is immutable once produced - same audit-baseline carve-out as Message.
+        builder.Ignore(t => t.ModifiedOn);
+        builder.Ignore(t => t.ModifiedBy);
+        builder.Ignore(t => t.RowVersion);
+    }
+}

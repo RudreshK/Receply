@@ -8,14 +8,20 @@ import {
   ConversationMessage,
   ConversationsService,
   HandoffStatus,
-  MessageDeliveryStatus,
   MessageSender,
 } from '../core/conversations.service';
+import { FeatureKey, FeaturesService } from '../core/features.service';
+import { MeService } from '../core/me.service';
 import { MessageAddedEvent, MessageStatusChangedEvent, RealtimeService, StatusChangedEvent } from '../core/realtime.service';
 
 interface MessageGroup {
   label: string;
   messages: ConversationMessage[];
+}
+
+interface TranslationState {
+  status: 'loading' | 'shown' | 'error';
+  text: string;
 }
 
 const STATUS_LABELS: Record<HandoffStatus, string> = {
@@ -24,6 +30,21 @@ const STATUS_LABELS: Record<HandoffStatus, string> = {
   HumanAssigned: 'With staff',
   Resolved: 'Resolved',
 };
+
+/** Common languages a business owner/staff might want the dashboard translated into. */
+const LANGUAGES: { code: string; name: string }[] = [
+  { code: 'en', name: 'English' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'te', name: 'Telugu' },
+  { code: 'ta', name: 'Tamil' },
+  { code: 'kn', name: 'Kannada' },
+  { code: 'ml', name: 'Malayalam' },
+  { code: 'bn', name: 'Bengali' },
+  { code: 'mr', name: 'Marathi' },
+  { code: 'gu', name: 'Gujarati' },
+  { code: 'pa', name: 'Punjabi' },
+  { code: 'ur', name: 'Urdu' },
+];
 
 @Component({
   selector: 'app-inbox',
@@ -35,6 +56,8 @@ export class Inbox implements OnInit {
   private readonly conversationsApi = inject(ConversationsService);
   private readonly realtime = inject(RealtimeService);
   private readonly auth = inject(AuthService);
+  private readonly meApi = inject(MeService);
+  private readonly featuresApi = inject(FeaturesService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -42,6 +65,10 @@ export class Inbox implements OnInit {
 
   protected readonly session = this.auth.session;
   protected readonly connection = this.realtime.status;
+  protected readonly languages = LANGUAGES;
+
+  protected readonly translations = signal<Record<string, TranslationState>>({});
+  protected readonly savingLanguage = signal(false);
 
   protected readonly conversations = signal<ConversationListItem[]>([]);
   protected readonly loadingList = signal(true);
@@ -94,6 +121,7 @@ export class Inbox implements OnInit {
 
   ngOnInit(): void {
     this.loadConversations();
+    void this.featuresApi.load();
 
     this.realtime.messageAdded$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -121,6 +149,7 @@ export class Inbox implements OnInit {
     this.selectedId.set(conversation.conversationId);
     this.draft.set('');
     this.replyError.set(null);
+    this.translations.set({});
     this.loadMessages(conversation.conversationId);
   }
 
@@ -129,8 +158,13 @@ export class Inbox implements OnInit {
     this.messages.set([]);
   }
 
+  protected featureEnabled(feature: FeatureKey): boolean {
+    return this.featuresApi.isEnabled(feature);
+  }
+
   protected canReplyManually(conversation: ConversationListItem): boolean {
-    return conversation.status === 'HandoffRequested' || conversation.status === 'HumanAssigned';
+    return this.featureEnabled('ManualStaffReply')
+      && (conversation.status === 'HandoffRequested' || conversation.status === 'HumanAssigned');
   }
 
   protected sendReply(conversationId: string): void {
@@ -169,9 +203,65 @@ export class Inbox implements OnInit {
     });
   }
 
+  protected displayText(message: ConversationMessage): string {
+    const translation = this.translations()[message.messageId];
+    return translation?.status === 'shown' ? translation.text : message.body;
+  }
+
+  protected translateLabel(message: ConversationMessage): string {
+    switch (this.translations()[message.messageId]?.status) {
+      case 'loading': return 'Translating…';
+      case 'shown': return 'Show original';
+      case 'error': return 'Translate (failed - retry)';
+      default: return 'Translate';
+    }
+  }
+
+  protected toggleTranslate(message: ConversationMessage): void {
+    const conversationId = this.selectedId();
+    if (!conversationId) return;
+
+    const current = this.translations()[message.messageId];
+    if (current?.status === 'shown') {
+      // Toggle back to the original text - already in hand, no need to call the server again.
+      this.translations.update(map => {
+        const next = { ...map };
+        delete next[message.messageId];
+        return next;
+      });
+      return;
+    }
+    if (current?.status === 'loading') return;
+
+    const languageCode = this.session()?.preferredLanguage || 'en';
+    this.translations.update(map => ({ ...map, [message.messageId]: { status: 'loading', text: '' } }));
+
+    this.conversationsApi.translate(conversationId, message.messageId, languageCode).subscribe({
+      next: result => {
+        this.translations.update(map => ({ ...map, [message.messageId]: { status: 'shown', text: result.translatedText } }));
+      },
+      error: () => {
+        this.translations.update(map => ({ ...map, [message.messageId]: { status: 'error', text: '' } }));
+      },
+    });
+  }
+
+  protected setPreferredLanguage(languageCode: string): void {
+    this.savingLanguage.set(true);
+    this.meApi.updatePreferredLanguage(languageCode || null).subscribe({
+      next: () => {
+        this.savingLanguage.set(false);
+        this.auth.setPreferredLanguage(languageCode || null);
+        this.translations.set({}); // Old translations were in the previous language - drop them.
+      },
+      error: () => this.savingLanguage.set(false),
+    });
+  }
+
   protected async logout(): Promise<void> {
     await this.realtime.stop();
     this.auth.logout();
+    this.featuresApi.reset();
     this.router.navigate(['/login']);
   }
 

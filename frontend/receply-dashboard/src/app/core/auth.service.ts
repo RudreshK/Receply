@@ -9,6 +9,7 @@ export interface Session {
   staffId: string;
   fullName: string;
   role: string;
+  preferredLanguage: string | null;
 }
 
 const STORAGE_KEY = 'receply.session';
@@ -29,6 +30,13 @@ export class AuthService {
     return this.http
       .post<Session>(`${environment.apiBaseUrl}/api/auth/verify-otp`, { phoneNumber, code })
       .pipe(tap(session => this.store(session)));
+  }
+
+  /** Persists a preferred-language change the caller already saved server-side (see MeService). */
+  setPreferredLanguage(languageCode: string | null): void {
+    const current = this.sessionSignal();
+    if (!current) return;
+    this.store({ ...current, preferredLanguage: languageCode });
   }
 
   logout(): void {

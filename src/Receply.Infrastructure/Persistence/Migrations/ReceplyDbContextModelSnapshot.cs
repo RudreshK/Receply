@@ -193,6 +193,47 @@ namespace Receply.Infrastructure.Persistence.Migrations
                     b.ToTable("Message", (string)null);
                 });
 
+            modelBuilder.Entity("Receply.Domain.Conversations.MessageTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("MessageTranslationId");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TranslatedText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id")
+                        .HasName("PK_MessageTranslation");
+
+                    b.HasIndex("MessageId", "LanguageCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_MessageTranslation_MessageId_LanguageCode");
+
+                    b.ToTable("MessageTranslation", (string)null);
+                });
+
             modelBuilder.Entity("Receply.Domain.Crm.Client", b =>
                 {
                     b.Property<Guid>("Id")
@@ -906,6 +947,9 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
+                    b.Property<string>("PreferredLanguage")
+                        .HasColumnType("text");
+
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
@@ -983,6 +1027,54 @@ namespace Receply.Infrastructure.Persistence.Migrations
                     b.ToTable("Tenant", (string)null);
                 });
 
+            modelBuilder.Entity("Receply.Domain.Tenancy.TenantFeatureFlag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantFeatureFlagId");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<int>("Feature")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_TenantFeatureFlag");
+
+                    b.HasIndex("TenantId", "Feature")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_TenantFeatureFlag_TenantId_Feature");
+
+                    b.ToTable("TenantFeatureFlag", (string)null);
+                });
+
             modelBuilder.Entity("Receply.Domain.Conversations.Message", b =>
                 {
                     b.HasOne("Receply.Domain.Conversations.Conversation", null)
@@ -991,6 +1083,16 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Message_Conversation");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Conversations.MessageTranslation", b =>
+                {
+                    b.HasOne("Receply.Domain.Conversations.Message", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MessageTranslation_Message");
                 });
 
             modelBuilder.Entity("Receply.Domain.Scheduling.AvailabilityRule", b =>

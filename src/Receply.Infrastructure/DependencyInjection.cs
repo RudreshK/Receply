@@ -6,12 +6,14 @@ using Receply.Application.AiEngine;
 using Receply.Application.Auth;
 using Receply.Application.Channels;
 using Receply.Application.Common;
+using Receply.Application.Translation;
 using Receply.Infrastructure.AiEngine;
 using Receply.Infrastructure.Auth;
 using Receply.Infrastructure.Channels.WhatsApp;
 using Receply.Infrastructure.Email;
 using Receply.Infrastructure.Multitenancy;
 using Receply.Infrastructure.Persistence;
+using Receply.Infrastructure.Translation;
 using StackExchange.Redis;
 
 namespace Receply.Infrastructure;
@@ -37,6 +39,7 @@ public static class DependencyInjection
 
         services.Configure<OpenAiOptions>(configuration.GetSection(OpenAiOptions.SectionName));
         services.AddSingleton<IAiConversationAgent, OpenAiConversationAgent>();
+        services.AddSingleton<ITranslationService, OpenAiTranslationService>();
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

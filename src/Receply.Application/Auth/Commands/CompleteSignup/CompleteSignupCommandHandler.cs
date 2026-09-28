@@ -48,7 +48,7 @@ public class CompleteSignupCommandHandler(IApplicationDbContext db, IJwtTokenGen
         await db.SaveChangesAsync(cancellationToken);
 
         var token = tokenGenerator.GenerateToken(owner);
-        return new VerifyOtpResult(token, tenant.Id, owner.Id, owner.FullName, owner.Role.ToString());
+        return new VerifyOtpResult(token, tenant.Id, owner.Id, owner.FullName, owner.Role.ToString(), owner.PreferredLanguage);
     }
 
     private static string Hash(string code) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code)));

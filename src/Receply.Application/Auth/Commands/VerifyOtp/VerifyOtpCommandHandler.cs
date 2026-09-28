@@ -36,7 +36,7 @@ public class VerifyOtpCommandHandler(IApplicationDbContext db, IJwtTokenGenerato
         await db.SaveChangesAsync(cancellationToken);
 
         var token = tokenGenerator.GenerateToken(staff);
-        return new VerifyOtpResult(token, staff.TenantId, staff.Id, staff.FullName, staff.Role.ToString());
+        return new VerifyOtpResult(token, staff.TenantId, staff.Id, staff.FullName, staff.Role.ToString(), staff.PreferredLanguage);
     }
 
     private static string Hash(string code) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code)));

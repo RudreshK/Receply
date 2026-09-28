@@ -18,6 +18,10 @@ public class Staff : TenantOwnedEntity
     public StaffRole Role { get; private set; }
     public bool IsActive { get; private set; } = true;
 
+    /// <summary>ISO 639-1 code (e.g. "te", "hi") for the dashboard's "Translate" feature - null means
+    /// no preference set, and the dashboard defaults to English.</summary>
+    public string? PreferredLanguage { get; private set; }
+
     private Staff() { }
 
     public static Staff Create(Guid tenantId, string fullName, string email, string phoneNumber, StaffRole role)
@@ -47,4 +51,6 @@ public class Staff : TenantOwnedEntity
         Email = email;
         PhoneNumber = phoneNumber;
     }
+
+    public void SetPreferredLanguage(string? languageCode) => PreferredLanguage = languageCode;
 }

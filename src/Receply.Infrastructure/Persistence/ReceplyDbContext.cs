@@ -32,9 +32,11 @@ public class ReceplyDbContext(DbContextOptions<ReceplyDbContext> options, ITenan
     public DbSet<BranchWorkingHours> BranchWorkingHours => Set<BranchWorkingHours>();
     public DbSet<Holiday> Holidays => Set<Holiday>();
     public DbSet<Faq> Faqs => Set<Faq>();
+    public DbSet<MessageTranslation> MessageTranslations => Set<MessageTranslation>();
+    public DbSet<TenantFeatureFlag> TenantFeatureFlags => Set<TenantFeatureFlag>();
 
     /// <summary>Entities that opt out of optimistic concurrency tracking - immutable/high-volume rows where it adds no value.</summary>
-    private static readonly Type[] RowVersionExemptTypes = [typeof(Message)];
+    private static readonly Type[] RowVersionExemptTypes = [typeof(Message), typeof(MessageTranslation)];
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

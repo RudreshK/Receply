@@ -6,6 +6,20 @@
         <span class="dot"></span>
         {{ connection() === 'connected' ? 'Live' : connection() === 'disconnected' ? 'Offline' : 'Connecting…' }}
       </span>
+      @if (featureEnabled('MessageTranslation')) {
+        <select
+          class="language-picker"
+          aria-label="Dashboard language for translated messages"
+          [ngModel]="session()?.preferredLanguage ?? ''"
+          (ngModelChange)="setPreferredLanguage($event)"
+          [disabled]="savingLanguage()"
+        >
+          <option value="">Translate to…</option>
+          @for (language of languages; track language.code) {
+            <option [value]="language.code">{{ language.name }}</option>
+          }
+        </select>
+      }
       @if (session(); as s) {
         <span class="user">{{ s.fullName }}</span>
       }
@@ -94,7 +108,7 @@
             <div class="chat-name">{{ conversation.clientName }}</div>
             <div class="chat-sub">{{ conversation.clientPhoneNumber }} · {{ statusLabel(conversation.status) }}</div>
           </div>
-          @if (conversation.status !== 'AiHandled') {
+          @if (conversation.status !== 'AiHandled' && featureEnabled('ManualStaffReply')) {
             <button
               type="button"
               class="ghost small back-to-ai"
@@ -120,7 +134,12 @@
                     @if (message.direction === 'Outbound') {
                       <div class="bubble-sender">{{ senderLabel(message.sender) }}</div>
                     }
-                    <div class="bubble-text">{{ message.body }}</div>
+                    <div class="bubble-text">{{ displayText(message) }}</div>
+                    @if (featureEnabled('MessageTranslation')) {
+                      <button type="button" class="translate-link" (click)="toggleTranslate(message)">
+                        {{ translateLabel(message) }}
+                      </button>
+                    }
                     <div class="bubble-time">
                       {{ messageTime(message.sentAtUtc) }}
                       @if (showTick(message)) {

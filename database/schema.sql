@@ -566,3 +566,72 @@ BEGIN
 END $EF$;
 COMMIT;
 
+START TRANSACTION;
+
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928202349_AddTranslationAndFeatureFlags') THEN
+    ALTER TABLE "Staff" ADD "PreferredLanguage" text;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928202349_AddTranslationAndFeatureFlags') THEN
+    CREATE TABLE "MessageTranslation" (
+        "MessageTranslationId" uuid NOT NULL,
+        "MessageId" uuid NOT NULL,
+        "LanguageCode" character varying(16) NOT NULL,
+        "TranslatedText" text NOT NULL,
+        "CreatedOn" timestamp(0) with time zone NOT NULL,
+        "CreatedBy" uuid,
+        "IsDeleted" boolean NOT NULL,
+        "TenantId" uuid NOT NULL,
+        CONSTRAINT "PK_MessageTranslation" PRIMARY KEY ("MessageTranslationId"),
+        CONSTRAINT "FK_MessageTranslation_Message" FOREIGN KEY ("MessageId") REFERENCES "Message" ("MessageId") ON DELETE CASCADE
+    );
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928202349_AddTranslationAndFeatureFlags') THEN
+    CREATE TABLE "TenantFeatureFlag" (
+        "TenantFeatureFlagId" uuid NOT NULL,
+        "Feature" integer NOT NULL,
+        "IsEnabled" boolean NOT NULL,
+        "CreatedOn" timestamp(0) with time zone NOT NULL,
+        "CreatedBy" uuid,
+        "ModifiedOn" timestamp(0) with time zone,
+        "ModifiedBy" uuid,
+        "IsDeleted" boolean NOT NULL,
+        "TenantId" uuid NOT NULL,
+        CONSTRAINT "PK_TenantFeatureFlag" PRIMARY KEY ("TenantFeatureFlagId")
+    );
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928202349_AddTranslationAndFeatureFlags') THEN
+    CREATE UNIQUE INDEX "UQ_MessageTranslation_MessageId_LanguageCode" ON "MessageTranslation" ("MessageId", "LanguageCode");
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928202349_AddTranslationAndFeatureFlags') THEN
+    CREATE UNIQUE INDEX "UQ_TenantFeatureFlag_TenantId_Feature" ON "TenantFeatureFlag" ("TenantId", "Feature");
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260928202349_AddTranslationAndFeatureFlags') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20260928202349_AddTranslationAndFeatureFlags', '8.0.10');
+    END IF;
+END $EF$;
+COMMIT;
+

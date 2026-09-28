@@ -8,6 +8,7 @@ using Receply.Application.Common;
 using Receply.Application.Conversations;
 using Receply.Application.Conversations.Commands.GenerateAiReply;
 using Receply.Application.Conversations.Queries.GetConversationMessages;
+using Receply.Application.Features;
 using Receply.Application.Tenancy.Commands.GenerateStaffAiReply;
 using Receply.Domain.Channels;
 using Receply.Domain.Conversations;
@@ -25,6 +26,7 @@ public class WhatsAppWebhookController(
     IApplicationDbContext db,
     IBackgroundTaskQueue taskQueue,
     IConversationNotifier conversationNotifier,
+    IFeatureAccess featureAccess,
     ILogger<WhatsAppWebhookController> logger) : ControllerBase
 {
     // Meta calls this once, at setup time, to prove you control the endpoint.
@@ -89,7 +91,7 @@ public class WhatsAppWebhookController(
         if (await TryHandleStaffMessageAsync(channelAccount.TenantId, inbound, cancellationToken))
             return null;
 
-        if (inbound.ExternalMessageId is not null)
+        if (inbound.ExternalMessageId is not null && await featureAccess.IsEnabledAsync(channelAccount.TenantId, Feature.ReadReceipts, cancellationToken))
         {
             // Best-effort (never throws) - shows the customer a blue tick on their message and a
             // "typing…" indicator while we work out a reply below, so they don't wander off.
@@ -151,6 +153,9 @@ public class WhatsAppWebhookController(
             var channelAccount = await db.ChannelAccounts.FirstOrDefaultAsync(
                 c => c.Type == ChannelType.WhatsApp && c.ExternalId == update.FromExternalId, cancellationToken);
             if (channelAccount is null)
+                continue;
+
+            if (!await featureAccess.IsEnabledAsync(channelAccount.TenantId, Feature.ReadReceipts, cancellationToken))
                 continue;
 
             var message = await db.Messages.FirstOrDefaultAsync(
