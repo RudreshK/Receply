@@ -1,0 +1,199 @@
+<div class="inbox">
+  <header class="page-header">
+    <h1>WhatsApp Inbox</h1>
+    <div class="page-header-right">
+      <span class="connection" [class]="'connection ' + connection()" [title]="'Live updates: ' + connection()">
+        <span class="dot"></span>
+        {{ connection() === 'connected' ? 'Live' : connection() === 'disconnected' ? 'Offline' : 'Connecting…' }}
+      </span>
+      @if (featureEnabled('MessageTranslation')) {
+        <select
+          class="language-picker"
+          aria-label="Dashboard language for translated messages"
+          [ngModel]="session()?.preferredLanguage ?? ''"
+          (ngModelChange)="setPreferredLanguage($event)"
+          [disabled]="savingLanguage()"
+        >
+          <option value="">Translate to…</option>
+          @for (language of languages; track language.code) {
+            <option [value]="language.code">{{ language.name }}</option>
+          }
+        </select>
+      }
+    </div>
+  </header>
+
+  <section class="stats" aria-label="Client summary">
+    <div class="stat">
+      <span class="stat-value">{{ stats().today }}</span>
+      <span class="stat-label">New clients today</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">{{ stats().week }}</span>
+      <span class="stat-label">New in last 7 days</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">{{ stats().total }}</span>
+      <span class="stat-label">Total clients</span>
+    </div>
+    <div class="stat" [class.attention]="stats().needsStaff > 0">
+      <span class="stat-value">{{ stats().needsStaff }}</span>
+      <span class="stat-label">Waiting for staff</span>
+    </div>
+  </section>
+
+  <div class="panes" [class.chat-open]="selectedId() !== null">
+    <aside class="client-list" aria-label="Clients">
+      <div class="search">
+        <input
+          type="search"
+          placeholder="Search by name or number"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          aria-label="Search clients"
+        />
+      </div>
+
+      @if (loadingList()) {
+        <p class="placeholder">Loading clients…</p>
+      } @else if (listError()) {
+        <p class="placeholder error">{{ listError() }}</p>
+      } @else if (sortedConversations().length === 0) {
+        <p class="placeholder">
+          {{ search() ? 'No clients match your search.' : 'No enquiries yet. New WhatsApp clients will appear here.' }}
+        </p>
+      } @else {
+        <ul>
+          @for (item of sortedConversations(); track item.conversationId) {
+            <li>
+              <button
+                type="button"
+                class="client"
+                [class.active]="item.conversationId === selectedId()"
+                (click)="select(item)"
+              >
+                <span class="avatar" aria-hidden="true">{{ initials(item.clientName) }}</span>
+                <span class="client-main">
+                  <span class="client-row">
+                    <span class="client-name">{{ item.clientName }}</span>
+                    <span class="client-time">{{ listTime(item) }}</span>
+                  </span>
+                  <span class="client-row">
+                    <span class="client-preview">{{ item.lastMessagePreview ?? 'No messages yet' }}</span>
+                    @if (isNewToday(item)) {
+                      <span class="badge new">New</span>
+                    }
+                    @if (item.status !== 'AiHandled') {
+                      <span class="badge" [class]="'badge ' + item.status">{{ statusLabel(item.status) }}</span>
+                    }
+                  </span>
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </aside>
+
+    <section class="chat" aria-label="Conversation">
+      @if (selected(); as conversation) {
+        <header class="chat-header">
+          <button type="button" class="back" (click)="closeChat()" aria-label="Back to clients">‹</button>
+          <span class="avatar" aria-hidden="true">{{ initials(conversation.clientName) }}</span>
+          <div class="chat-title">
+            <div class="chat-name">{{ conversation.clientName }}</div>
+            <div class="chat-sub">{{ conversation.clientPhoneNumber }} · {{ statusLabel(conversation.status) }}</div>
+          </div>
+          @if (conversation.status !== 'AiHandled' && featureEnabled('ManualStaffReply')) {
+            <button
+              type="button"
+              class="ghost small back-to-ai"
+              (click)="resumeAi(conversation.conversationId)"
+              [disabled]="resumingAi()"
+            >
+              Back to AI
+            </button>
+          }
+        </header>
+
+        <div class="chat-body" #chatScroll>
+          @if (loadingMessages()) {
+            <p class="placeholder">Loading conversation…</p>
+          } @else if (messagesError()) {
+            <p class="placeholder error">{{ messagesError() }}</p>
+          } @else {
+            @for (group of messageGroups(); track group.label) {
+              <div class="day"><span>{{ group.label }}</span></div>
+              @for (message of group.messages; track message.messageId) {
+                <div class="bubble-row" [class.outbound]="message.direction === 'Outbound'">
+                  <div class="bubble" [class.outbound]="message.direction === 'Outbound'">
+                    @if (message.direction === 'Outbound') {
+                      <div class="bubble-sender">{{ senderLabel(message.sender) }}</div>
+                    }
+                    <div class="bubble-text">{{ displayText(message) }}</div>
+                    @if (featureEnabled('MessageTranslation') && canTranslate(message)) {
+                      <button type="button" class="translate-link" (click)="toggleTranslate(message)">
+                        {{ translateLabel(message) }}
+                      </button>
+                    }
+                    <div class="bubble-time">
+                      {{ messageTime(message.sentAtUtc) }}
+                      @if (showTick(message)) {
+                        <span class="tick" [class]="'tick ' + message.deliveryStatus" aria-hidden="true">
+                          @if (message.deliveryStatus === 'Failed') {
+                            !
+                          } @else if (message.deliveryStatus === 'Sent') {
+                            <svg viewBox="0 0 16 16" width="15" height="15">
+                              <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+                            </svg>
+                          } @else {
+                            <svg viewBox="0 0 16 16" width="15" height="15">
+                              <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm3.5 0a.5.5 0 0 0-.708-.708L8.5 10.293l-.646-.647-.708.708.999.999a.5.5 0 0 0 .707 0z" />
+                            </svg>
+                          }
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          }
+        </div>
+
+        @if (canReplyManually(conversation)) {
+          <footer class="chat-footer reply">
+            <form class="reply-form" (ngSubmit)="sendReply(conversation.conversationId)">
+              <input
+                type="text"
+                placeholder="Type a reply…"
+                [ngModel]="draft()"
+                (ngModelChange)="draft.set($event)"
+                name="reply"
+                autocomplete="off"
+                [disabled]="sending()"
+              />
+              <button type="submit" class="send" [disabled]="sending() || !draft().trim()">
+                {{ sending() ? 'Sending…' : 'Send' }}
+              </button>
+            </form>
+            @if (replyError(); as error) {
+              <p class="reply-error">{{ error }}</p>
+            }
+          </footer>
+        } @else if (featureEnabled('ManualStaffReply')) {
+          <footer class="chat-footer ai-footer">
+            <span>Replies are handled by the AI assistant.</span>
+            <button type="button" class="ghost small" (click)="startManualReply()">Reply manually</button>
+          </footer>
+        } @else {
+          <footer class="chat-footer">Replies are handled by the AI assistant.</footer>
+        }
+      } @else {
+        <div class="chat-empty">
+          <p>Select a client to see their WhatsApp conversation.</p>
+        </div>
+      }
+    </section>
+  </div>
+</div>

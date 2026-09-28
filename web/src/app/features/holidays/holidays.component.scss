@@ -1,0 +1,153 @@
+h1 {
+  margin: 0 0 20px;
+  font-size: 22px;
+  color: #1a1a2e;
+}
+
+.layout {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.calendar {
+  flex: 1;
+  min-width: 320px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.calendar-header button {
+  border: none;
+  background: #f3f4f6;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.weekdays span {
+  text-align: center;
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  padding-bottom: 4px;
+}
+
+.cell {
+  min-height: 56px;
+  border-radius: 6px;
+  background: #f9fafb;
+  padding: 4px 6px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cell.empty {
+  background: transparent;
+}
+
+.cell.holiday {
+  background: #fef2f2;
+}
+
+.day-number {
+  font-weight: 600;
+  color: #374151;
+}
+
+.holiday-name {
+  margin-top: 4px;
+  color: #b91c1c;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.form {
+  width: 280px;
+}
+
+.form h2 {
+  font-size: 14px;
+  margin: 0 0 10px;
+}
+
+.form label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  display: block;
+  margin-top: 8px;
+}
+
+.form input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 4px;
+  box-sizing: border-box;
+}
+
+.form button {
+  margin-top: 14px;
+  width: 100%;
+  padding: 9px;
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.holiday-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.holiday-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f2;
+}
+
+.holiday-list li.empty {
+  color: #9ca3af;
+}
+
+.remove {
+  border: none;
+  background: none;
+  color: #b91c1c;
+  font-size: 11px;
+  cursor: pointer;
+}

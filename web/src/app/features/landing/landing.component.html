@@ -1,0 +1,118 @@
+<div class="landing">
+  <header class="topnav">
+    <div class="topnav-inner">
+      <div class="brand">Receply</div>
+      <nav class="links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+      <div class="actions">
+        @if (auth.isLoggedIn()) {
+          <a class="btn-primary" routerLink="/app/dashboard">Go to dashboard</a>
+        } @else {
+          <a class="btn-text" routerLink="/login">Sign in</a>
+          <a class="btn-primary" routerLink="/signup">Start free trial</a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="badge">Now live for clinics, salons & gyms across India</span>
+      <h1>Your receptionist, <br />on WhatsApp. 24/7.</h1>
+      <p>
+        Receply connects to your business WhatsApp number and automatically answers questions, checks
+        availability, and books appointments - so your staff can focus on what matters.
+      </p>
+      <div class="hero-actions">
+        <a class="btn-primary large" routerLink="/signup">Start free trial &rarr;</a>
+        <a class="btn-outline large" href="#how-it-works">See how it works</a>
+      </div>
+      <p class="hero-note">Free 14-day trial &middot; No credit card required &middot; Setup in under an hour</p>
+    </div>
+
+    <div class="hero-demo">
+      <div class="phone">
+        <div class="phone-header">
+          <div class="avatar">R</div>
+          <div>
+            <div class="phone-title">Receply Receptionist</div>
+            <div class="phone-subtitle">Mehta Family Clinic</div>
+          </div>
+        </div>
+        <div class="phone-body">
+          @for (message of demoScript; track $index) {
+            @if ($index < visibleCount()) {
+              <div class="bubble" [class]="message.sender">
+                <div class="bubble-text">{{ message.text }}</div>
+                <div class="bubble-time">{{ message.time }}</div>
+              </div>
+            }
+          }
+          @if (isTyping()) {
+            <div class="typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
+          }
+        </div>
+        <div class="phone-input">
+          <span>Type a message</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <h2>Everything your front desk needs, automated</h2>
+    <div class="feature-grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-card">
+          <div class="feature-icon">{{ feature.icon }}</div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section id="how-it-works" class="how-it-works">
+    <h2>Up and running in three steps</h2>
+    <div class="steps">
+      @for (step of steps; track step.number) {
+        <div class="step">
+          <div class="step-number">{{ step.number }}</div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <h2>Simple pricing</h2>
+    <div class="pricing-card">
+      <div class="pricing-plan">Growth</div>
+      <div class="pricing-price">Contact us for a quote</div>
+      <ul>
+        <li>Unlimited WhatsApp conversations</li>
+        <li>AI-powered booking, rescheduling & cancellations</li>
+        <li>FAQ auto-reply and human handoff</li>
+        <li>Dashboard for settings, holidays & appointments</li>
+      </ul>
+      <a class="btn-primary" routerLink="/signup">Start free trial</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="brand">Receply</div>
+    <div class="footer-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a routerLink="/login">Sign in</a>
+    </div>
+    <div class="copyright">&copy; 2026 Receply. All rights reserved.</div>
+  </footer>
+</div>

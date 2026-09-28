@@ -1,0 +1,52 @@
+<div class="signup-page">
+  <div class="signup-card">
+    <h1>Start your free trial</h1>
+    <p class="subtitle">Set up your business on Receply</p>
+
+    @if (step() === 'details') {
+      <form (ngSubmit)="requestOtp()">
+        <label for="firstName">First name</label>
+        <input id="firstName" name="firstName" type="text" placeholder="Jordan" [(ngModel)]="firstName" required />
+
+        <label for="lastName">Last name</label>
+        <input id="lastName" name="lastName" type="text" placeholder="Rivera" [(ngModel)]="lastName" required />
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@business.com" [(ngModel)]="email" required />
+
+        <label for="whatsappNumber">Business WhatsApp number</label>
+        <input id="whatsappNumber" name="whatsappNumber" type="tel" placeholder="+1 555 0100" [(ngModel)]="whatsappNumber" required />
+
+        <label for="businessType">Type of business</label>
+        <select id="businessType" name="businessType" [(ngModel)]="businessType">
+          @for (type of businessTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Sending code...' : 'Send verification code' }}
+        </button>
+      </form>
+    } @else {
+      <form (ngSubmit)="completeSignup()">
+        <label for="code">6-digit code</label>
+        <input id="code" name="code" type="text" inputmode="numeric" maxlength="6" [(ngModel)]="code" required />
+        <p class="otp-note">We sent a code to your WhatsApp number.</p>
+        @if (devCode()) {
+          <p class="dev-hint">Dev mode - your code is <strong>{{ devCode() }}</strong></p>
+        }
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Creating account...' : 'Verify & create account' }}
+        </button>
+        <button type="button" class="link-button" (click)="backToDetails()">Edit details</button>
+      </form>
+    }
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <p class="signin-note">Already have an account? <a routerLink="/login">Sign in</a></p>
+  </div>
+</div>

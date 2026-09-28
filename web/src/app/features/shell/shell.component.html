@@ -1,0 +1,23 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">Receply</div>
+    <nav>
+      @for (link of navLinks; track link.path) {
+        <a [routerLink]="link.path" routerLinkActive="active">{{ link.label }}</a>
+      }
+    </nav>
+    <div class="user-info">
+      @if (auth.currentUser(); as user) {
+        <div class="name">{{ user.fullName }}</div>
+        <div class="role">{{ user.role }}</div>
+      }
+      <button (click)="logout()">Sign out</button>
+    </div>
+  </aside>
+  <main class="content">
+    <div class="topbar">
+      <a class="setup-business-btn" routerLink="/app/settings">Setup Business</a>
+    </div>
+    <router-outlet></router-outlet>
+  </main>
+</div>
