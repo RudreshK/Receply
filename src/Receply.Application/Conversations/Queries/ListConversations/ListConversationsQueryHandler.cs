@@ -39,11 +39,12 @@ public class ListConversationsQueryHandler(IApplicationDbContext db) : IRequestH
             .Select(c =>
             {
                 lastMessageByConversation.TryGetValue(c.Id, out var last);
+                var displayPhone = FormatPhoneForDisplay(c.PhoneNumber);
                 return new ConversationListItemDto(
                     c.Id,
                     c.ClientId,
-                    c.FullName ?? c.PhoneNumber,
-                    c.PhoneNumber,
+                    c.FullName ?? displayPhone,
+                    displayPhone,
                     c.Status,
                     last?.Body,
                     last?.SentAtUtc,
@@ -52,4 +53,10 @@ public class ListConversationsQueryHandler(IApplicationDbContext db) : IRequestH
             .OrderByDescending(c => c.LastMessageAtUtc ?? c.ClientCreatedOnUtc)
             .ToList();
     }
+
+    // WhatsApp/the DB store phone numbers without a leading "+" (that's the wire format the Cloud API
+    // itself expects for outbound sends) - this formats a copy for display only, never touching the
+    // stored value or anything sent back to WhatsApp.
+    private static string FormatPhoneForDisplay(string phoneNumber) =>
+        phoneNumber.StartsWith('+') ? phoneNumber : $"+{phoneNumber}";
 }
