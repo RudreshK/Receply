@@ -91,6 +91,10 @@ export class Inbox implements OnInit {
   protected readonly sending = signal(false);
   protected readonly replyError = signal<string | null>(null);
   protected readonly resumingAi = signal(false);
+  /** A staff member choosing to reply by hand while the AI is still handling the conversation - the
+   * server only actually hands the thread over once they send (SendStaffReplyCommand), so this is
+   * purely "show me the reply box" until then. */
+  protected readonly manualOverride = signal(false);
 
   protected readonly sortedConversations = computed(() => {
     const term = this.search().trim().toLowerCase();
@@ -157,6 +161,7 @@ export class Inbox implements OnInit {
     this.draft.set('');
     this.replyError.set(null);
     this.translations.set({});
+    this.manualOverride.set(false);
     this.loadMessages(conversation.conversationId);
   }
 
@@ -171,7 +176,12 @@ export class Inbox implements OnInit {
 
   protected canReplyManually(conversation: ConversationListItem): boolean {
     return this.featureEnabled('ManualStaffReply')
-      && (conversation.status === 'HandoffRequested' || conversation.status === 'HumanAssigned');
+      && (conversation.status === 'HandoffRequested' || conversation.status === 'HumanAssigned' || this.manualOverride());
+  }
+
+  /** The "Reply manually" link shown alongside "Replies are handled by the AI assistant." */
+  protected startManualReply(): void {
+    this.manualOverride.set(true);
   }
 
   protected sendReply(conversationId: string): void {
@@ -374,6 +384,9 @@ export class Inbox implements OnInit {
 
   private setStatus(conversationId: string, status: HandoffStatus): void {
     this.conversations.update(items => items.map(c => c.conversationId === conversationId ? { ...c, status } : c));
+    if (status === 'AiHandled' && conversationId === this.selectedId()) {
+      this.manualOverride.set(false);
+    }
   }
 
   private scrollToBottom(): void {

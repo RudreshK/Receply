@@ -185,6 +185,11 @@
               <p class="reply-error">{{ error }}</p>
             }
           </footer>
+        } @else if (featureEnabled('ManualStaffReply')) {
+          <footer class="chat-footer ai-footer">
+            <span>Replies are handled by the AI assistant.</span>
+            <button type="button" class="ghost small" (click)="startManualReply()">Reply manually</button>
+          </footer>
         } @else {
           <footer class="chat-footer">Replies are handled by the AI assistant.</footer>
         }
