@@ -5,7 +5,9 @@ using Microsoft.Extensions.Options;
 using Receply.Api.BackgroundProcessing;
 using Receply.Application.Channels;
 using Receply.Application.Common;
+using Receply.Application.Conversations;
 using Receply.Application.Conversations.Commands.GenerateAiReply;
+using Receply.Application.Conversations.Queries.GetConversationMessages;
 using Receply.Application.Tenancy.Commands.GenerateStaffAiReply;
 using Receply.Domain.Channels;
 using Receply.Domain.Conversations;
@@ -22,6 +24,7 @@ public class WhatsAppWebhookController(
     IOptions<WhatsAppOptions> whatsAppOptions,
     IApplicationDbContext db,
     IBackgroundTaskQueue taskQueue,
+    IConversationNotifier conversationNotifier,
     ILogger<WhatsAppWebhookController> logger) : ControllerBase
 {
     // Meta calls this once, at setup time, to prove you control the endpoint.
@@ -109,9 +112,15 @@ public class WhatsAppWebhookController(
             db.Conversations.Add(conversation);
         }
 
-        conversation.AddMessage(MessageDirection.Inbound, MessageSender.Client, inbound.Body);
+        var message = conversation.AddMessage(MessageDirection.Inbound, MessageSender.Client, inbound.Body);
 
         await db.SaveChangesAsync(cancellationToken);
+
+        await conversationNotifier.MessageAddedAsync(
+            channelAccount.TenantId,
+            conversation.Id,
+            new ConversationMessageDto(message.Id, message.Direction, message.Sender, message.Body, message.SentAtUtc),
+            cancellationToken);
 
         return (channelAccount.TenantId, conversation.Id);
     }

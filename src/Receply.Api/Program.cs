@@ -5,8 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Receply.Api.BackgroundProcessing;
+using Receply.Api.Hubs;
 using Receply.Api.Middleware;
+using Receply.Api.Realtime;
 using Receply.Application;
+using Receply.Application.Conversations;
 using Receply.Infrastructure;
 using Receply.Infrastructure.Channels.WhatsApp;
 using Receply.Infrastructure.Persistence;
@@ -39,6 +42,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddHostedService<BackgroundTaskQueueHostedService>();
 
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options => options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddSingleton<IConversationNotifier, SignalRConversationNotifier>();
+
 var jwtSection = builder.Configuration.GetSection("Jwt");
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -53,6 +60,20 @@ builder.Services
             ValidIssuer = jwtSection["Issuer"],
             ValidAudience = jwtSection["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["SigningKey"] ?? string.Empty))
+        };
+
+        // Browsers can't set an Authorization header on a WebSocket upgrade, so the SignalR client
+        // sends the JWT as an access_token query parameter instead - only accepted on hub paths.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                    context.Token = accessToken;
+
+                return Task.CompletedTask;
+            }
         };
     });
 builder.Services.AddAuthorization();
@@ -88,5 +109,6 @@ app.UseMiddleware<TenantResolutionMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ConversationsHub>("/hubs/conversations");
 
 app.Run();

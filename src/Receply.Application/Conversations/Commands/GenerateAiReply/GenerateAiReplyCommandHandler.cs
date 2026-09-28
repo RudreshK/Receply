@@ -5,6 +5,7 @@ using Receply.Application.AiEngine;
 using Receply.Application.AiEngine.Contracts;
 using Receply.Application.Channels;
 using Receply.Application.Common;
+using Receply.Application.Conversations.Queries.GetConversationMessages;
 using Receply.Domain.Conversations;
 
 namespace Receply.Application.Conversations.Commands.GenerateAiReply;
@@ -13,7 +14,8 @@ public class GenerateAiReplyCommandHandler(
     IApplicationDbContext db,
     IAiConversationAgent agent,
     IAiToolExecutor toolExecutor,
-    IChannelProvider channelProvider)
+    IChannelProvider channelProvider,
+    IConversationNotifier conversationNotifier)
     : IRequestHandler<GenerateAiReplyCommand>
 {
     private const int MaxToolCallRounds = 6;
@@ -76,8 +78,14 @@ public class GenerateAiReplyCommandHandler(
             conversation.RequestHandoff("AI could not resolve the request after several attempts.");
         }
 
-        conversation.AddMessage(MessageDirection.Outbound, MessageSender.Ai, finalText);
+        var reply = conversation.AddMessage(MessageDirection.Outbound, MessageSender.Ai, finalText);
         await db.SaveChangesAsync(cancellationToken);
+
+        await conversationNotifier.MessageAddedAsync(
+            conversation.TenantId,
+            conversation.Id,
+            new ConversationMessageDto(reply.Id, reply.Direction, reply.Sender, reply.Body, reply.SentAtUtc),
+            cancellationToken);
 
         await channelProvider.SendMessageAsync(channelAccount, client.PhoneNumber, finalText, cancellationToken);
     }
