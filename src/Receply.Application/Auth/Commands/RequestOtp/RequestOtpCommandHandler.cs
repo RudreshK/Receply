@@ -6,7 +6,7 @@ using Receply.Domain.Tenancy;
 
 namespace Receply.Application.Auth.Commands.RequestOtp;
 
-public class RequestOtpCommandHandler(IApplicationDbContext db, IOtpSender otpSender) : IRequestHandler<RequestOtpCommand, string>
+public class RequestOtpCommandHandler(IApplicationDbContext db, IOtpSender otpSender, IEmailSender emailSender) : IRequestHandler<RequestOtpCommand, string>
 {
     private static readonly TimeSpan OtpValidity = TimeSpan.FromMinutes(5);
 
@@ -25,6 +25,15 @@ public class RequestOtpCommandHandler(IApplicationDbContext db, IOtpSender otpSe
         await db.SaveChangesAsync(cancellationToken);
 
         await otpSender.SendAsync(staff.PhoneNumber, code, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(staff.Email))
+        {
+            await emailSender.SendAsync(
+                staff.Email,
+                "Your Receply login code",
+                $"Your login code is {code}. It expires in 5 minutes.",
+                cancellationToken);
+        }
 
         return code;
     }
