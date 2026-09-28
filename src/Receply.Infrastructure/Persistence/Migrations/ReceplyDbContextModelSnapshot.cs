@@ -325,6 +325,9 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasPrecision(0)
                         .HasColumnType("timestamp(0) with time zone");
 
+                    b.Property<DateTimeOffset?>("ReminderSentUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("ResourceId")
                         .HasColumnType("uuid");
 

@@ -21,6 +21,7 @@ public class Appointment : TenantOwnedEntity
     public DateTimeOffset EndUtc { get; private set; }
     public AppointmentStatus Status { get; private set; }
     public string? CancellationReason { get; private set; }
+    public DateTimeOffset? ReminderSentUtc { get; private set; }
 
     private Appointment() { }
 
@@ -54,6 +55,7 @@ public class Appointment : TenantOwnedEntity
         StartUtc = newStartUtc;
         EndUtc = newStartUtc + duration;
         Status = AppointmentStatus.Rescheduled;
+        ReminderSentUtc = null; // a reminder for the old time would be wrong - eligible to remind again for the new one
 
         Raise(new AppointmentRescheduled(TenantId, Id, previousStart, newStartUtc));
     }
@@ -78,6 +80,8 @@ public class Appointment : TenantOwnedEntity
     }
 
     public void MarkNoShow() => Status = AppointmentStatus.NoShow;
+
+    public void MarkReminderSent(DateTimeOffset sentAtUtc) => ReminderSentUtc = sentAtUtc;
 
     private void EnsureModifiable()
     {

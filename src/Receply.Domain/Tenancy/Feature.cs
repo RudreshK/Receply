@@ -15,5 +15,8 @@ public enum Feature
     ReadReceipts,
 
     /// <summary>On-demand translation of a message into a staff member's preferred language.</summary>
-    MessageTranslation
+    MessageTranslation,
+
+    /// <summary>Automated WhatsApp reminders sent ahead of a customer's upcoming appointment.</summary>
+    AppointmentReminders
 }
