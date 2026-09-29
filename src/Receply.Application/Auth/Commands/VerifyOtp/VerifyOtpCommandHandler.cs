@@ -14,18 +14,24 @@ public class VerifyOtpCommandHandler(IApplicationDbContext db, AccessTokenIssuer
             ?? throw new KeyNotFoundException("No active staff account found for that phone number.");
 
         var now = DateTimeOffset.UtcNow;
-        var otp = await db.LoginOtps
-            .Where(o => o.StaffId == staff.Id)
-            .OrderByDescending(o => o.CreatedOn)
-            .FirstOrDefaultAsync(cancellationToken);
 
-        if (otp is null || !otp.IsUsable(now))
+        // Checked against every still-usable code for this staff member, not just the latest one -
+        // requesting a code more than once must not silently invalidate an earlier email they're still reading.
+        var usableOtps = (await db.LoginOtps
+                .Where(o => o.StaffId == staff.Id)
+                .OrderByDescending(o => o.CreatedOn)
+                .ToListAsync(cancellationToken))
+            .Where(o => o.IsUsable(now))
+            .ToList();
+
+        if (usableOtps.Count == 0)
             throw new InvalidOperationException("No valid code found - request a new one.");
 
         var codeHash = TokenHasher.Hash(request.Code);
-        if (codeHash != otp.CodeHash)
+        var otp = usableOtps.FirstOrDefault(o => o.CodeHash == codeHash);
+        if (otp is null)
         {
-            otp.RecordFailedAttempt();
+            usableOtps[0].RecordFailedAttempt();
             await db.SaveChangesAsync(cancellationToken);
             throw new InvalidOperationException("Incorrect code.");
         }

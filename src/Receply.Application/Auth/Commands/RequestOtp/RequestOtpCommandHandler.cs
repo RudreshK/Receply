@@ -19,7 +19,7 @@ public class RequestOtpCommandHandler(IApplicationDbContext db, IOtpSender otpSe
             ?? throw new KeyNotFoundException("No active staff account found for that phone number.");
 
         var code = GenerateCode();
-        var codeHash = Hash(code);
+        var codeHash = TokenHasher.Hash(code);
 
         db.LoginOtps.Add(LoginOtp.Create(staff.Id, codeHash, OtpValidity));
         await db.SaveChangesAsync(cancellationToken);
@@ -39,7 +39,4 @@ public class RequestOtpCommandHandler(IApplicationDbContext db, IOtpSender otpSe
     }
 
     private static string GenerateCode() => RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
-
-    private static string Hash(string code) =>
-        Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(code)));
 }

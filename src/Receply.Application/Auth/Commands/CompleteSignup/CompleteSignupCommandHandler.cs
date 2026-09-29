@@ -12,18 +12,25 @@ public class CompleteSignupCommandHandler(IApplicationDbContext db, AccessTokenI
     public async Task<VerifyOtpResult> Handle(CompleteSignupCommand request, CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
-        var otp = await db.SignupOtps
-            .Where(o => o.PhoneNumber == request.PhoneNumber)
-            .OrderByDescending(o => o.CreatedOn)
-            .FirstOrDefaultAsync(cancellationToken);
 
-        if (otp is null || !otp.IsUsable(now))
+        // Checked against every still-usable code for this phone number, not just the latest one -
+        // requesting a code more than once (a double click, hitting "resend" while impatient, going
+        // back and forward) must not silently invalidate an earlier email the person is still reading.
+        var usableOtps = (await db.SignupOtps
+                .Where(o => o.PhoneNumber == request.PhoneNumber)
+                .OrderByDescending(o => o.CreatedOn)
+                .ToListAsync(cancellationToken))
+            .Where(o => o.IsUsable(now))
+            .ToList();
+
+        if (usableOtps.Count == 0)
             throw new InvalidOperationException("No valid code found - request a new one.");
 
         var codeHash = TokenHasher.Hash(request.Code);
-        if (codeHash != otp.CodeHash)
+        var otp = usableOtps.FirstOrDefault(o => o.CodeHash == codeHash);
+        if (otp is null)
         {
-            otp.RecordFailedAttempt();
+            usableOtps[0].RecordFailedAttempt();
             await db.SaveChangesAsync(cancellationToken);
             throw new InvalidOperationException("Incorrect code.");
         }

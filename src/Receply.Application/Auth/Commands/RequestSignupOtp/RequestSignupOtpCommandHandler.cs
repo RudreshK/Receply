@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Receply.Application.Common;
@@ -19,7 +18,7 @@ public class RequestSignupOtpCommandHandler(IApplicationDbContext db, IOtpSender
             throw new InvalidOperationException("An account with this phone number already exists - sign in instead.");
 
         var code = GenerateCode();
-        var codeHash = Hash(code);
+        var codeHash = TokenHasher.Hash(code);
 
         db.SignupOtps.Add(SignupOtp.Create(request.PhoneNumber, codeHash, OtpValidity));
         await db.SaveChangesAsync(cancellationToken);
@@ -39,6 +38,4 @@ public class RequestSignupOtpCommandHandler(IApplicationDbContext db, IOtpSender
     }
 
     private static string GenerateCode() => RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
-
-    private static string Hash(string code) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code)));
 }
