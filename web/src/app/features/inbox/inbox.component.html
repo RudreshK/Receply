@@ -43,7 +43,7 @@
   </section>
 
   <div class="panes" [class.chat-open]="selectedId() !== null">
-    <aside class="client-list" aria-label="Clients">
+    <aside class="client-list" aria-label="Clients" [style.width.px]="listWidth()">
       <div class="search">
         <input
           type="search"
@@ -94,6 +94,8 @@
         </ul>
       }
     </aside>
+
+    <div class="resize-handle" (pointerdown)="startResize($event)" aria-hidden="true"></div>
 
     <section class="chat" aria-label="Conversation">
       @if (selected(); as conversation) {

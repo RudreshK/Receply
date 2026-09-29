@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ThemeService } from './core/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,8 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'receply-dashboard';
+
+  // Injected (not just provided in root) so the theme is read and the data-theme attribute set
+  // as early as possible, before the first meaningful paint.
+  constructor(private readonly theme: ThemeService) {}
 }

@@ -1,18 +1,19 @@
 h1 {
   margin: 0 0 4px;
   font-size: 22px;
-  color: #1a1a2e;
+  color: var(--text);
 }
 
 .hint {
   margin: 0 0 20px;
-  color: #6b7280;
+  color: var(--muted);
   font-size: 13px;
   max-width: 560px;
 }
 
 .panel {
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -26,12 +27,13 @@ h1 {
 .form h2 {
   font-size: 14px;
   margin: 0 0 10px;
+  color: var(--text);
 }
 
 .form label {
   font-size: 12px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
   display: block;
   margin-top: 8px;
 }
@@ -42,19 +44,21 @@ h1 {
 .edit-form textarea {
   width: 100%;
   padding: 8px 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 13px;
   margin-top: 4px;
   box-sizing: border-box;
   font-family: inherit;
+  background: var(--page-bg);
+  color: var(--text);
 }
 
 .form button {
   margin-top: 14px;
   padding: 9px 16px;
-  background: #4f46e5;
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-contrast);
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -67,7 +71,7 @@ h1 {
 
 .faq-row {
   padding: 14px 0;
-  border-bottom: 1px solid #f0f0f2;
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -89,12 +93,12 @@ h1 {
 .question {
   font-weight: 600;
   font-size: 14px;
-  color: #1a1a2e;
+  color: var(--text);
 }
 
 .answer {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--muted);
   margin-top: 4px;
 }
 
@@ -120,8 +124,8 @@ h1 {
 }
 
 .secondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--hover);
+  color: var(--text);
 }
 
 .remove {
@@ -129,8 +133,13 @@ h1 {
   color: #b91c1c;
 }
 
+:root[data-theme='dark'] .remove {
+  background: #3a1d1d;
+  color: #f87171;
+}
+
 .empty {
-  color: #9ca3af;
+  color: var(--muted);
   text-align: center;
   padding: 20px;
 }

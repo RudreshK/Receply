@@ -1,7 +1,7 @@
 h1 {
   margin: 0 0 20px;
   font-size: 22px;
-  color: #1a1a2e;
+  color: var(--text);
 }
 
 .branch-picker {
@@ -9,16 +9,20 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--text);
 }
 
 .branch-picker select {
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
 }
 
 .panel {
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 24px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -34,12 +38,13 @@ th,
 td {
   text-align: left;
   padding: 8px 6px;
-  border-bottom: 1px solid #f0f0f2;
+  border-bottom: 1px solid var(--border);
   font-size: 14px;
+  color: var(--text);
 }
 
 th {
-  color: #6b7280;
+  color: var(--muted);
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
@@ -47,15 +52,17 @@ th {
 
 input[type='time'] {
   padding: 4px 6px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 6px;
+  background: var(--page-bg);
+  color: var(--text);
 }
 
 button {
   margin-top: 18px;
   padding: 10px 16px;
-  background: #4f46e5;
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-contrast);
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -67,7 +74,7 @@ button:disabled {
 }
 
 .success {
-  color: #15803d;
+  color: var(--success);
   font-size: 13px;
   margin-top: 10px;
 }

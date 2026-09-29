@@ -1,6 +1,11 @@
-<div class="shell">
+<div class="shell" [class.sidebar-collapsed]="sidebarCollapsed()">
   <aside class="sidebar">
-    <div class="brand">Receply</div>
+    <div class="brand">
+      <span>Receply</span>
+      <button type="button" class="sidebar-toggle" (click)="toggleSidebar()" aria-label="Hide menu" title="Hide menu">
+        ‹
+      </button>
+    </div>
     <nav>
       @for (link of navLinks; track link.path) {
         <a [routerLink]="link.path" routerLinkActive="active">{{ link.label }}</a>
@@ -11,13 +16,18 @@
         <div class="name">{{ user.fullName }}</div>
         <div class="role">{{ user.role }}</div>
       }
-      <button (click)="logout()">Sign out</button>
+      <button type="button" class="theme-toggle" (click)="theme.toggle()">
+        {{ theme.theme() === 'dark' ? '☀ Light mode' : '🌙 Dark mode' }}
+      </button>
+      <button type="button" (click)="logout()">Sign out</button>
     </div>
   </aside>
-  <main class="content">
-    <div class="topbar">
-      <a class="setup-business-btn" routerLink="/app/settings">Setup Business</a>
-    </div>
+
+  <button type="button" class="sidebar-reopen" (click)="toggleSidebar()" aria-label="Show menu" title="Show menu">
+    ›
+  </button>
+
+  <main class="content" [class.content--full-bleed]="fullBleed()">
     <router-outlet></router-outlet>
   </main>
 </div>

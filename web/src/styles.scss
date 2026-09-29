@@ -1,3 +1,43 @@
+// Light/dark theme, toggled by ThemeService via a data-theme attribute on <html>. Every component's
+// SCSS should reference these instead of hardcoding colors, so the toggle covers the whole app.
+:root {
+  --page-bg: #f4f5f7;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --hover: #f3f4f6;
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-contrast: #ffffff;
+  --danger: #dc2626;
+  --success: #16a34a;
+
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #ffffff;
+  --sidebar-muted: #9ca0b8;
+  --sidebar-hover: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #0f1117;
+  --surface: #1a1d27;
+  --text: #e8e9ee;
+  --muted: #9199a8;
+  --border: #2c303c;
+  --hover: #242835;
+  --accent: #6366f1;
+  --accent-strong: #818cf8;
+  --accent-contrast: #ffffff;
+  --danger: #f87171;
+  --success: #4ade80;
+
+  --sidebar-bg: #0a0b10;
+  --sidebar-text: #f1f2f6;
+  --sidebar-muted: #7d8296;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -15,6 +55,6 @@ body {
     Helvetica,
     Arial,
     sans-serif;
-  background: #f4f5f7;
-  color: #1a1a2e;
+  background: var(--page-bg);
+  color: var(--text);
 }

@@ -58,6 +58,11 @@ const LANGUAGES: { code: string; name: string }[] = [
   { code: 'ur', name: 'Urdu' },
 ];
 
+const LIST_WIDTH_KEY = 'receply.inboxListWidth';
+const MIN_LIST_WIDTH = 260;
+const MAX_LIST_WIDTH = 560;
+const DEFAULT_LIST_WIDTH = 320;
+
 @Component({
   selector: 'app-inbox',
   standalone: true,
@@ -93,6 +98,11 @@ export class InboxComponent implements OnInit {
    * server only actually hands the thread over once they send (SendStaffReplyCommand), so this is
    * purely "show me the reply box" until then. */
   protected readonly manualOverride = signal(false);
+
+  /** The client-list pane's width - draggable via the resize handle, remembered across visits. */
+  protected readonly listWidth = signal(this.readStoredListWidth());
+  private resizeStartX = 0;
+  private resizeStartWidth = 0;
 
   protected readonly sortedConversations = computed(() => {
     const term = this.search().trim().toLowerCase();
@@ -178,6 +188,32 @@ export class InboxComponent implements OnInit {
   protected closeChat(): void {
     this.selectedId.set(null);
     this.messages.set([]);
+  }
+
+  /** Drag-to-resize the client list vs. chat split. Listens on `document` for the duration of the
+   * drag only, so there's nothing to tear down when the component itself is destroyed mid-drag. */
+  protected startResize(event: PointerEvent): void {
+    event.preventDefault();
+    this.resizeStartX = event.clientX;
+    this.resizeStartWidth = this.listWidth();
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const delta = moveEvent.clientX - this.resizeStartX;
+      const next = Math.min(MAX_LIST_WIDTH, Math.max(MIN_LIST_WIDTH, this.resizeStartWidth + delta));
+      this.listWidth.set(next);
+    };
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      try {
+        localStorage.setItem(LIST_WIDTH_KEY, String(this.listWidth()));
+      } catch {
+        // Non-fatal: the size just won't be remembered next visit.
+      }
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
   }
 
   protected featureEnabled(feature: FeatureKey): boolean {
@@ -412,5 +448,16 @@ export class InboxComponent implements OnInit {
     if (days === 0) return 'Today';
     if (days === 1) return 'Yesterday';
     return date.toLocaleDateString([], { day: 'numeric', month: 'short', year: date.getFullYear() === today.getFullYear() ? undefined : 'numeric' });
+  }
+
+  private readStoredListWidth(): number {
+    try {
+      const raw = localStorage.getItem(LIST_WIDTH_KEY);
+      const parsed = raw ? parseInt(raw, 10) : NaN;
+      if (!Number.isNaN(parsed)) return Math.min(MAX_LIST_WIDTH, Math.max(MIN_LIST_WIDTH, parsed));
+    } catch {
+      // Fall through to the default.
+    }
+    return DEFAULT_LIST_WIDTH;
   }
 }

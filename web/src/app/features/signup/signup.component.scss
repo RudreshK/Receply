@@ -3,14 +3,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f4f5f7;
+  background: var(--page-bg);
   padding: 32px 16px;
 }
 
 .signup-card {
   width: 100%;
   max-width: 400px;
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 32px 28px;
@@ -19,12 +20,12 @@
 h1 {
   margin: 0 0 4px;
   font-size: 22px;
-  color: #1a1a2e;
+  color: var(--text);
 }
 
 .subtitle {
   margin: 0 0 24px;
-  color: #6b7280;
+  color: var(--muted);
   font-size: 14px;
 }
 
@@ -37,24 +38,26 @@ form {
 label {
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
   margin-top: 10px;
 }
 
 input,
 select {
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 15px;
   margin-top: 4px;
+  background: var(--page-bg);
+  color: var(--text);
 }
 
 button[type='submit'] {
   margin-top: 20px;
   padding: 10px 12px;
-  background: #4f46e5;
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-contrast);
   border: none;
   border-radius: 8px;
   font-size: 15px;
@@ -70,7 +73,7 @@ button[type='submit']:disabled {
 .link-button {
   background: none;
   border: none;
-  color: #4f46e5;
+  color: var(--accent);
   font-size: 13px;
   cursor: pointer;
   padding: 8px 0 0;
@@ -78,7 +81,7 @@ button[type='submit']:disabled {
 
 .otp-note {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--muted);
   margin: 6px 0 0;
 }
 
@@ -91,21 +94,30 @@ button[type='submit']:disabled {
   margin-top: 4px;
 }
 
+:root[data-theme='dark'] .dev-hint {
+  color: #fcd34d;
+  background: #3a2f0f;
+}
+
 .error {
   color: #b91c1c;
   font-size: 13px;
   margin-top: 12px;
 }
 
+:root[data-theme='dark'] .error {
+  color: #f87171;
+}
+
 .signin-note {
   margin: 18px 0 0;
   text-align: center;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .signin-note a {
-  color: #4f46e5;
+  color: var(--accent);
   font-weight: 600;
   text-decoration: none;
 }

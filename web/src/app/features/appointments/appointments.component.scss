@@ -1,11 +1,12 @@
 h1 {
   margin: 0 0 20px;
   font-size: 22px;
-  color: #1a1a2e;
+  color: var(--text);
 }
 
 .panel {
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -18,11 +19,13 @@ h1 {
   font-weight: 600;
   margin-bottom: 16px;
   max-width: 240px;
+  color: var(--text);
 }
 
 .header button {
   border: none;
-  background: #f3f4f6;
+  background: var(--hover);
+  color: var(--text);
   border-radius: 6px;
   width: 28px;
   height: 28px;
@@ -38,12 +41,13 @@ th,
 td {
   text-align: left;
   padding: 10px 8px;
-  border-bottom: 1px solid #f0f0f2;
+  border-bottom: 1px solid var(--border);
   font-size: 13px;
+  color: var(--text);
 }
 
 th {
-  color: #6b7280;
+  color: var(--muted);
   font-weight: 600;
   font-size: 11px;
   text-transform: uppercase;
@@ -75,6 +79,6 @@ th {
 
 .empty {
   text-align: center;
-  color: #9ca3af;
+  color: var(--muted);
   padding: 24px;
 }

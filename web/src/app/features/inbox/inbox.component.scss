@@ -1,5 +1,6 @@
-// Self-contained WhatsApp-style palette - scoped to this page only so it doesn't affect the rest of
-// the app's indigo/navy admin theme (see shell.component.scss for that).
+// Self-contained WhatsApp-style palette - scoped to this page (kept apart from the rest of the
+// app's indigo/navy admin theme, see shell.component.scss) but still following the app-wide
+// light/dark toggle via :host-context([data-theme]) below.
 :host {
   --bg: #f7f8fa;
   --surface: #fff;
@@ -17,7 +18,26 @@
   --bubble-out: #d9fdd3;
 
   display: block;
-  height: calc(100vh - 56px);
+  // The shell drops its content padding for this route (content--full-bleed), so this can just be
+  // the full viewport height instead of subtracting an assumed padding amount.
+  height: 100vh;
+}
+
+:host-context([data-theme='dark']) {
+  --bg: #12141c;
+  --surface: #1a1d27;
+  --border: #2c303c;
+  --text: #e8e9ee;
+  --muted: #9199a8;
+  --accent: #25d366;
+  --accent-strong: #34e37f;
+  --danger: #f87171;
+  --hover: #242835;
+  --selected: #17301f;
+  --avatar: #1c3a26;
+  --chat-bg: #0b141a;
+  --bubble-in: #1f2937;
+  --bubble-out: #005c4b;
 }
 
 .inbox {
@@ -26,7 +46,6 @@
   flex-direction: column;
   background: var(--bg);
   color: var(--text);
-  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -131,16 +150,13 @@ button {
 .panes {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(260px, 360px) 1fr;
-  margin: 0 16px 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
+  display: flex;
+  border-top: 1px solid var(--border);
   background: var(--surface);
 }
 
 .client-list {
+  flex: none;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -151,6 +167,21 @@ button {
     margin: 0;
     padding: 0;
     overflow-y: auto;
+  }
+}
+
+// A thin draggable divider between the client list and the chat - lets a staff member trade width
+// between the two instead of living with a fixed split.
+.resize-handle {
+  flex: none;
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  touch-action: none;
+
+  &:hover, &:active {
+    background: var(--accent);
+    opacity: 0.4;
   }
 }
 
@@ -251,6 +282,8 @@ button {
 }
 
 .chat {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -480,10 +513,11 @@ button {
     gap: 8px;
   }
 
-  .panes {
-    grid-template-columns: 1fr;
-    margin: 0 12px 12px;
+  .client-list {
+    width: 100% !important; // overrides the draggable inline width - resizing doesn't apply on mobile
   }
+
+  .resize-handle { display: none; }
 
   .chat { display: none; }
   .panes.chat-open .client-list { display: none; }
