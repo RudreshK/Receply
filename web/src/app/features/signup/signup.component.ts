@@ -39,7 +39,7 @@ export class SignupComponent {
     }
     this.loading.set(true);
     this.error.set(null);
-    this.auth.requestSignupOtp(this.whatsappNumber.trim()).subscribe({
+    this.auth.requestSignupOtp(this.whatsappNumber.trim(), this.email.trim()).subscribe({
       next: (result) => {
         this.loading.set(false);
         this.devCode.set(result.code);

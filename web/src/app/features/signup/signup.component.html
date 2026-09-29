@@ -32,7 +32,7 @@
       <form (ngSubmit)="completeSignup()">
         <label for="code">6-digit code</label>
         <input id="code" name="code" type="text" inputmode="numeric" maxlength="6" [(ngModel)]="code" required />
-        <p class="otp-note">We sent a code to your WhatsApp number.</p>
+        <p class="otp-note">We emailed a code to {{ email }}.</p>
         @if (devCode()) {
           <p class="dev-hint">Dev mode - your code is <strong>{{ devCode() }}</strong></p>
         }

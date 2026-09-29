@@ -55,8 +55,8 @@ export class AuthService {
       .pipe(tap((result) => this.storeSession(result)));
   }
 
-  requestSignupOtp(phoneNumber: string): Observable<RequestOtpResponse> {
-    return this.http.post<RequestOtpResponse>(`${environment.apiBaseUrl}/api/signup/request-otp`, { phoneNumber });
+  requestSignupOtp(phoneNumber: string, email: string): Observable<RequestOtpResponse> {
+    return this.http.post<RequestOtpResponse>(`${environment.apiBaseUrl}/api/signup/request-otp`, { phoneNumber, email });
   }
 
   completeSignup(payload: {
