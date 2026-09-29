@@ -70,3 +70,17 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
         builder.HasIndex(a => new { a.TenantId, a.ClientId }).HasDatabaseName("IX_Appointment_TenantId_ClientId");
     }
 }
+
+public class AppointmentFollowUpConfiguration : IEntityTypeConfiguration<AppointmentFollowUp>
+{
+    public void Configure(EntityTypeBuilder<AppointmentFollowUp> builder)
+    {
+        builder.ToTable("AppointmentFollowUp");
+        builder.HasKey(f => f.Id).HasName("PK_AppointmentFollowUp");
+        builder.Property(f => f.Id).HasColumnName("AppointmentFollowUpId");
+        builder.Property(f => f.Instructions).IsRequired().HasMaxLength(2000);
+        builder.Property(f => f.SentByName).IsRequired().HasMaxLength(200);
+        builder.HasIndex(f => new { f.SentUtc, f.ScheduledForUtc }).HasDatabaseName("IX_AppointmentFollowUp_SentUtc_ScheduledForUtc");
+        builder.HasIndex(f => f.AppointmentId).HasDatabaseName("IX_AppointmentFollowUp_AppointmentId");
+    }
+}

@@ -82,3 +82,146 @@ th {
   color: var(--muted);
   padding: 24px;
 }
+
+.error {
+  color: #b91c1c;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.client-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.client-name {
+  font-weight: 500;
+}
+
+.client-phone {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.outcome-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.outcome-actions button,
+.btn-followup,
+.btn-send {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.outcome-actions button:disabled,
+.btn-send:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-completed {
+  border-color: #15803d;
+  color: #15803d;
+}
+
+.btn-completed:hover:not(:disabled) {
+  background: #dcfce7;
+}
+
+.btn-noshow {
+  border-color: #92400e;
+  color: #92400e;
+}
+
+.btn-noshow:hover:not(:disabled) {
+  background: #fef3c7;
+}
+
+.btn-followup {
+  color: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.btn-send {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}
+
+.follow-up-sent {
+  font-size: 12px;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.follow-up-row td {
+  padding: 0 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.follow-up-panel {
+  background: var(--hover);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.follow-up-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.follow-up-panel textarea {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: normal;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+}
+
+.day-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.day-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.follow-up-buttons {
+  display: flex;
+  justify-content: flex-end;
+}

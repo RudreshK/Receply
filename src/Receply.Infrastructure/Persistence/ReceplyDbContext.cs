@@ -25,6 +25,7 @@ public class ReceplyDbContext(DbContextOptions<ReceplyDbContext> options, ITenan
     public DbSet<AvailabilityRule> AvailabilityRules => Set<AvailabilityRule>();
     public DbSet<TimeBlock> TimeBlocks => Set<TimeBlock>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<AppointmentFollowUp> AppointmentFollowUps => Set<AppointmentFollowUp>();
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<LoginOtp> LoginOtps => Set<LoginOtp>();

@@ -18,6 +18,13 @@ builder.Services.AddQuartz(q =>
         .ForJob(jobKey)
         .WithIdentity($"{nameof(AppointmentReminderJob)}-trigger")
         .WithSimpleSchedule(s => s.WithIntervalInHours(1).RepeatForever()));
+
+    var followUpJobKey = new JobKey(nameof(AppointmentFollowUpJob));
+    q.AddJob<AppointmentFollowUpJob>(opts => opts.WithIdentity(followUpJobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(followUpJobKey)
+        .WithIdentity($"{nameof(AppointmentFollowUpJob)}-trigger")
+        .WithSimpleSchedule(s => s.WithIntervalInMinutes(30).RepeatForever()));
 });
 
 var app = builder.Build();

@@ -7,6 +7,10 @@
     <button (click)="changeMonth(1)">&rarr;</button>
   </div>
 
+  @if (statusError()) {
+    <p class="error">{{ statusError() }}</p>
+  }
+
   @if (loading()) {
     <p>Loading...</p>
   } @else {
@@ -18,20 +22,91 @@
           <th>Service</th>
           <th>With</th>
           <th>Status</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         @for (appt of sorted(); track appt.appointmentId) {
           <tr>
             <td>{{ formatTime(appt.startUtc) }}</td>
-            <td>{{ appt.clientName }}</td>
+            <td>
+              <div class="client-cell">
+                <span class="client-name">{{ appt.clientName }}</span>
+                <span class="client-phone">{{ appt.clientPhoneNumber }}</span>
+              </div>
+            </td>
             <td>{{ appt.serviceName }}</td>
             <td>{{ appt.resourceName }}</td>
             <td><span class="status" [class]="appt.status.toLowerCase()">{{ appt.status }}</span></td>
+            <td class="actions-cell">
+              @if (canSetOutcome(appt)) {
+                <div class="outcome-actions">
+                  <button
+                    class="btn-completed"
+                    [disabled]="updatingId() === appt.appointmentId"
+                    (click)="markStatus(appt, 'Completed')">
+                    Mark Completed
+                  </button>
+                  <button
+                    class="btn-noshow"
+                    [disabled]="updatingId() === appt.appointmentId"
+                    (click)="markStatus(appt, 'NoShow')">
+                    Not Completed
+                  </button>
+                </div>
+              } @else if (appt.status === 'Completed' && followUpsEnabled()) {
+                @if (followUpSentIds().has(appt.appointmentId)) {
+                  <span class="follow-up-sent">Follow-up scheduled ✓</span>
+                } @else {
+                  <button class="btn-followup" (click)="toggleFollowUp(appt)">
+                    {{ followUpOpenId() === appt.appointmentId ? 'Cancel' : 'Add follow-up' }}
+                  </button>
+                }
+              }
+            </td>
           </tr>
+          @if (followUpOpenId() === appt.appointmentId) {
+            <tr class="follow-up-row">
+              <td colspan="6">
+                <div class="follow-up-panel">
+                  <label>
+                    Follow-up instructions for {{ appt.clientName }} (tablet reminders, diet notes, exercise, etc.)
+                    <textarea
+                      rows="3"
+                      placeholder="e.g. Continue Paracetamol 500mg twice daily. Drink plenty of fluids and rest. Light stretching is fine, avoid heavy exercise for a week."
+                      [ngModel]="followUpInstructions()"
+                      (ngModelChange)="followUpInstructions.set($event)"></textarea>
+                  </label>
+
+                  <div class="day-picker">
+                    <span>Send on:</span>
+                    @for (day of dayOptions; track day) {
+                      <label class="day-checkbox">
+                        <input
+                          type="checkbox"
+                          [checked]="followUpDays().has(day)"
+                          (change)="toggleDay(day)" />
+                        Day {{ day }}
+                      </label>
+                    }
+                  </div>
+
+                  @if (followUpError()) {
+                    <p class="error">{{ followUpError() }}</p>
+                  }
+
+                  <div class="follow-up-buttons">
+                    <button class="btn-send" [disabled]="followUpSubmitting()" (click)="submitFollowUp(appt)">
+                      {{ followUpSubmitting() ? 'Scheduling…' : 'Schedule follow-up' }}
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
         } @empty {
           <tr>
-            <td colspan="5" class="empty">No appointments this month.</td>
+            <td colspan="6" class="empty">No appointments this month.</td>
           </tr>
         }
       </tbody>

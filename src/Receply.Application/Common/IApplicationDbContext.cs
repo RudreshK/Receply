@@ -23,6 +23,7 @@ public interface IApplicationDbContext
     DbSet<AvailabilityRule> AvailabilityRules { get; }
     DbSet<TimeBlock> TimeBlocks { get; }
     DbSet<Appointment> Appointments { get; }
+    DbSet<AppointmentFollowUp> AppointmentFollowUps { get; }
     DbSet<Conversation> Conversations { get; }
     DbSet<Message> Messages { get; }
     DbSet<LoginOtp> LoginOtps { get; }

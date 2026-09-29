@@ -18,5 +18,11 @@ public enum Feature
     MessageTranslation,
 
     /// <summary>Automated WhatsApp reminders sent ahead of a customer's upcoming appointment.</summary>
-    AppointmentReminders
+    AppointmentReminders,
+
+    /// <summary>An automatic WhatsApp message sent to the client when staff mark an appointment completed or a no-show.</summary>
+    AppointmentOutcomeMessages,
+
+    /// <summary>Staff-authored care-instruction follow-ups sent by WhatsApp in the days after a completed appointment.</summary>
+    AppointmentFollowUps
 }

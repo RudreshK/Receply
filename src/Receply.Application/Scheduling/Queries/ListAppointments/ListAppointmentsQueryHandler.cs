@@ -20,10 +20,26 @@ public class ListAppointmentsQueryHandler(IApplicationDbContext db)
                   && (request.BranchId == null || appointment.BranchId == request.BranchId)
                   && (request.Status == null || appointment.Status == request.Status)
             orderby appointment.StartUtc
-            select new AppointmentListItemDto(
-                appointment.Id, client.FullName ?? client.PhoneNumber, service.Name, resource.Name, appointment.BranchId,
-                appointment.StartUtc, appointment.EndUtc, appointment.Status.ToString());
+            select new
+            {
+                appointment.Id,
+                ClientId = client.Id,
+                client.FullName,
+                client.PhoneNumber,
+                ServiceName = service.Name,
+                ResourceName = resource.Name,
+                appointment.BranchId,
+                appointment.StartUtc,
+                appointment.EndUtc,
+                Status = appointment.Status.ToString()
+            };
 
-        return await query.ToListAsync(cancellationToken);
+        var rows = await query.ToListAsync(cancellationToken);
+
+        return rows
+            .Select(r => new AppointmentListItemDto(
+                r.Id, r.ClientId, r.FullName ?? PhoneDisplayFormatter.Format(r.PhoneNumber), PhoneDisplayFormatter.Format(r.PhoneNumber),
+                r.ServiceName, r.ResourceName, r.BranchId, r.StartUtc, r.EndUtc, r.Status))
+            .ToList();
     }
 }

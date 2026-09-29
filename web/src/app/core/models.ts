@@ -42,7 +42,9 @@ export interface Faq {
 
 export interface AppointmentListItem {
   appointmentId: string;
+  clientId: string;
   clientName: string;
+  clientPhoneNumber: string;
   serviceName: string;
   resourceName: string;
   branchId: string;

@@ -325,6 +325,9 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasPrecision(0)
                         .HasColumnType("timestamp(0) with time zone");
 
+                    b.Property<DateTimeOffset?>("OutcomeNotificationSentUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset?>("ReminderSentUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -359,6 +362,69 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("IX_Appointment_ResourceId_StartUtc_EndUtc");
 
                     b.ToTable("Appointment", (string)null);
+                });
+
+            modelBuilder.Entity("Receply.Domain.Scheduling.AppointmentFollowUp", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("AppointmentFollowUpId");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<string>("Instructions")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTimeOffset>("ScheduledForUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SentByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset?>("SentUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_AppointmentFollowUp");
+
+                    b.HasIndex("AppointmentId")
+                        .HasDatabaseName("IX_AppointmentFollowUp_AppointmentId");
+
+                    b.HasIndex("SentUtc", "ScheduledForUtc")
+                        .HasDatabaseName("IX_AppointmentFollowUp_SentUtc_ScheduledForUtc");
+
+                    b.ToTable("AppointmentFollowUp", (string)null);
                 });
 
             modelBuilder.Entity("Receply.Domain.Scheduling.AvailabilityRule", b =>

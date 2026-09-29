@@ -22,6 +22,7 @@ public class Appointment : TenantOwnedEntity
     public AppointmentStatus Status { get; private set; }
     public string? CancellationReason { get; private set; }
     public DateTimeOffset? ReminderSentUtc { get; private set; }
+    public DateTimeOffset? OutcomeNotificationSentUtc { get; private set; }
 
     private Appointment() { }
 
@@ -76,12 +77,22 @@ public class Appointment : TenantOwnedEntity
             throw new InvalidOperationException("Cannot complete a cancelled appointment.");
 
         Status = AppointmentStatus.Completed;
+        OutcomeNotificationSentUtc = null; // a status flip from NoShow back to Completed is eligible for its own outcome message
         Raise(new AppointmentCompleted(TenantId, Id));
     }
 
-    public void MarkNoShow() => Status = AppointmentStatus.NoShow;
+    public void MarkNoShow()
+    {
+        if (Status is AppointmentStatus.Cancelled)
+            throw new InvalidOperationException("Cannot mark a cancelled appointment as a no-show.");
+
+        Status = AppointmentStatus.NoShow;
+        OutcomeNotificationSentUtc = null;
+    }
 
     public void MarkReminderSent(DateTimeOffset sentAtUtc) => ReminderSentUtc = sentAtUtc;
+
+    public void MarkOutcomeNotificationSent(DateTimeOffset sentAtUtc) => OutcomeNotificationSentUtc = sentAtUtc;
 
     private void EnsureModifiable()
     {

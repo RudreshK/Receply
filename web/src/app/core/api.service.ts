@@ -73,4 +73,12 @@ export class ApiService {
   listAppointments(from: string, to: string): Observable<AppointmentListItem[]> {
     return this.http.get<AppointmentListItem[]>(`${this.base}/api/appointments`, { params: { from, to } });
   }
+
+  updateAppointmentStatus(appointmentId: string, status: 'Completed' | 'NoShow'): Observable<void> {
+    return this.http.patch<void>(`${this.base}/api/appointments/${appointmentId}/status`, { status });
+  }
+
+  addAppointmentFollowUp(appointmentId: string, instructions: string, dayOffsets: number[]): Observable<void> {
+    return this.http.post<void>(`${this.base}/api/appointments/${appointmentId}/follow-up`, { instructions, dayOffsets });
+  }
 }

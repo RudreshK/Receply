@@ -4,7 +4,13 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 /** Mirrors the Feature enum in Receply.Domain.Tenancy - the plug-and-play, per-tenant, subscription-gated capabilities. */
-export type FeatureKey = 'ManualStaffReply' | 'ReadReceipts' | 'MessageTranslation' | 'AppointmentReminders';
+export type FeatureKey =
+  | 'ManualStaffReply'
+  | 'ReadReceipts'
+  | 'MessageTranslation'
+  | 'AppointmentReminders'
+  | 'AppointmentOutcomeMessages'
+  | 'AppointmentFollowUps';
 
 @Injectable({ providedIn: 'root' })
 export class FeaturesService {
