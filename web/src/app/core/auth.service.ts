@@ -1,6 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, finalize, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface RequestOtpResponse {
@@ -9,6 +9,7 @@ export interface RequestOtpResponse {
 
 export interface VerifyOtpResponse {
   token: string;
+  refreshToken: string;
   tenantId: string;
   staffId: string;
   fullName: string;
@@ -20,6 +21,7 @@ const STORAGE_KEY = 'receply.session';
 
 export interface StoredSession {
   token: string;
+  refreshToken: string;
   tenantId: string;
   staffId: string;
   fullName: string;
@@ -29,7 +31,10 @@ export interface StoredSession {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  // localStorage (not sessionStorage) so a refresh token that's valid for 30 days actually keeps a
+  // staff member signed in across browser restarts, not just within one tab's lifetime.
   private readonly session = signal<StoredSession | null>(this.readStoredSession());
+  private refreshInFlight$: Observable<VerifyOtpResponse> | null = null;
 
   readonly isLoggedIn = computed(() => this.session() !== null);
   readonly currentUser = computed(() => this.session());
@@ -69,6 +74,28 @@ export class AuthService {
       .pipe(tap((result) => this.storeSession(result)));
   }
 
+  /** Exchanges the stored refresh token for a new access token. Concurrent callers (several requests
+   * all hitting a 401 at once - see authInterceptor) share the one in-flight HTTP call instead of
+   * each triggering their own refresh and racing to rotate the same refresh token. */
+  refreshAccessToken(): Observable<VerifyOtpResponse> {
+    const current = this.session();
+    if (!current) {
+      return throwError(() => new Error('No session to refresh.'));
+    }
+
+    if (!this.refreshInFlight$) {
+      this.refreshInFlight$ = this.http
+        .post<VerifyOtpResponse>(`${environment.apiBaseUrl}/api/auth/refresh`, { refreshToken: current.refreshToken })
+        .pipe(
+          tap((result) => this.storeSession(result)),
+          shareReplay(1),
+          finalize(() => { this.refreshInFlight$ = null; })
+        );
+    }
+
+    return this.refreshInFlight$;
+  }
+
   /** Persists a preferred-language change the caller already saved server-side (see MeService). */
   setPreferredLanguage(languageCode: string | null): void {
     const current = this.session();
@@ -77,13 +104,27 @@ export class AuthService {
   }
 
   logout(): void {
+    const current = this.session();
     this.session.set(null);
-    sessionStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Non-fatal: the in-memory session is still cleared.
+    }
+
+    if (current?.refreshToken) {
+      // Best-effort server-side revoke - the local session is already gone either way, so a staff
+      // member is signed out immediately regardless of whether this call succeeds.
+      this.http
+        .post(`${environment.apiBaseUrl}/api/auth/logout`, { refreshToken: current.refreshToken })
+        .subscribe({ error: () => { /* already logged out locally; nothing more to do */ } });
+    }
   }
 
   private storeSession(result: VerifyOtpResponse): void {
     const stored: StoredSession = {
       token: result.token,
+      refreshToken: result.refreshToken,
       tenantId: result.tenantId,
       staffId: result.staffId,
       fullName: result.fullName,
@@ -92,15 +133,15 @@ export class AuthService {
     };
     this.session.set(stored);
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
     } catch {
-      // sessionStorage unavailable (private browsing, etc.) - session still works for this tab via the signal.
+      // Storage can be unavailable (private mode) - the session still works for this tab via the signal.
     }
   }
 
   private readStoredSession(): StoredSession | null {
     try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? (JSON.parse(raw) as StoredSession) : null;
     } catch {
       return null;

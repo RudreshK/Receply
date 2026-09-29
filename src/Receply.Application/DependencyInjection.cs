@@ -3,6 +3,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Receply.Application.AiEngine;
+using Receply.Application.Auth;
 using Receply.Application.Common.Behaviors;
 using Receply.Application.Conversations;
 using Receply.Application.Features;
@@ -22,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IAiToolExecutor, AiToolExecutor>();
         services.AddSingleton<IConversationNotifier, NullConversationNotifier>();
         services.AddScoped<IFeatureAccess, FeatureAccess>();
+        services.AddScoped<AccessTokenIssuer>();
 
         return services;
     }

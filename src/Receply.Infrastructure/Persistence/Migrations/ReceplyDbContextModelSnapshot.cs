@@ -852,6 +852,62 @@ namespace Receply.Infrastructure.Persistence.Migrations
                     b.ToTable("LoginOtp", (string)null);
                 });
 
+            modelBuilder.Entity("Receply.Domain.Tenancy.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("RefreshTokenId");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<DateTimeOffset?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id")
+                        .HasName("PK_RefreshToken");
+
+                    b.HasIndex("StaffId")
+                        .HasDatabaseName("IX_RefreshToken_StaffId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_RefreshToken_TokenHash");
+
+                    b.ToTable("RefreshToken", (string)null);
+                });
+
             modelBuilder.Entity("Receply.Domain.Tenancy.SignupOtp", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1145,6 +1201,16 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_LoginOtp_Staff");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.RefreshToken", b =>
+                {
+                    b.HasOne("Receply.Domain.Tenancy.Staff", null)
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RefreshToken_Staff");
                 });
 
             modelBuilder.Entity("Receply.Domain.Conversations.Conversation", b =>

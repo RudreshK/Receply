@@ -1,12 +1,10 @@
-using System.Security.Cryptography;
-using System.Text;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Receply.Application.Common;
 
 namespace Receply.Application.Auth.Commands.VerifyOtp;
 
-public class VerifyOtpCommandHandler(IApplicationDbContext db, IJwtTokenGenerator tokenGenerator)
+public class VerifyOtpCommandHandler(IApplicationDbContext db, AccessTokenIssuer tokenIssuer)
     : IRequestHandler<VerifyOtpCommand, VerifyOtpResult>
 {
     public async Task<VerifyOtpResult> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
@@ -24,7 +22,7 @@ public class VerifyOtpCommandHandler(IApplicationDbContext db, IJwtTokenGenerato
         if (otp is null || !otp.IsUsable(now))
             throw new InvalidOperationException("No valid code found - request a new one.");
 
-        var codeHash = Hash(request.Code);
+        var codeHash = TokenHasher.Hash(request.Code);
         if (codeHash != otp.CodeHash)
         {
             otp.RecordFailedAttempt();
@@ -35,9 +33,7 @@ public class VerifyOtpCommandHandler(IApplicationDbContext db, IJwtTokenGenerato
         otp.Consume();
         await db.SaveChangesAsync(cancellationToken);
 
-        var token = tokenGenerator.GenerateToken(staff);
-        return new VerifyOtpResult(token, staff.TenantId, staff.Id, staff.FullName, staff.Role.ToString(), staff.PreferredLanguage);
+        var (accessToken, refreshToken) = await tokenIssuer.IssueAsync(staff, cancellationToken);
+        return new VerifyOtpResult(accessToken, refreshToken, staff.TenantId, staff.Id, staff.FullName, staff.Role.ToString(), staff.PreferredLanguage);
     }
-
-    private static string Hash(string code) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code)));
 }
