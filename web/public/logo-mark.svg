@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="receply-bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="32" height="32" rx="9" fill="url(#receply-bg)"/>
+
+  <!-- chat bubble -->
+  <path d="M6.5 13.5C6.5 9.91 9.91 7 14.5 7H18C22.42 7 26 10.13 26 14C26 17.87 22.42 21 18 21H13.8L9 24.5V20.2C7.4 18.95 6.5 17.06 6.5 15V13.5Z" fill="#ffffff"/>
+
+  <!-- typing dots -->
+  <circle cx="12.2" cy="14" r="1.5" fill="#4f46e5"/>
+  <circle cx="16.2" cy="14" r="1.5" fill="#4f46e5"/>
+  <circle cx="20.2" cy="14" r="1.5" fill="#4f46e5"/>
+
+  <!-- AI spark -->
+  <path d="M25 21.5L25.9 23.6L28 24.5L25.9 25.4L25 27.5L24.1 25.4L22 24.5L24.1 23.6L25 21.5Z" fill="#ffffff"/>
+</svg>
