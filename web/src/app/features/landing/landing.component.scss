@@ -5,6 +5,7 @@
 .landing {
   background: #fff;
   color: #1a1a2e;
+  overflow-x: hidden;
 }
 
 h1,
@@ -102,6 +103,7 @@ h3 {
 
 /* Hero */
 .hero {
+  position: relative;
   max-width: 1120px;
   margin: 0 auto;
   padding: 64px 24px 80px;
@@ -109,6 +111,64 @@ h3 {
   grid-template-columns: 1fr 1fr;
   gap: 48px;
   align-items: center;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: -40px -10% auto -10%;
+  height: 560px;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+}
+
+.orb-1 {
+  width: 320px;
+  height: 320px;
+  left: 2%;
+  top: 10%;
+  background: radial-gradient(circle, #818cf8, transparent 70%);
+  animation: driftOrb1 18s ease-in-out infinite;
+}
+
+.orb-2 {
+  width: 260px;
+  height: 260px;
+  right: 6%;
+  top: 0;
+  background: radial-gradient(circle, #a5b4fc, transparent 70%);
+  animation: driftOrb2 22s ease-in-out infinite;
+}
+
+.orb-3 {
+  width: 200px;
+  height: 200px;
+  right: 22%;
+  bottom: 0;
+  background: radial-gradient(circle, #c7d2fe, transparent 70%);
+  animation: driftOrb3 16s ease-in-out infinite;
+}
+
+@keyframes driftOrb1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, 25px); }
+}
+
+@keyframes driftOrb2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-25px, 20px); }
+}
+
+@keyframes driftOrb3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -20px); }
 }
 
 .badge {
@@ -150,12 +210,123 @@ h3 {
   color: #9ca3af;
 }
 
+.hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
 /* Phone demo */
 .hero-demo {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
+}
+
+.hero-robot {
+  position: absolute;
+  top: -58px;
+  left: -64px;
+  width: 150px;
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.robot-float {
+  animation: robotFloat 3.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes robotFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.robot-eye {
+  animation: robotBlink 4.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes robotBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.15); }
+}
+
+.robot-antenna-tip {
+  animation: antennaPulse 2.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes antennaPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+.robot-arm-left {
+  animation: armSwayLeft 3.4s ease-in-out infinite;
+  transform-origin: 33px 140px;
+}
+
+.robot-arm-right {
+  animation: armSwayRight 3.4s ease-in-out infinite;
+  transform-origin: 187px 140px;
+}
+
+@keyframes armSwayLeft {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-6deg); }
+}
+
+@keyframes armSwayRight {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(6deg); }
+}
+
+.msg-bubble {
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.msg-bubble-1 {
+  animation-name: floatBubble1;
+  animation-duration: 4.2s;
+}
+
+.msg-bubble-2 {
+  animation-name: floatBubble2;
+  animation-duration: 3.6s;
+  animation-delay: 0.6s;
+}
+
+.msg-bubble-3 {
+  animation-name: floatBubble3;
+  animation-duration: 4.8s;
+  animation-delay: 1.2s;
+}
+
+@keyframes floatBubble1 {
+  0%, 100% { transform: translate(6px, 48px); opacity: 0.85; }
+  50% { transform: translate(-10px, 28px); opacity: 1; }
+}
+
+@keyframes floatBubble2 {
+  0%, 100% { transform: translate(178px, 52px); opacity: 0.85; }
+  50% { transform: translate(196px, 34px); opacity: 1; }
+}
+
+@keyframes floatBubble3 {
+  0%, 100% { transform: translate(2px, 158px); opacity: 0.85; }
+  50% { transform: translate(-14px, 140px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-1, .orb-2, .orb-3, .robot-float, .robot-eye, .robot-antenna-tip,
+  .robot-arm-left, .robot-arm-right, .msg-bubble-1, .msg-bubble-2, .msg-bubble-3 {
+    animation: none;
+  }
 }
 
 .demo-tabs {
@@ -184,6 +355,8 @@ h3 {
 }
 
 .phone {
+  position: relative;
+  z-index: 1;
   width: 320px;
   border-radius: 20px;
   overflow: hidden;
@@ -580,6 +753,14 @@ h3 {
 
   .links {
     display: none;
+  }
+
+  .hero-robot {
+    display: none;
+  }
+
+  .hero-bg {
+    height: 420px;
   }
 }
 
