@@ -69,6 +69,9 @@ public class AppointmentReminderJob(
             return;
         }
 
+        if (!tenant.HasActiveAccess(now))
+            return;
+
         var conversation = await db.Conversations
             .Where(c => c.TenantId == appointment.TenantId && c.ClientId == client.Id)
             .OrderByDescending(c => c.StartedAtUtc)

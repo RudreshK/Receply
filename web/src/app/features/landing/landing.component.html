@@ -100,16 +100,24 @@
 
   <section id="pricing" class="pricing">
     <h2>Simple pricing</h2>
-    <div class="pricing-card">
-      <div class="pricing-plan">Growth</div>
-      <div class="pricing-price">Contact us for a quote</div>
-      <ul>
-        <li>Unlimited WhatsApp conversations</li>
-        <li>AI-powered booking, rescheduling & cancellations</li>
-        <li>FAQ auto-reply and human handoff</li>
-        <li>Dashboard for settings, holidays & appointments</li>
-      </ul>
-      <a class="btn-primary" routerLink="/signup">Start free trial</a>
+    <p class="pricing-subtitle">Every plan starts with a free 14-day trial - no credit card required.</p>
+    <div class="pricing-grid">
+      @for (plan of plans(); track plan.plan) {
+        <div class="pricing-card" [class.pricing-card--highlight]="plan.plan === 'Growth'">
+          @if (plan.plan === 'Growth') {
+            <div class="pricing-badge">Most popular</div>
+          }
+          <div class="pricing-plan">{{ plan.displayName }}</div>
+          <div class="pricing-price">{{ plan.priceLabel }}</div>
+          <p class="pricing-description">{{ plan.description }}</p>
+          <ul>
+            @for (feature of plan.features; track feature) {
+              <li>{{ featureLabel(feature) }}</li>
+            }
+          </ul>
+          <a class="btn-primary" routerLink="/signup">Start free trial</a>
+        </div>
+      }
     </div>
   </section>
 

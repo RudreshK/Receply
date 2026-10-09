@@ -40,6 +40,12 @@ public class GenerateAiReplyCommandHandler(
         if (tenant is null || client is null || channelAccount is null)
             return;
 
+        // No active trial/subscription - the AI stays completely silent. Appointment booking only
+        // happens through this same AI tool-calling loop, so this one check is also what stops a
+        // lapsed tenant from booking anything.
+        if (!tenant.HasActiveAccess(DateTimeOffset.UtcNow))
+            return;
+
         var canBook = await featureAccess.IsEnabledAsync(tenant.Id, Feature.AppointmentBooking, cancellationToken);
         var tools = canBook
             ? AiToolCatalog.All

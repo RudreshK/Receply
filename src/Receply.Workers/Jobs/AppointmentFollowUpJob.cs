@@ -57,14 +57,18 @@ public class AppointmentFollowUpJob(
         }
 
         var client = await db.Clients.FirstOrDefaultAsync(c => c.Id == appointment.ClientId, cancellationToken);
+        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Id == followUp.TenantId, cancellationToken);
         var channelAccount = await db.ChannelAccounts.FirstOrDefaultAsync(
             c => c.TenantId == followUp.TenantId && c.Type == ChannelType.WhatsApp, cancellationToken);
 
-        if (client is null || channelAccount is null)
+        if (client is null || tenant is null || channelAccount is null)
         {
-            logger.LogWarning("Skipping follow-up {FollowUpId} - missing client or WhatsApp channel account.", followUp.Id);
+            logger.LogWarning("Skipping follow-up {FollowUpId} - missing client, tenant, or WhatsApp channel account.", followUp.Id);
             return;
         }
+
+        if (!tenant.HasActiveAccess(now))
+            return;
 
         var conversation = await db.Conversations
             .Where(c => c.TenantId == followUp.TenantId && c.ClientId == client.Id)

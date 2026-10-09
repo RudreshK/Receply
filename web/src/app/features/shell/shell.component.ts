@@ -1,11 +1,13 @@
-import { Component, DestroyRef, signal } from '@angular/core';
+import { Component, DestroyRef, computed, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
+import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { FeaturesService } from '../../core/features.service';
 import { RealtimeService } from '../../core/realtime.service';
+import { SubscriptionStatus } from '../../core/models';
 import { ThemeService } from '../../core/theme.service';
 
 const SIDEBAR_COLLAPSED_KEY = 'receply.sidebarCollapsed';
@@ -34,19 +36,44 @@ export class ShellComponent {
    * padding for that one route instead of boxing it in like the settings-style pages. */
   readonly fullBleed = signal(false);
 
+  readonly onSubscriptionPage = signal(false);
+  readonly subscriptionStatus = signal<SubscriptionStatus | null>(null);
+
+  /** Blocks the whole dashboard once a trial/subscription has lapsed - the Subscription page itself
+   * stays reachable so there's always a way out. Fails open on a load error rather than locking out
+   * a paying customer over a transient network hiccup. */
+  readonly showPaywall = computed(() => {
+    const status = this.subscriptionStatus();
+    return !!status && !status.hasActiveAccess && !this.onSubscriptionPage();
+  });
+
   constructor(
     readonly auth: AuthService,
     readonly theme: ThemeService,
+    private readonly api: ApiService,
     private readonly realtime: RealtimeService,
     private readonly features: FeaturesService,
     private readonly router: Router,
     destroyRef: DestroyRef
   ) {
     this.fullBleed.set(this.router.url.startsWith('/app/inbox'));
+    this.onSubscriptionPage.set(this.router.url.startsWith('/app/subscription'));
+    this.refreshSubscriptionStatus();
 
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd), takeUntilDestroyed(destroyRef))
-      .subscribe(event => this.fullBleed.set(event.urlAfterRedirects.startsWith('/app/inbox')));
+      .subscribe(event => {
+        this.fullBleed.set(event.urlAfterRedirects.startsWith('/app/inbox'));
+        this.onSubscriptionPage.set(event.urlAfterRedirects.startsWith('/app/subscription'));
+        this.refreshSubscriptionStatus();
+      });
+  }
+
+  private refreshSubscriptionStatus(): void {
+    this.api.getSubscription().subscribe({
+      next: (status) => this.subscriptionStatus.set(status),
+      error: () => { /* don't change the paywall state over a failed check */ }
+    });
   }
 
   toggleSidebar(): void {

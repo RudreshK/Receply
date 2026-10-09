@@ -9,6 +9,7 @@ import {
   DashboardStats,
   Faq,
   Holiday,
+  PlanOption,
   SubscriptionStatus,
   TenantSettings
 } from './models';
@@ -89,5 +90,9 @@ export class ApiService {
 
   changeSubscriptionPlan(plan: string): Observable<void> {
     return this.http.put<void>(`${this.base}/api/tenant/subscription`, { plan });
+  }
+
+  listPublicPlans(): Observable<PlanOption[]> {
+    return this.http.get<PlanOption[]>(`${this.base}/api/plans`);
   }
 }

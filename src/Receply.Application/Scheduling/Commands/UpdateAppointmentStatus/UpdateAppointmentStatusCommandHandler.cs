@@ -56,6 +56,9 @@ public class UpdateAppointmentStatusCommandHandler(
         if (client is null || service is null || resource is null || tenant is null || channelAccount is null)
             return;
 
+        if (!tenant.HasActiveAccess(DateTimeOffset.UtcNow))
+            return;
+
         var conversation = await db.Conversations
             .Where(c => c.TenantId == appointment.TenantId && c.ClientId == client.Id)
             .OrderByDescending(c => c.StartedAtUtc)

@@ -37,3 +37,17 @@
     <router-outlet></router-outlet>
   </main>
 </div>
+
+@if (showPaywall()) {
+  <div class="paywall">
+    <div class="paywall-card">
+      <h2>{{ subscriptionStatus()!.status === 'TrialActive' ? 'Your free trial has ended' : 'Your subscription has ended' }}</h2>
+      <p>
+        To keep your AI receptionist replying to customers and booking appointments on WhatsApp, pick a plan to
+        continue. Nothing is lost - your conversations and settings are all still here.
+      </p>
+      <a class="paywall-cta" routerLink="/app/subscription">View plans &amp; subscribe</a>
+      <button type="button" class="paywall-signout" (click)="logout()">Sign out</button>
+    </div>
+  </div>
+}

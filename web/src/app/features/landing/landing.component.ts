@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
+import { PlanOption } from '../../core/models';
 
 type Sender = 'client' | 'ai' | 'system';
 
@@ -123,6 +125,17 @@ const DEMO_SCENARIOS: DemoScenario[] = [
 const STEP_DELAY_MS = 1400;
 const RESTART_PAUSE_MS = 2600;
 
+const FEATURE_LABELS: Record<string, string> = {
+  ManualStaffReply: 'Staff can reply by hand and take chats back from the AI',
+  ReadReceipts: 'WhatsApp read receipts and "typing…" indicator',
+  AppointmentBooking: 'AI books, reschedules, and cancels appointments',
+  MessageTranslation: 'On-demand message translation',
+  AppointmentReminders: 'Automatic appointment reminders',
+  AppointmentOutcomeMessages: 'Automatic completed / missed-appointment messages',
+  AppointmentFollowUps: 'Post-appointment care follow-ups',
+  PerformanceDashboard: 'Performance dashboard'
+};
+
 @Component({
   selector: 'app-landing',
   standalone: true,
@@ -167,12 +180,22 @@ export class LandingComponent implements OnInit, OnDestroy {
     { number: '3', title: 'Let Receply answer', description: 'Customers chat like normal. Receply handles it, and loops you in when it matters.' }
   ];
 
+  plans = signal<PlanOption[]>([]);
+
   private timer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(readonly auth: AuthService) {}
+  constructor(readonly auth: AuthService, private readonly api: ApiService) {}
 
   ngOnInit(): void {
     this.playDemo();
+    this.api.listPublicPlans().subscribe({
+      next: (plans) => this.plans.set(plans),
+      error: () => this.plans.set([])
+    });
+  }
+
+  featureLabel(key: string): string {
+    return FEATURE_LABELS[key] ?? key;
   }
 
   ngOnDestroy(): void {
