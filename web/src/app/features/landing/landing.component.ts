@@ -48,6 +48,16 @@ const DEMO_SCENARIOS: DemoScenario[] = [
     ]
   },
   {
+    label: 'Appointment Reminder',
+    businessName: 'Mehta Family Clinic',
+    messages: [
+      { sender: 'ai', text: 'Hi Priya! This is a reminder for your consultation with Dr. Mehta tomorrow at 10:00 AM.', time: '10:00 AM, day before' },
+      { sender: 'ai', text: 'Reply here anytime if you need to reschedule or cancel.', time: '10:00 AM, day before' },
+      { sender: 'client', text: 'Got it, thank you! See you then 😊', time: '10:04 AM, day before' },
+      { sender: 'system', text: 'Reminder delivered 24 hours before the appointment - no action needed to confirm.', time: '10:04 AM, day before' }
+    ]
+  },
+  {
     label: 'Salon',
     businessName: 'Glow Salon',
     messages: [
