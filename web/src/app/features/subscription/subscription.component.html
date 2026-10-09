@@ -1,0 +1,64 @@
+<h1>Subscription</h1>
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else if (status()) {
+  @if (!status()!.hasActiveAccess) {
+    <div class="banner banner--danger">
+      Access to automated features is currently paused ({{ status()!.status }}). Switch to a paid plan below to restore it.
+    </div>
+  } @else if (status()!.plan === 'Trial' && trialDaysLeft() !== null && trialDaysLeft()! <= 3) {
+    <div class="banner banner--warning">
+      Your free trial ends in {{ trialDaysLeft() }} day{{ trialDaysLeft() === 1 ? '' : 's' }}. Pick a plan below to keep everything running.
+    </div>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <p class="current-plan">
+    Current plan: <strong>{{ status()!.plan }}</strong>
+    @if (status()!.plan === 'Trial' && trialDaysLeft() !== null) {
+      <span class="muted"> &middot; trial ends in {{ trialDaysLeft() }} day{{ trialDaysLeft() === 1 ? '' : 's' }}</span>
+    }
+    @if (status()!.planRenewsUtc) {
+      <span class="muted"> &middot; renews {{ status()!.planRenewsUtc | date: 'mediumDate' }}</span>
+    }
+  </p>
+
+  @if (!isOwner()) {
+    <p class="muted">Only the business owner can switch plans.</p>
+  }
+
+  <div class="plans">
+    @for (plan of orderedPlans(); track plan.plan) {
+      <div class="plan-card" [class.plan-card--current]="isCurrentPlan(plan)">
+        <div class="plan-header">
+          <h2>{{ plan.plan }}</h2>
+          @if (isCurrentPlan(plan)) {
+            <span class="badge">Current</span>
+          }
+        </div>
+
+        <ul class="feature-list">
+          @for (feature of plan.features; track feature) {
+            <li>✓ {{ featureLabel(feature) }}</li>
+          } @empty {
+            <li class="muted">Core booking &amp; AI replies only</li>
+          }
+        </ul>
+
+        @if (plan.plan !== 'Trial' && isOwner() && !isCurrentPlan(plan)) {
+          <button type="button" [disabled]="switching() === plan.plan" (click)="switchTo(plan)">
+            {{ switching() === plan.plan ? 'Switching...' : 'Switch to ' + plan.plan }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <p class="fine-print">
+    No payment gateway is connected yet - switching plans here takes effect immediately and is billed offline.
+  </p>
+}

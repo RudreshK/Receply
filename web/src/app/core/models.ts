@@ -53,6 +53,20 @@ export interface AppointmentListItem {
   status: string;
 }
 
+export interface PlanOption {
+  plan: string;
+  features: string[];
+}
+
+export interface SubscriptionStatus {
+  plan: string;
+  status: string;
+  hasActiveAccess: boolean;
+  trialEndsUtc: string | null;
+  planRenewsUtc: string | null;
+  availablePlans: PlanOption[];
+}
+
 export interface BusinessTypeOption {
   value: string;
   label: string;

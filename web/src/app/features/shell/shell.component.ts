@@ -25,7 +25,8 @@ export class ShellComponent {
     { path: '/app/working-hours', label: 'Working Hours' },
     { path: '/app/holidays', label: 'Holidays' },
     { path: '/app/appointments', label: 'Appointments' },
-    { path: '/app/faq', label: 'FAQ' }
+    { path: '/app/faq', label: 'FAQ' },
+    { path: '/app/subscription', label: 'Subscription' }
   ];
 
   readonly sidebarCollapsed = signal(this.readStoredCollapsed());

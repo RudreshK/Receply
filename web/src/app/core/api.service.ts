@@ -9,6 +9,7 @@ import {
   DashboardStats,
   Faq,
   Holiday,
+  SubscriptionStatus,
   TenantSettings
 } from './models';
 
@@ -80,5 +81,13 @@ export class ApiService {
 
   addAppointmentFollowUp(appointmentId: string, instructions: string, dayOffsets: number[]): Observable<void> {
     return this.http.post<void>(`${this.base}/api/appointments/${appointmentId}/follow-up`, { instructions, dayOffsets });
+  }
+
+  getSubscription(): Observable<SubscriptionStatus> {
+    return this.http.get<SubscriptionStatus>(`${this.base}/api/tenant/subscription`);
+  }
+
+  changeSubscriptionPlan(plan: string): Observable<void> {
+    return this.http.put<void>(`${this.base}/api/tenant/subscription`, { plan });
   }
 }

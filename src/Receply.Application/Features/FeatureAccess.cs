@@ -8,15 +8,15 @@ public class FeatureAccess(IApplicationDbContext db) : IFeatureAccess
 {
     public async Task<bool> IsEnabledAsync(Guid tenantId, Feature feature, CancellationToken cancellationToken = default)
     {
+        // An explicit per-tenant override (a support/back-office comp, or a deliberate restriction)
+        // always wins over whatever the tenant's plan would otherwise say.
         var flag = await db.TenantFeatureFlags
             .FirstOrDefaultAsync(f => f.TenantId == tenantId && f.Feature == feature, cancellationToken);
 
-        return flag?.IsEnabled ?? DefaultEnabled(feature);
-    }
+        if (flag is not null)
+            return flag.IsEnabled;
 
-    /// <summary>What a feature is worth to a tenant before their plan has ever said otherwise. Every
-    /// feature here defaults on today because there's no billing/plan system driving these flags
-    /// yet - once one exists, it writes a TenantFeatureFlag row per tenant per plan instead of
-    /// relying on this fallback.</summary>
-    private static bool DefaultEnabled(Feature feature) => true;
+        var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+        return tenant is not null && SubscriptionPlans.Includes(tenant.Plan, feature);
+    }
 }

@@ -1,8 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Receply.Application.Tenancy.Commands.ChangeSubscriptionPlan;
 using Receply.Application.Tenancy.Commands.UpdateTenantSettings;
+using Receply.Application.Tenancy.Queries.GetSubscriptionStatus;
 using Receply.Application.Tenancy.Queries.GetTenantSettings;
+using Receply.Domain.Tenancy;
 using Receply.Infrastructure.Multitenancy;
 
 namespace Receply.Api.Controllers;
@@ -13,6 +16,7 @@ namespace Receply.Api.Controllers;
 public class TenantsController(ISender sender, ITenantContext tenantContext) : ControllerBase
 {
     public record UpdateTenantSettingsRequest(string Name, string BusinessType, string TimeZoneId);
+    public record ChangePlanRequest(string Plan);
 
     [HttpGet("settings")]
     public async Task<ActionResult<TenantSettingsDto>> GetSettings(CancellationToken cancellationToken)
@@ -30,6 +34,28 @@ public class TenantsController(ISender sender, ITenantContext tenantContext) : C
             return Unauthorized();
 
         await sender.Send(new UpdateTenantSettingsCommand(tenantId, request.Name, request.BusinessType, request.TimeZoneId), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpGet("subscription")]
+    public async Task<ActionResult<SubscriptionStatusDto>> GetSubscription(CancellationToken cancellationToken)
+    {
+        if (tenantContext.TenantId is not { } tenantId)
+            return Unauthorized();
+
+        return await sender.Send(new GetSubscriptionStatusQuery(tenantId), cancellationToken);
+    }
+
+    /// <summary>Owner-only: no payment gateway exists yet, so this is a self-serve/honor-system plan
+    /// switch - billing today is settled offline.</summary>
+    [Authorize(Roles = nameof(StaffRole.Owner))]
+    [HttpPut("subscription")]
+    public async Task<IActionResult> ChangePlan(ChangePlanRequest request, CancellationToken cancellationToken)
+    {
+        if (tenantContext.TenantId is not { } tenantId)
+            return Unauthorized();
+
+        await sender.Send(new ChangeSubscriptionPlanCommand(tenantId, request.Plan), cancellationToken);
         return NoContent();
     }
 }

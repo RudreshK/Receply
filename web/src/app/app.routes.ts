@@ -38,7 +38,11 @@ export const routes: Routes = [
         path: 'appointments',
         loadComponent: () => import('./features/appointments/appointments.component').then((m) => m.AppointmentsComponent)
       },
-      { path: 'faq', loadComponent: () => import('./features/faq/faq.component').then((m) => m.FaqComponent) }
+      { path: 'faq', loadComponent: () => import('./features/faq/faq.component').then((m) => m.FaqComponent) },
+      {
+        path: 'subscription',
+        loadComponent: () => import('./features/subscription/subscription.component').then((m) => m.SubscriptionComponent)
+      }
     ]
   },
   { path: '**', redirectTo: '' }
