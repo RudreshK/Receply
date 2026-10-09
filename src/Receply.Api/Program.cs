@@ -9,6 +9,7 @@ using Receply.Api.Hubs;
 using Receply.Api.Middleware;
 using Receply.Api.Realtime;
 using Receply.Application;
+using Receply.Application.Channels;
 using Receply.Application.Conversations;
 using Receply.Infrastructure;
 using Receply.Infrastructure.Channels.WhatsApp;
@@ -90,8 +91,9 @@ using (var seedScope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 
     var whatsAppOptions = seedScope.ServiceProvider.GetRequiredService<IOptions<WhatsAppOptions>>();
+    var credentialProtector = seedScope.ServiceProvider.GetRequiredService<IChannelCredentialProtector>();
     var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    await DbSeeder.SeedAsync(db, whatsAppOptions, seedLogger);
+    await DbSeeder.SeedAsync(db, whatsAppOptions, credentialProtector, seedLogger);
 }
 
 if (app.Environment.IsDevelopment())

@@ -13,6 +13,7 @@ using Receply.Infrastructure.Channels.WhatsApp;
 using Receply.Infrastructure.Email;
 using Receply.Infrastructure.Multitenancy;
 using Receply.Infrastructure.Persistence;
+using Receply.Infrastructure.Security;
 using Receply.Infrastructure.Translation;
 using StackExchange.Redis;
 
@@ -36,6 +37,9 @@ public static class DependencyInjection
 
         services.Configure<WhatsAppOptions>(configuration.GetSection(WhatsAppOptions.SectionName));
         services.AddHttpClient<IChannelProvider, WhatsAppCloudApiProvider>();
+
+        services.Configure<EncryptionOptions>(configuration.GetSection(EncryptionOptions.SectionName));
+        services.AddSingleton<IChannelCredentialProtector, AesGcmChannelCredentialProtector>();
 
         services.Configure<OpenAiOptions>(configuration.GetSection(OpenAiOptions.SectionName));
         services.AddSingleton<IAiConversationAgent, OpenAiConversationAgent>();

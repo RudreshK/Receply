@@ -14,11 +14,18 @@ namespace Receply.Infrastructure.Channels.WhatsApp;
 public class WhatsAppCloudApiProvider(
     HttpClient httpClient,
     IOptions<WhatsAppOptions> options,
+    IChannelCredentialProtector credentialProtector,
     ILogger<WhatsAppCloudApiProvider> logger) : IChannelProvider
 {
     private readonly WhatsAppOptions _options = options.Value;
 
     public ChannelType Type => ChannelType.WhatsApp;
+
+    /// <summary>The account's own token if it has one (the normal case for a tenant who connected
+    /// their own WhatsApp number), falling back to the platform's shared token for accounts that
+    /// predate per-tenant credentials.</summary>
+    private string ResolveAccessToken(ChannelAccount account) =>
+        account.AccessToken is { Length: > 0 } encrypted ? credentialProtector.Unprotect(encrypted) : _options.AccessToken;
 
     public async Task<string> SendMessageAsync(ChannelAccount account, string toPhoneNumber, string body, CancellationToken cancellationToken = default)
     {
@@ -36,7 +43,7 @@ public class WhatsAppCloudApiProvider(
         {
             Content = JsonContent.Create(payload)
         };
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.AccessToken);
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ResolveAccessToken(account));
 
         using var response = await httpClient.SendAsync(request, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -70,7 +77,7 @@ public class WhatsAppCloudApiProvider(
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = JsonContent.Create(payload) };
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.AccessToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ResolveAccessToken(account));
 
             using var response = await httpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)

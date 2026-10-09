@@ -13,6 +13,8 @@ public class ChannelAccountConfiguration : IEntityTypeConfiguration<ChannelAccou
         builder.Property(c => c.Id).HasColumnName("ChannelAccountId");
         builder.Property(c => c.ExternalId).IsRequired().HasMaxLength(200);
         builder.Property(c => c.DisplayName).IsRequired().HasMaxLength(200);
+        builder.Property(c => c.AccessToken).HasMaxLength(1000);
+        builder.Property(c => c.WabaId).HasMaxLength(200);
         builder.HasIndex(c => new { c.Type, c.ExternalId }).IsUnique().HasDatabaseName("UQ_ChannelAccount_Type_ExternalId");
     }
 }

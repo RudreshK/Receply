@@ -28,6 +28,10 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("ChannelAccountId");
 
+                    b.Property<string>("AccessToken")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
@@ -69,6 +73,10 @@ namespace Receply.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
+
+                    b.Property<string>("WabaId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id")
                         .HasName("PK_ChannelAccount");
