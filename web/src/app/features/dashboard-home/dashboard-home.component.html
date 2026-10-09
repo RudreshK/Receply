@@ -24,43 +24,42 @@
 }
 
 <section class="demos">
-  <h2>Complete demo videos for every business type</h2>
-  <p class="demos-subtitle">See how Receply handles booking, follow-ups, and rescheduling for businesses like yours.</p>
+  <h2>Complete demo for every business type</h2>
+  <p class="demos-subtitle">A live, auto-playing look at how Receply handles booking, follow-ups, and rescheduling for businesses like yours.</p>
 
-  <div class="demo-slider">
-    @for (video of demoVideos; track video.title) {
-      <button type="button" class="demo-card" [class.demo-card--disabled]="!video.youtubeId" (click)="openVideo(video)">
-        <div class="demo-thumb">
-          @if (video.youtubeId) {
-            <span class="play-icon">▶</span>
-          } @else {
-            <span class="coming-soon">Coming soon</span>
-          }
-        </div>
-        <div class="demo-info">
-          <span class="demo-type">{{ video.businessType }}</span>
-          <span class="demo-title">{{ video.title }}</span>
-          <span class="demo-description">{{ video.description }}</span>
-        </div>
+  <div class="demo-tabs">
+    @for (scenario of scenarios; track scenario.label; let i = $index) {
+      <button type="button" class="demo-tab" [class.demo-tab--active]="i === activeScenarioIndex()" (click)="selectScenario(i)">
+        {{ scenario.label }}
       </button>
     }
   </div>
-</section>
 
-@if (selectedVideo()) {
-  <div class="video-modal" (click)="closeVideo()">
-    <div class="video-modal-content" (click)="$event.stopPropagation()">
-      <button type="button" class="video-modal-close" (click)="closeVideo()" aria-label="Close">✕</button>
-      <h3>{{ selectedVideo()!.title }}</h3>
-      @if (selectedVideoUrl()) {
-        <iframe
-          [src]="selectedVideoUrl()"
-          title="Demo video"
-          frameborder="0"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowfullscreen>
-        </iframe>
+  <div class="phone">
+    <div class="phone-header">
+      <div class="avatar">R</div>
+      <div>
+        <div class="phone-title">Receply Receptionist</div>
+        <div class="phone-subtitle">{{ activeScenario().businessName }}</div>
+      </div>
+    </div>
+    <div class="phone-body">
+      @for (message of activeScenario().messages; track $index) {
+        @if ($index < visibleCount()) {
+          <div class="bubble" [class]="message.sender">
+            <div class="bubble-text">{{ message.text }}</div>
+            <div class="bubble-time">{{ message.time }}</div>
+          </div>
+        }
+      }
+      @if (isTyping()) {
+        <div class="typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
       }
     </div>
+    <div class="phone-input">
+      <span>Type a message</span>
+    </div>
   </div>
-}
+</section>
