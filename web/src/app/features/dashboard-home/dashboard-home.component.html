@@ -22,3 +22,45 @@
 } @else {
   <p>Couldn't load stats.</p>
 }
+
+<section class="demos">
+  <h2>Complete demo videos for every business type</h2>
+  <p class="demos-subtitle">See how Receply handles booking, follow-ups, and rescheduling for businesses like yours.</p>
+
+  <div class="demo-slider">
+    @for (video of demoVideos; track video.title) {
+      <button type="button" class="demo-card" [class.demo-card--disabled]="!video.youtubeId" (click)="openVideo(video)">
+        <div class="demo-thumb">
+          @if (video.youtubeId) {
+            <span class="play-icon">▶</span>
+          } @else {
+            <span class="coming-soon">Coming soon</span>
+          }
+        </div>
+        <div class="demo-info">
+          <span class="demo-type">{{ video.businessType }}</span>
+          <span class="demo-title">{{ video.title }}</span>
+          <span class="demo-description">{{ video.description }}</span>
+        </div>
+      </button>
+    }
+  </div>
+</section>
+
+@if (selectedVideo()) {
+  <div class="video-modal" (click)="closeVideo()">
+    <div class="video-modal-content" (click)="$event.stopPropagation()">
+      <button type="button" class="video-modal-close" (click)="closeVideo()" aria-label="Close">✕</button>
+      <h3>{{ selectedVideo()!.title }}</h3>
+      @if (selectedVideoUrl()) {
+        <iframe
+          [src]="selectedVideoUrl()"
+          title="Demo video"
+          frameborder="0"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      }
+    </div>
+  </div>
+}
