@@ -34,16 +34,24 @@
     </div>
 
     <div class="hero-demo">
+      <div class="demo-tabs">
+        @for (scenario of scenarios; track scenario.label; let i = $index) {
+          <button type="button" class="demo-tab" [class.demo-tab--active]="i === activeScenarioIndex()" (click)="selectScenario(i)">
+            {{ scenario.label }}
+          </button>
+        }
+      </div>
+
       <div class="phone">
         <div class="phone-header">
           <div class="avatar">R</div>
           <div>
             <div class="phone-title">Receply Receptionist</div>
-            <div class="phone-subtitle">Mehta Family Clinic</div>
+            <div class="phone-subtitle">{{ activeScenario().businessName }}</div>
           </div>
         </div>
         <div class="phone-body">
-          @for (message of demoScript; track $index) {
+          @for (message of activeScenario().messages; track $index) {
             @if ($index < visibleCount()) {
               <div class="bubble" [class]="message.sender">
                 <div class="bubble-text">{{ message.text }}</div>
