@@ -428,10 +428,17 @@ export class InboxComponent implements OnInit {
     }
   }
 
+  /** A plain setTimeout(fn) can fire before the browser has actually laid out the newly-rendered
+   * messages, leaving scrollHeight stale and the chat sitting at the top. Two nested
+   * requestAnimationFrame calls wait for a real completed layout/paint pass first - the first rAF
+   * runs before the browser paints the DOM change, the second runs after, which is when
+   * scrollHeight is guaranteed accurate. */
   private scrollToBottom(): void {
-    setTimeout(() => {
-      const el = this.chatScroll()?.nativeElement;
-      if (el) el.scrollTop = el.scrollHeight;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = this.chatScroll()?.nativeElement;
+        if (el) el.scrollTop = el.scrollHeight;
+      });
     });
   }
 
