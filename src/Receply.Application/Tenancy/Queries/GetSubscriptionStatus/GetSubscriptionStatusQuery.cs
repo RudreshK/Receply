@@ -2,7 +2,7 @@ using MediatR;
 
 namespace Receply.Application.Tenancy.Queries.GetSubscriptionStatus;
 
-public record PlanOptionDto(string Plan, IReadOnlyList<string> Features);
+public record PlanOptionDto(string Plan, string DisplayName, string PriceLabel, string Description, IReadOnlyList<string> Features);
 
 public record SubscriptionStatusDto(
     string Plan,

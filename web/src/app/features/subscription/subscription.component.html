@@ -18,7 +18,7 @@
   }
 
   <p class="current-plan">
-    Current plan: <strong>{{ status()!.plan }}</strong>
+    Current plan: <strong>{{ currentPlanDisplayName() }}</strong>
     @if (status()!.plan === 'Trial' && trialDaysLeft() !== null) {
       <span class="muted"> &middot; trial ends in {{ trialDaysLeft() }} day{{ trialDaysLeft() === 1 ? '' : 's' }}</span>
     }
@@ -35,11 +35,14 @@
     @for (plan of orderedPlans(); track plan.plan) {
       <div class="plan-card" [class.plan-card--current]="isCurrentPlan(plan)">
         <div class="plan-header">
-          <h2>{{ plan.plan }}</h2>
+          <h2>{{ plan.displayName }}</h2>
           @if (isCurrentPlan(plan)) {
             <span class="badge">Current</span>
           }
         </div>
+
+        <p class="price">{{ plan.priceLabel }}</p>
+        <p class="description">{{ plan.description }}</p>
 
         <ul class="feature-list">
           @for (feature of plan.features; track feature) {
@@ -51,7 +54,7 @@
 
         @if (plan.plan !== 'Trial' && isOwner() && !isCurrentPlan(plan)) {
           <button type="button" [disabled]="switching() === plan.plan" (click)="switchTo(plan)">
-            {{ switching() === plan.plan ? 'Switching...' : 'Switch to ' + plan.plan }}
+            {{ switching() === plan.plan ? 'Switching...' : 'Switch to ' + plan.displayName }}
           </button>
         }
       </div>

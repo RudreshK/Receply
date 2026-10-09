@@ -14,7 +14,13 @@ public class GetSubscriptionStatusQueryHandler(IApplicationDbContext db) : IRequ
             ?? throw new KeyNotFoundException($"Tenant '{request.TenantId}' not found.");
 
         var availablePlans = Enum.GetValues<SubscriptionPlan>()
-            .Select(plan => new PlanOptionDto(plan.ToString(), SubscriptionPlans.FeaturesFor(plan).Select(f => f.ToString()).ToList()))
+            .Select(plan =>
+            {
+                var pricing = SubscriptionPlans.PricingFor(plan);
+                return new PlanOptionDto(
+                    plan.ToString(), pricing.DisplayName, pricing.PriceLabel, pricing.Description,
+                    SubscriptionPlans.FeaturesFor(plan).Select(f => f.ToString()).ToList());
+            })
             .ToList();
 
         return new SubscriptionStatusDto(

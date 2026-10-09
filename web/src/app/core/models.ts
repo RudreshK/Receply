@@ -55,6 +55,9 @@ export interface AppointmentListItem {
 
 export interface PlanOption {
   plan: string;
+  displayName: string;
+  priceLabel: string;
+  description: string;
   features: string[];
 }
 

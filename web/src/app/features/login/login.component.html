@@ -6,7 +6,7 @@
     @if (step() === 'phone') {
       <form (ngSubmit)="requestOtp()">
         <label for="phone">Mobile number</label>
-        <input id="phone" name="phone" type="tel" placeholder="+1 555 0100" [(ngModel)]="phoneNumber" required />
+        <input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" [(ngModel)]="phoneNumber" required />
         <button type="submit" [disabled]="loading()">
           {{ loading() ? 'Sending code...' : 'Send code' }}
         </button>

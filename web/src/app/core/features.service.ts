@@ -10,7 +10,9 @@ export type FeatureKey =
   | 'MessageTranslation'
   | 'AppointmentReminders'
   | 'AppointmentOutcomeMessages'
-  | 'AppointmentFollowUps';
+  | 'AppointmentFollowUps'
+  | 'AppointmentBooking'
+  | 'PerformanceDashboard';
 
 @Injectable({ providedIn: 'root' })
 export class FeaturesService {

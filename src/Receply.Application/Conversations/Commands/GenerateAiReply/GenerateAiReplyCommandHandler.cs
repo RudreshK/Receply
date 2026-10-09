@@ -6,7 +6,9 @@ using Receply.Application.AiEngine.Contracts;
 using Receply.Application.Channels;
 using Receply.Application.Common;
 using Receply.Application.Conversations.Queries.GetConversationMessages;
+using Receply.Application.Features;
 using Receply.Domain.Conversations;
+using Receply.Domain.Tenancy;
 
 namespace Receply.Application.Conversations.Commands.GenerateAiReply;
 
@@ -15,7 +17,8 @@ public class GenerateAiReplyCommandHandler(
     IAiConversationAgent agent,
     IAiToolExecutor toolExecutor,
     IChannelProvider channelProvider,
-    IConversationNotifier conversationNotifier)
+    IConversationNotifier conversationNotifier,
+    IFeatureAccess featureAccess)
     : IRequestHandler<GenerateAiReplyCommand>
 {
     private const int MaxToolCallRounds = 6;
@@ -37,7 +40,12 @@ public class GenerateAiReplyCommandHandler(
         if (tenant is null || client is null || channelAccount is null)
             return;
 
-        var systemPrompt = await BuildSystemPromptAsync(tenant.Id, tenant.Name, tenant.BusinessType.ToString(), tenant.TimeZoneId, cancellationToken);
+        var canBook = await featureAccess.IsEnabledAsync(tenant.Id, Feature.AppointmentBooking, cancellationToken);
+        var tools = canBook
+            ? AiToolCatalog.All
+            : AiToolCatalog.All.Where(t => t.Name is AiToolCatalog.ListServices or AiToolCatalog.RequestHumanHandoff).ToList();
+
+        var systemPrompt = await BuildSystemPromptAsync(tenant.Id, tenant.Name, tenant.BusinessType.ToString(), tenant.TimeZoneId, canBook, cancellationToken);
 
         var messages = conversation.Messages
             .Where(m => m.Sender is MessageSender.Client or MessageSender.Ai)
@@ -51,7 +59,7 @@ public class GenerateAiReplyCommandHandler(
 
         for (var round = 0; round < MaxToolCallRounds; round++)
         {
-            var turn = await agent.GetNextTurnAsync(new AiConversationRequest(systemPrompt, messages, AiToolCatalog.All), cancellationToken);
+            var turn = await agent.GetNextTurnAsync(new AiConversationRequest(systemPrompt, messages, tools), cancellationToken);
             var toolUses = turn.GetToolUses();
 
             if (toolUses.Count == 0)
@@ -95,7 +103,8 @@ public class GenerateAiReplyCommandHandler(
             db, channelProvider, conversationNotifier, conversation, reply, channelAccount, client.PhoneNumber, finalText, cancellationToken);
     }
 
-    private async Task<string> BuildSystemPromptAsync(Guid tenantId, string tenantName, string businessType, string timeZoneId, CancellationToken cancellationToken)
+    private async Task<string> BuildSystemPromptAsync(
+        Guid tenantId, string tenantName, string businessType, string timeZoneId, bool canBook, CancellationToken cancellationToken)
     {
         var services = await db.Services
             .Where(s => s.TenantId == tenantId && s.IsActive)
@@ -113,18 +122,25 @@ public class GenerateAiReplyCommandHandler(
         sb.AppendLine($"You are the AI receptionist for {tenantName}, a {businessType.ToLowerInvariant()} business.");
         sb.AppendLine($"The current date and time where the business is located is {nowLocal:dddd, MMMM d, yyyy 'at' h:mm tt} ({timeZoneId}).");
         sb.AppendLine();
-        sb.AppendLine("Your job: answer customer questions, help them book, reschedule, or cancel appointments, and answer questions about an appointment they already have (including whether it's confirmed and reminders for it) over this WhatsApp chat.");
+        sb.AppendLine(canBook
+            ? "Your job: answer customer questions, help them book, reschedule, or cancel appointments, and answer questions about an appointment they already have (including whether it's confirmed and reminders for it) over this WhatsApp chat."
+            : "Your job: answer customer questions about this business - services, prices, hours, and FAQs - over this WhatsApp chat. You cannot book, reschedule, or cancel appointments; if a customer wants to do that, tell them a team member will help and call request_human_handoff.");
         sb.AppendLine();
         sb.AppendLine("Guidelines:");
         sb.AppendLine("- Be warm, concise, and conversational. Keep replies short (2-4 sentences unless listing options).");
-        sb.AppendLine("- Always use the provided tools to check real availability and to actually perform bookings, reschedules, or cancellations. Never claim to have done something without calling the matching tool first.");
+        sb.AppendLine(canBook
+            ? "- Always use the provided tools to check real availability and to actually perform bookings, reschedules, or cancellations. Never claim to have done something without calling the matching tool first."
+            : "- You have no booking tools. Never claim to have booked, rescheduled, or cancelled anything - hand those requests to a human instead.");
         sb.AppendLine("- Never invent services, prices, or appointment times that weren't returned by a tool.");
-        sb.AppendLine("- If the customer asks about an existing appointment for any reason - confirming it, a reminder that didn't arrive, anything about a booking they already made - call list_my_appointments first so you're referencing their real appointment, not guessing.");
+        if (canBook)
+            sb.AppendLine("- If the customer asks about an existing appointment for any reason - confirming it, a reminder that didn't arrive, anything about a booking they already made - call list_my_appointments first so you're referencing their real appointment, not guessing.");
         sb.AppendLine("- If you're not confident you understood the request, ask a short clarifying question rather than guessing.");
         sb.AppendLine("- If the customer explicitly asks for a human, or you can't resolve their request after a couple of tries - including something you have no tool for, like a reminder that didn't send - call request_human_handoff instead of refusing. Reassure them about what you did confirm (e.g. the appointment itself) before handing off.");
         sb.AppendLine();
         sb.AppendLine("Strict scope - this is the most important rule:");
-        sb.AppendLine("- You may ONLY discuss: this business's services/prices/hours/FAQs listed below; booking, rescheduling, or cancelling appointments; and questions about an appointment the customer already has, including reminders for it.");
+        sb.AppendLine(canBook
+            ? "- You may ONLY discuss: this business's services/prices/hours/FAQs listed below; booking, rescheduling, or cancelling appointments; and questions about an appointment the customer already has, including reminders for it."
+            : "- You may ONLY discuss: this business's services/prices/hours/FAQs listed below. You cannot look up or discuss a specific appointment - hand that off to a human.");
         sb.AppendLine("- If the customer asks anything outside that scope - general knowledge, other companies/products, coding help, personal advice, news, or anything unrelated to this business - do NOT answer it, even if you know the answer. Never draw on your own general knowledge for an off-topic request.");
         sb.AppendLine("- For an off-topic request, reply with exactly this and nothing else: \"Sorry, I can't help with that here. Is there anything about booking or our services I can help you with?\"");
         sb.AppendLine();

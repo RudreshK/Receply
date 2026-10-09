@@ -7,13 +7,15 @@ import { PlanOption, SubscriptionStatus } from '../../core/models';
 const FEATURE_LABELS: Record<string, string> = {
   ManualStaffReply: 'Staff can reply by hand and take chats back from the AI',
   ReadReceipts: 'WhatsApp read receipts and "typing…" indicator',
+  AppointmentBooking: 'AI can book, reschedule, and cancel appointments',
   MessageTranslation: 'On-demand message translation',
   AppointmentReminders: 'Automatic appointment reminders',
   AppointmentOutcomeMessages: 'Automatic completed / missed-appointment messages',
-  AppointmentFollowUps: 'Post-appointment care follow-ups'
+  AppointmentFollowUps: 'Post-appointment care follow-ups',
+  PerformanceDashboard: 'Performance dashboard (new-client counts, etc.)'
 };
 
-const PLAN_ORDER = ['Trial', 'Basic', 'Premium'];
+const PLAN_ORDER = ['Trial', 'Starter', 'Growth', 'AssistedSetup'];
 
 @Component({
   selector: 'app-subscription',
@@ -33,6 +35,11 @@ export class SubscriptionComponent implements OnInit {
   readonly orderedPlans = computed(() => {
     const plans = this.status()?.availablePlans ?? [];
     return [...plans].sort((a, b) => PLAN_ORDER.indexOf(a.plan) - PLAN_ORDER.indexOf(b.plan));
+  });
+
+  readonly currentPlanDisplayName = computed(() => {
+    const s = this.status();
+    return this.orderedPlans().find((p) => p.plan === s?.plan)?.displayName ?? s?.plan ?? '';
   });
 
   readonly trialDaysLeft = computed(() => {

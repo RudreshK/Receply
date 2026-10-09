@@ -74,6 +74,19 @@ h1 {
   color: var(--text);
 }
 
+.price {
+  margin: -6px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.description {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .badge {
   font-size: 10px;
   font-weight: 700;

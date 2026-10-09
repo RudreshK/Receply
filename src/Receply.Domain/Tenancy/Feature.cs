@@ -24,5 +24,12 @@ public enum Feature
     AppointmentOutcomeMessages,
 
     /// <summary>Staff-authored care-instruction follow-ups sent by WhatsApp in the days after a completed appointment.</summary>
-    AppointmentFollowUps
+    AppointmentFollowUps,
+
+    /// <summary>The AI can actually book, reschedule, or cancel an appointment - not just answer
+    /// questions about services/hours/FAQs. Off, the AI stays informational only.</summary>
+    AppointmentBooking,
+
+    /// <summary>The dashboard's performance/stats page (new-client counts, etc).</summary>
+    PerformanceDashboard
 }

@@ -13,18 +13,36 @@ public static class SubscriptionPlans
             // Trial gets the full product, so a prospective customer sees everything it's worth paying for.
             [SubscriptionPlan.Trial] = Enum.GetValues<Feature>(),
 
-            // The essentials: a human can still take over a chat and see read receipts. No automation extras.
-            [SubscriptionPlan.Basic] =
+            // "AI answers common questions, business hours, location, and services" - informational
+            // only. No appointment booking (that's the Growth upsell) and no automation extras.
+            [SubscriptionPlan.Starter] =
             [
                 Feature.ManualStaffReply,
                 Feature.ReadReceipts
             ],
 
-            [SubscriptionPlan.Premium] = Enum.GetValues<Feature>()
+            // The flagship plan: everything, including appointment booking, reminders, and the
+            // performance dashboard.
+            [SubscriptionPlan.Growth] = Enum.GetValues<Feature>(),
+
+            // Same feature set as Growth - what Assisted Setup adds (personal onboarding, priority
+            // support) is a service, not a toggleable capability, so there's nothing to gate here.
+            [SubscriptionPlan.AssistedSetup] = Enum.GetValues<Feature>()
         };
 
     public static IReadOnlyCollection<Feature> FeaturesFor(SubscriptionPlan plan) =>
         FeaturesByPlan.TryGetValue(plan, out var features) ? features : [];
 
     public static bool Includes(SubscriptionPlan plan, Feature feature) => FeaturesFor(plan).Contains(feature);
+
+    public static PlanPricing PricingFor(SubscriptionPlan plan) => plan switch
+    {
+        SubscriptionPlan.Trial => new PlanPricing("Free Trial", "Free for 14 days", "Try the full product before you commit"),
+        SubscriptionPlan.Starter => new PlanPricing("Starter", "₹999/mo", "For small, single-location businesses"),
+        SubscriptionPlan.Growth => new PlanPricing("Growth", "₹1,999/mo", "Your main plan"),
+        SubscriptionPlan.AssistedSetup => new PlanPricing("Assisted Setup", "₹2,999+/mo", "For owners who want us to configure everything"),
+        _ => new PlanPricing(plan.ToString(), "", "")
+    };
 }
+
+public record PlanPricing(string DisplayName, string PriceLabel, string Description);

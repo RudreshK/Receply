@@ -17,6 +17,8 @@
       <div class="label">New last month</div>
     </div>
   </div>
+} @else if (planLocked()) {
+  <p>The performance dashboard isn't on your current plan. <a routerLink="/app/subscription">Upgrade to Growth</a> to unlock it.</p>
 } @else {
   <p>Couldn't load stats.</p>
 }

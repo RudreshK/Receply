@@ -11,12 +11,16 @@ public enum TenantStatus
 }
 
 /// <summary>A subscription tier. What each one unlocks is defined by SubscriptionPlans in the
-/// Application layer, not here - the domain just knows which plan a tenant is on.</summary>
+/// Application layer, not here - the domain just knows which plan a tenant is on.
+/// Explicit values: Starter and AssistedSetup keep the ordinals the now-renamed Basic/Premium
+/// already shipped with, so any tenant already on one of those isn't silently remapped - Growth
+/// was added later and gets a fresh value instead of being inserted into the existing sequence.</summary>
 public enum SubscriptionPlan
 {
-    Trial,
-    Basic,
-    Premium
+    Trial = 0,
+    Starter = 1,
+    Growth = 3,
+    AssistedSetup = 2
 }
 
 public class Tenant : AggregateRoot
