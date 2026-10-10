@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { PlanOption } from '../../core/models';
+import { LandingChatWidgetComponent } from '../landing-chat-widget/landing-chat-widget.component';
 
 type Sender = 'client' | 'ai' | 'system';
 
@@ -149,7 +150,7 @@ const FEATURE_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LandingChatWidgetComponent],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })

@@ -1,0 +1,54 @@
+<div class="widget">
+  @if (open()) {
+    <div class="panel">
+      <div class="panel-header">
+        <div class="avatar">R</div>
+        <div class="header-text">
+          <div class="title">Receply</div>
+          <div class="subtitle">Usually replies in a few minutes</div>
+        </div>
+        <button type="button" class="close-btn" (click)="toggle()" aria-label="Close chat">&times;</button>
+      </div>
+
+      <div class="panel-body">
+        @for (message of messages(); track $index) {
+          <div class="bubble" [class]="message.role">
+            {{ message.text }}
+          </div>
+        }
+        @if (sending()) {
+          <div class="bubble assistant typing">
+            <span></span><span></span><span></span>
+          </div>
+        }
+        <div #scrollAnchor></div>
+      </div>
+
+      @if (submitted()) {
+        <div class="submitted-note">Thanks! We've got your details - our team will reach out shortly.</div>
+      }
+
+      <form class="panel-input" (ngSubmit)="send()">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          [(ngModel)]="draft"
+          name="draft"
+          [disabled]="sending()"
+          autocomplete="off"
+        />
+        <button type="submit" [disabled]="sending() || !draft.trim()" aria-label="Send">&#10148;</button>
+      </form>
+    </div>
+  }
+
+  <button type="button" class="bubble-toggle" (click)="toggle()" [class.bubble-toggle--open]="open()" aria-label="Chat with us">
+    @if (open()) {
+      &times;
+    } @else {
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+        <path d="M4 5.5C4 4.67 4.67 4 5.5 4h13c.83 0 1.5.67 1.5 1.5v10c0 .83-.67 1.5-1.5 1.5H9l-4 3.5v-3.5H5.5C4.67 17 4 16.33 4 15.5v-10Z" fill="currentColor"/>
+      </svg>
+    }
+  </button>
+</div>
