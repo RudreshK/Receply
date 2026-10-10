@@ -42,6 +42,16 @@ public class Tenant : AggregateRoot
     /// once billing actually drives this.</summary>
     public DateTimeOffset? PlanRenewsUtc { get; private set; }
 
+    /// <summary>Branding shown in place of "Receply" once a business sets its own - on the dashboard
+    /// sidebar and header today. All optional: a tenant that hasn't set these still sees the default
+    /// Receply brand.</summary>
+    public string? BusinessEmail { get; private set; }
+    public string? Website { get; private set; }
+    public string? LogoDataUrl { get; private set; }
+    public string? OwnerName { get; private set; }
+    public string? Designation { get; private set; }
+    public string? OwnerPhotoDataUrl { get; private set; }
+
     private readonly List<Branch> _branches = [];
     public IReadOnlyCollection<Branch> Branches => _branches.AsReadOnly();
 
@@ -76,6 +86,27 @@ public class Tenant : AggregateRoot
         Name = name;
         BusinessType = businessType;
         TimeZoneId = timeZoneId;
+    }
+
+    public void UpdateBranding(
+        string name,
+        string? businessEmail,
+        string? website,
+        string? logoDataUrl,
+        string? ownerName,
+        string? designation,
+        string? ownerPhotoDataUrl)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Tenant name is required.", nameof(name));
+
+        Name = name;
+        BusinessEmail = businessEmail;
+        Website = website;
+        LogoDataUrl = logoDataUrl;
+        OwnerName = ownerName;
+        Designation = designation;
+        OwnerPhotoDataUrl = ownerPhotoDataUrl;
     }
 
     public void Suspend() => Status = TenantStatus.Suspended;
