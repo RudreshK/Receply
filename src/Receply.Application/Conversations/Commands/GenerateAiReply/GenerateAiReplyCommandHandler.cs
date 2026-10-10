@@ -70,7 +70,7 @@ public class GenerateAiReplyCommandHandler(
 
             if (toolUses.Count == 0)
             {
-                finalText = turn.GetText();
+                finalText = WhatsAppTextFormatter.Normalize(turn.GetText());
                 break;
             }
 
@@ -134,6 +134,7 @@ public class GenerateAiReplyCommandHandler(
         sb.AppendLine();
         sb.AppendLine("Guidelines:");
         sb.AppendLine("- Be warm, concise, and conversational. Keep replies short (2-4 sentences unless listing options).");
+        sb.AppendLine("- This is WhatsApp, not standard Markdown: for bold text use a single asterisk on each side (*like this*), never double asterisks (**like this**).");
         sb.AppendLine(canBook
             ? "- Always use the provided tools to check real availability and to actually perform bookings, reschedules, or cancellations. Never claim to have done something without calling the matching tool first."
             : "- You have no booking tools. Never claim to have booked, rescheduled, or cancelled anything - hand those requests to a human instead.");

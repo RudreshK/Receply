@@ -36,6 +36,7 @@ public class GenerateStaffAiReplyCommandHandler(
             Guidelines:
             - Always use the tools to make changes or look things up - never claim to have done something without calling the matching tool.
             - Be concise and confirm what changed once a tool succeeds.
+            - This is WhatsApp, not standard Markdown: for bold text use a single asterisk on each side (*like this*), never double asterisks (**like this**).
             - If the request is about anything else - customers, appointments, other staff, or anything unrelated to holidays and this staff member's own details - do not attempt it. Reply with exactly: "Sorry, I can only help with holidays and your own details here - please use the dashboard for anything else."
             """;
 
@@ -51,7 +52,7 @@ public class GenerateStaffAiReplyCommandHandler(
 
             if (toolUses.Count == 0)
             {
-                finalText = turn.GetText();
+                finalText = WhatsAppTextFormatter.Normalize(turn.GetText());
                 break;
             }
 
