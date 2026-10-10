@@ -2,6 +2,14 @@ using MediatR;
 
 namespace Receply.Application.Dashboard.Queries.GetDashboardStats;
 
-public record DashboardStatsDto(int TotalClients, int NewClientsThisMonth, int NewClientsLastMonth);
+public record StaffPendingCountDto(Guid StaffId, string StaffName, int PendingCount);
 
-public record GetDashboardStatsQuery(Guid TenantId) : IRequest<DashboardStatsDto>;
+public record DashboardStatsDto(
+    int TotalClients,
+    int NewClientsThisMonth,
+    int NewClientsLastMonth,
+    int TotalBookings,
+    int UpcomingBookings,
+    IReadOnlyList<StaffPendingCountDto> PendingByStaff);
+
+public record GetDashboardStatsQuery(Guid TenantId, Guid? BranchId) : IRequest<DashboardStatsDto>;

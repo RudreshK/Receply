@@ -15,9 +15,17 @@
 }
 
 .brand {
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 22px;
   font-weight: 700;
   padding: 0 20px 20px;
+}
+
+.brand-mark {
+  display: block;
+  flex-shrink: 0;
 }
 
 nav {

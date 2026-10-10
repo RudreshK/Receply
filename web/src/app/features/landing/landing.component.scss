@@ -33,9 +33,16 @@ h3 {
 }
 
 .brand {
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 26px;
   font-weight: 700;
   color: #1a1a2e;
+}
+
+.brand-mark {
+  display: block;
 }
 
 .links {
@@ -472,6 +479,10 @@ h3 {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
+}
+
+.footer .brand {
+  font-size: 20px;
 }
 
 .footer-links {

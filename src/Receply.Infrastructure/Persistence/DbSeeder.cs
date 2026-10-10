@@ -40,7 +40,7 @@ public static class DbSeeder
         var channelAccount = ChannelAccount.Create(tenant.Id, ChannelType.WhatsApp, phoneNumberId, "Primary WhatsApp");
 
         // Fixed demo phone number so OTP login is testable immediately after a fresh seed.
-        var owner = Staff.Create(tenant.Id, "Demo Owner", "owner@demo.receply.in", "+10000000000", StaffRole.Owner);
+        var owner = Staff.Create(tenant.Id, "Demo Owner", "owner@demo.receply.in", "+10000000000", StaffRole.Owner, branchId: null);
 
         db.Tenants.Add(tenant);
         db.Services.AddRange(consultation, generalAppointment);

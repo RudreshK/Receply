@@ -12,11 +12,11 @@ namespace Receply.Api.Controllers;
 public class DashboardController(ISender sender, ITenantContext tenantContext) : ControllerBase
 {
     [HttpGet("stats")]
-    public async Task<ActionResult<DashboardStatsDto>> GetStats(CancellationToken cancellationToken)
+    public async Task<ActionResult<DashboardStatsDto>> GetStats([FromQuery] Guid? branchId, CancellationToken cancellationToken)
     {
         if (tenantContext.TenantId is not { } tenantId)
             return Unauthorized();
 
-        return await sender.Send(new GetDashboardStatsQuery(tenantId), cancellationToken);
+        return await sender.Send(new GetDashboardStatsQuery(tenantId, branchId), cancellationToken);
     }
 }
