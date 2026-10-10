@@ -30,6 +30,8 @@ public interface IApplicationDbContext
     DbSet<BranchWorkingHours> BranchWorkingHours { get; }
     DbSet<Holiday> Holidays { get; }
     DbSet<Faq> Faqs { get; }
+    DbSet<StaffService> StaffServices { get; }
+    DbSet<StaffLeave> StaffLeaves { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

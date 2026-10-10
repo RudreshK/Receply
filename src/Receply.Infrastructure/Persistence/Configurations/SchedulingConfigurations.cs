@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Receply.Domain.Scheduling;
+using Receply.Domain.Tenancy;
 
 namespace Receply.Infrastructure.Persistence.Configurations;
 
@@ -26,6 +27,11 @@ public class ResourceConfiguration : IEntityTypeConfiguration<Resource>
         builder.Property(r => r.Id).HasColumnName("ResourceId");
         builder.Property(r => r.Name).IsRequired().HasMaxLength(200);
         builder.HasIndex(r => new { r.TenantId, r.BranchId }).HasDatabaseName("IX_Resource_TenantId_BranchId");
+
+        // SetNull (not Cascade/Restrict) - deactivating or removing a staff member shouldn't delete
+        // the bookable resource/chair itself, just unlink it.
+        builder.HasOne<Staff>().WithMany().HasForeignKey(r => r.StaffId)
+            .HasConstraintName("FK_Resource_Staff").OnDelete(DeleteBehavior.SetNull);
 
         builder.HasMany(r => r.AvailabilityRules)
             .WithOne()

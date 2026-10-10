@@ -18,8 +18,9 @@ export class ApiService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getDashboardStats(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>(`${this.base}/api/dashboard/stats`);
+  getDashboardStats(branchId?: string | null): Observable<DashboardStats> {
+    const params: Record<string, string> = branchId ? { branchId } : {};
+    return this.http.get<DashboardStats>(`${this.base}/api/dashboard/stats`, { params });
   }
 
   getTenantSettings(): Observable<TenantSettings> {

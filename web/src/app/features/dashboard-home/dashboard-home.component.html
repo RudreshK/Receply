@@ -1,9 +1,31 @@
-<h1>Dashboard</h1>
+<div class="dashboard-header">
+  <h1>Dashboard</h1>
+
+  @if (branches().length > 1) {
+    <label class="branch-filter">
+      Branch:
+      <select [(ngModel)]="selectedBranchId" (ngModelChange)="onBranchChange()">
+        <option value="">All branches</option>
+        @for (branch of branches(); track branch.id) {
+          <option [value]="branch.id">{{ branch.name }}</option>
+        }
+      </select>
+    </label>
+  }
+</div>
 
 @if (loading()) {
   <p>Loading...</p>
 } @else if (stats()) {
   <div class="cards">
+    <div class="card">
+      <div class="value">{{ stats()!.totalBookings }}</div>
+      <div class="label">Total bookings</div>
+    </div>
+    <div class="card">
+      <div class="value">{{ stats()!.upcomingBookings }}</div>
+      <div class="label">Upcoming bookings</div>
+    </div>
     <div class="card">
       <div class="value">{{ stats()!.totalClients }}</div>
       <div class="label">Total clients</div>
@@ -17,6 +39,28 @@
       <div class="label">New last month</div>
     </div>
   </div>
+
+  <h2>Pending bookings by staff</h2>
+  @if (stats()!.pendingByStaff.length === 0) {
+    <p class="empty-note">No pending bookings for this selection.</p>
+  } @else {
+    <table class="staff-pending-table">
+      <thead>
+        <tr>
+          <th>Staff</th>
+          <th>Pending bookings</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of stats()!.pendingByStaff; track row.staffId) {
+          <tr>
+            <td>{{ row.staffName }}</td>
+            <td>{{ row.pendingCount }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
 } @else {
   <p>Couldn't load stats.</p>
 }

@@ -407,6 +407,9 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<Guid?>("StaffId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -415,6 +418,8 @@ namespace Receply.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK_Resource");
+
+                    b.HasIndex("StaffId");
 
                     b.HasIndex("TenantId", "BranchId")
                         .HasDatabaseName("IX_Resource_TenantId_BranchId");
@@ -877,6 +882,9 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("StaffId");
 
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
@@ -884,10 +892,17 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasPrecision(0)
                         .HasColumnType("timestamp(0) with time zone");
 
+                    b.Property<string>("Designation")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
+
+                    b.Property<int>("ExperienceYears")
+                        .HasColumnType("integer");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -927,6 +942,8 @@ namespace Receply.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("PK_Staff");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("PhoneNumber")
                         .IsUnique()
                         .HasDatabaseName("UQ_Staff_PhoneNumber");
@@ -936,6 +953,119 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("UQ_Staff_Tenant_Email");
 
                     b.ToTable("Staff", (string)null);
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.StaffLeave", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("StaffLeaveId");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly?>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_StaffLeave");
+
+                    b.HasIndex("StaffId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_StaffLeave_Staff_Date");
+
+                    b.ToTable("StaffLeave", (string)null);
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.StaffService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("StaffServiceId");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeSpan>("SessionDuration")
+                        .HasColumnType("interval");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id")
+                        .HasName("PK_StaffService");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("StaffId", "ServiceId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_StaffService_Staff_Service");
+
+                    b.ToTable("StaffService", (string)null);
                 });
 
             modelBuilder.Entity("Receply.Domain.Tenancy.Tenant", b =>
@@ -1010,6 +1140,15 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .HasConstraintName("FK_AvailabilityRule_Resource");
                 });
 
+            modelBuilder.Entity("Receply.Domain.Scheduling.Resource", b =>
+                {
+                    b.HasOne("Receply.Domain.Tenancy.Staff", null)
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Resource_Staff");
+                });
+
             modelBuilder.Entity("Receply.Domain.Tenancy.Branch", b =>
                 {
                     b.HasOne("Receply.Domain.Tenancy.Tenant", null)
@@ -1047,6 +1186,42 @@ namespace Receply.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_LoginOtp_Staff");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.Staff", b =>
+                {
+                    b.HasOne("Receply.Domain.Tenancy.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Staff_Branch");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.StaffLeave", b =>
+                {
+                    b.HasOne("Receply.Domain.Tenancy.Staff", null)
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_StaffLeave_Staff");
+                });
+
+            modelBuilder.Entity("Receply.Domain.Tenancy.StaffService", b =>
+                {
+                    b.HasOne("Receply.Domain.Scheduling.Service", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_StaffService_Service");
+
+                    b.HasOne("Receply.Domain.Tenancy.Staff", null)
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_StaffService_Staff");
                 });
 
             modelBuilder.Entity("Receply.Domain.Conversations.Conversation", b =>

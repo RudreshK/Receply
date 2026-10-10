@@ -5,6 +5,7 @@ using Receply.Application.Scheduling.Commands.BookAppointment;
 using Receply.Application.Scheduling.Commands.CancelAppointment;
 using Receply.Application.Scheduling.Commands.RescheduleAppointment;
 using Receply.Application.Scheduling.Queries.GetAppointmentDetail;
+using Receply.Application.Scheduling.Queries.GetAvailableSlots;
 using Receply.Application.Scheduling.Queries.ListAppointments;
 using Receply.Domain.Scheduling;
 using Receply.Infrastructure.Multitenancy;
@@ -29,6 +30,16 @@ public class AppointmentsController(ISender sender, ITenantContext tenantContext
             return Unauthorized();
 
         return await sender.Send(new ListAppointmentsQuery(tenantId, from, to, branchId, status), cancellationToken);
+    }
+
+    [HttpGet("available-slots")]
+    public async Task<ActionResult<IReadOnlyList<AvailableSlotDto>>> GetAvailableSlots(
+        [FromQuery] string serviceName, [FromQuery] DateOnly date, CancellationToken cancellationToken)
+    {
+        if (tenantContext.TenantId is not { } tenantId)
+            return Unauthorized();
+
+        return Ok(await sender.Send(new GetAvailableSlotsQuery(tenantId, serviceName, date), cancellationToken));
     }
 
     [HttpGet("{id:guid}")]

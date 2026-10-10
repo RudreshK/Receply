@@ -1,7 +1,16 @@
+export interface StaffPendingCount {
+  staffId: string;
+  staffName: string;
+  pendingCount: number;
+}
+
 export interface DashboardStats {
   totalClients: number;
   newClientsThisMonth: number;
   newClientsLastMonth: number;
+  totalBookings: number;
+  upcomingBookings: number;
+  pendingByStaff: StaffPendingCount[];
 }
 
 export interface TenantSettings {
