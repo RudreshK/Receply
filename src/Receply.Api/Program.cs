@@ -94,6 +94,9 @@ using (var seedScope = app.Services.CreateScope())
     var credentialProtector = seedScope.ServiceProvider.GetRequiredService<IChannelCredentialProtector>();
     var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     await DbSeeder.SeedAsync(db, whatsAppOptions, credentialProtector, seedLogger);
+
+    var platformAdminOptions = seedScope.ServiceProvider.GetRequiredService<IOptions<PlatformAdminOptions>>();
+    await PlatformAdminSeeder.SeedAsync(db, platformAdminOptions, seedLogger);
 }
 
 if (app.Environment.IsDevelopment())
@@ -101,6 +104,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

@@ -40,6 +40,8 @@ public class Staff : TenantOwnedEntity
         return staff;
     }
 
+    public void Activate() => IsActive = true;
+
     public void Deactivate() => IsActive = false;
 
     public void UpdateOwnDetails(string fullName, string email, string phoneNumber)
