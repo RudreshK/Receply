@@ -1,0 +1,115 @@
+<h1>Business Profile</h1>
+<p class="lead">This replaces the Receply name and logo shown in your dashboard sidebar and on your dashboard home page.</p>
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else {
+  @if (!isOwner()) {
+    <p class="muted">Only the business owner can edit the business profile.</p>
+  }
+
+  <div class="layout">
+    <form class="panel" [class.panel--readonly]="!isOwner()" (ngSubmit)="save()">
+      <h2>Business</h2>
+
+      <label>Business logo</label>
+      <div class="uploader">
+        <div class="thumb thumb--logo">
+          @if (logoDataUrl) {
+            <img [src]="logoDataUrl" alt="">
+          } @else {
+            <span>No logo</span>
+          }
+        </div>
+        @if (isOwner()) {
+          <div class="uploader-actions">
+            <input #logoInput type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden (change)="onLogoSelected($event)">
+            <button type="button" class="btn" (click)="logoInput.click()">Upload logo</button>
+            @if (logoDataUrl) {
+              <button type="button" class="btn-link" (click)="removeLogo()">Remove</button>
+            }
+            <span class="hint">PNG, JPG, WEBP or SVG &middot; max 2 MB</span>
+          </div>
+        }
+      </div>
+      @if (errors['logo']) {
+        <p class="err">{{ errors['logo'] }}</p>
+      }
+
+      <label for="name">Business name</label>
+      <input id="name" name="name" type="text" maxlength="60" [disabled]="!isOwner()" [(ngModel)]="name" />
+      @if (errors['name']) {
+        <p class="err">{{ errors['name'] }}</p>
+      }
+
+      <label for="businessEmail">Business email</label>
+      <input id="businessEmail" name="businessEmail" type="email" maxlength="120" [disabled]="!isOwner()" [(ngModel)]="businessEmail" />
+      @if (errors['businessEmail']) {
+        <p class="err">{{ errors['businessEmail'] }}</p>
+      }
+
+      <label for="website">Website</label>
+      <input id="website" name="website" type="text" maxlength="200" placeholder="www.yourbusiness.com" [disabled]="!isOwner()" [(ngModel)]="website" />
+      @if (errors['website']) {
+        <p class="err">{{ errors['website'] }}</p>
+      }
+
+      <h2>Owner</h2>
+
+      <label>Owner photo</label>
+      <div class="uploader">
+        <div class="thumb thumb--photo">
+          @if (ownerPhotoDataUrl) {
+            <img [src]="ownerPhotoDataUrl" alt="">
+          } @else {
+            <span>No photo</span>
+          }
+        </div>
+        @if (isOwner()) {
+          <div class="uploader-actions">
+            <input #photoInput type="file" accept="image/png,image/jpeg,image/webp" hidden (change)="onOwnerPhotoSelected($event)">
+            <button type="button" class="btn" (click)="photoInput.click()">Upload photo</button>
+            @if (ownerPhotoDataUrl) {
+              <button type="button" class="btn-link" (click)="removeOwnerPhoto()">Remove</button>
+            }
+            <span class="hint">PNG, JPG or WEBP &middot; max 2 MB</span>
+          </div>
+        }
+      </div>
+      @if (errors['ownerPhoto']) {
+        <p class="err">{{ errors['ownerPhoto'] }}</p>
+      }
+
+      <label for="ownerName">Owner name</label>
+      <input id="ownerName" name="ownerName" type="text" maxlength="60" [disabled]="!isOwner()" [(ngModel)]="ownerName" />
+      @if (errors['ownerName']) {
+        <p class="err">{{ errors['ownerName'] }}</p>
+      }
+
+      <label for="designation">Designation</label>
+      <input id="designation" name="designation" type="text" maxlength="60" placeholder="e.g. Founder &amp; CEO" [disabled]="!isOwner()" [(ngModel)]="designation" />
+
+      @if (isOwner()) {
+        <button type="submit" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save changes' }}</button>
+      }
+      @if (saved()) {
+        <p class="success">Saved.</p>
+      }
+    </form>
+
+    <aside class="preview panel">
+      <p class="preview-title">How this looks in your sidebar</p>
+      <div class="preview-brand">
+        @if (logoDataUrl) {
+          <img [src]="logoDataUrl" alt="" class="preview-logo">
+        } @else {
+          <div class="preview-logo preview-logo--placeholder">{{ (name || 'R').charAt(0) }}</div>
+        }
+        <div>
+          <div class="preview-name">{{ name || 'Receply' }}</div>
+          <div class="preview-sub">{{ website || businessEmail || 'AI Receptionist' }}</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+}

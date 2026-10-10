@@ -96,6 +96,10 @@
   border-radius: 7px;
 }
 
+.brand-logo {
+  object-fit: cover;
+}
+
 .brand-text {
   display: flex;
   flex-direction: column;
@@ -107,6 +111,10 @@
   font-size: 18px;
   font-weight: 700;
   line-height: 1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-tag {

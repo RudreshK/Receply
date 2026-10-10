@@ -1,0 +1,83 @@
+<h1>Staff</h1>
+<p class="lead">Add the people who log into this dashboard by their phone number, and set what they can do.</p>
+
+@if (loadError()) {
+  <p class="err">{{ loadError() }}</p>
+} @else {
+  <div class="layout">
+    <form class="panel" (ngSubmit)="create()">
+      <h2>Add staff member</h2>
+
+      <label for="fullName">Full name</label>
+      <input id="fullName" name="fullName" type="text" maxlength="200" required [(ngModel)]="fullName" />
+
+      <label for="phoneNumber">Phone number (their login)</label>
+      <input id="phoneNumber" name="phoneNumber" type="text" maxlength="32" placeholder="+91XXXXXXXXXX" required [(ngModel)]="phoneNumber" />
+
+      <label for="email">Email (optional)</label>
+      <input id="email" name="email" type="email" maxlength="320" [(ngModel)]="email" />
+
+      <label for="role">Role</label>
+      <select id="role" name="role" [(ngModel)]="role">
+        @for (option of roles; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+
+      <button type="submit" [disabled]="creating()">{{ creating() ? 'Adding...' : 'Add staff member' }}</button>
+      @if (createError()) {
+        <p class="err">{{ createError() }}</p>
+      }
+    </form>
+
+    <div class="panel list-panel">
+      <h2>Current staff</h2>
+      @if (loading()) {
+        <p>Loading...</p>
+      } @else if (staff().length === 0) {
+        <p class="muted">No staff added yet.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (member of staff(); track member.id) {
+              <tr [class.inactive]="!member.isActive">
+                <td>
+                  <div class="name">{{ member.fullName }}</div>
+                  @if (member.email) {
+                    <div class="sub">{{ member.email }}</div>
+                  }
+                </td>
+                <td>{{ member.phoneNumber }}</td>
+                <td>{{ member.role }}</td>
+                <td>
+                  <span class="badge" [class.badge--active]="member.isActive">{{ member.isActive ? 'Active' : 'Inactive' }}</span>
+                </td>
+                <td>
+                  @if (member.role !== 'Owner') {
+                    <button
+                      type="button"
+                      class="btn-link"
+                      [disabled]="togglingId() === member.id"
+                      (click)="toggleActive(member)"
+                    >
+                      {{ member.isActive ? 'Deactivate' : 'Reactivate' }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+}

@@ -14,7 +14,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // The auth endpoints themselves (login, signup, refresh, logout) never get a Bearer token, and a
   // 401 from one of them means the credentials really are wrong - not that an access token expired -
-  // so they're excluded from the refresh-and-retry dance below.
+  // so they're excluded from the refresh-and-retry dance below. The platform-admin console has its
+  // own entirely separate session (see PlatformAdminAuthService/platformAdminInterceptor) and must
+  // never be touched here.
+  if (req.url.includes('/api/platform-admin')) {
+    return next(req);
+  }
+
   const isAuthEndpoint = req.url.includes('/api/auth/') || req.url.includes('/api/signup/');
 
   return next(withAuth(req, auth.token)).pipe(

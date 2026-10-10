@@ -1,4 +1,18 @@
-<h1>Dashboard</h1>
+@if (branding.branding(); as brand) {
+  <div class="dashboard-brand">
+    @if (brand.logoDataUrl) {
+      <img [src]="brand.logoDataUrl" alt="" class="dashboard-brand-logo">
+    } @else {
+      <div class="dashboard-brand-logo dashboard-brand-logo--placeholder">{{ brand.name.charAt(0) }}</div>
+    }
+    <div>
+      <h1>{{ brand.name }}</h1>
+      <p class="dashboard-brand-sub">Performance overview</p>
+    </div>
+  </div>
+} @else {
+  <h1>Dashboard</h1>
+}
 
 @if (loading()) {
   <p>Loading...</p>

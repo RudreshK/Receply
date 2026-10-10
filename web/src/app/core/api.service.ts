@@ -6,10 +6,14 @@ import {
   AppointmentListItem,
   Branch,
   BranchWorkingHours,
+  BusinessBranding,
   DashboardStats,
   Faq,
   Holiday,
+  LandingChatMessage,
+  LandingChatReply,
   PlanOption,
+  StaffListItem,
   SubscriptionStatus,
   TenantSettings
 } from './models';
@@ -30,6 +34,22 @@ export class ApiService {
 
   updateTenantSettings(payload: { name: string; businessType: string; timeZoneId: string }): Observable<void> {
     return this.http.put<void>(`${this.base}/api/tenant/settings`, payload);
+  }
+
+  getBranding(): Observable<BusinessBranding> {
+    return this.http.get<BusinessBranding>(`${this.base}/api/tenant/branding`);
+  }
+
+  updateBranding(payload: {
+    name: string;
+    businessEmail: string | null;
+    website: string | null;
+    logoDataUrl: string | null;
+    ownerName: string | null;
+    designation: string | null;
+    ownerPhotoDataUrl: string | null;
+  }): Observable<void> {
+    return this.http.put<void>(`${this.base}/api/tenant/branding`, payload);
   }
 
   listBranches(): Observable<Branch[]> {
@@ -94,5 +114,21 @@ export class ApiService {
 
   listPublicPlans(): Observable<PlanOption[]> {
     return this.http.get<PlanOption[]>(`${this.base}/api/plans`);
+  }
+
+  sendLandingChatMessage(history: LandingChatMessage[], message: string): Observable<LandingChatReply> {
+    return this.http.post<LandingChatReply>(`${this.base}/api/landing-chat/message`, { history, message });
+  }
+
+  listStaff(): Observable<StaffListItem[]> {
+    return this.http.get<StaffListItem[]>(`${this.base}/api/staff`);
+  }
+
+  createStaff(payload: { fullName: string; email: string | null; phoneNumber: string; role: string }): Observable<string> {
+    return this.http.post<string>(`${this.base}/api/staff`, payload);
+  }
+
+  setStaffActive(staffId: string, isActive: boolean): Observable<void> {
+    return this.http.post<void>(`${this.base}/api/staff/${staffId}/active`, { isActive });
   }
 }

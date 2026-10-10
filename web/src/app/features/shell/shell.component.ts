@@ -5,6 +5,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
+import { BrandingService } from '../../core/branding.service';
 import { FeaturesService } from '../../core/features.service';
 import { RealtimeService } from '../../core/realtime.service';
 import { SubscriptionStatus } from '../../core/models';
@@ -20,10 +21,12 @@ const SIDEBAR_COLLAPSED_KEY = 'receply.sidebarCollapsed';
   styleUrl: './shell.component.scss'
 })
 export class ShellComponent {
-  readonly navLinks = [
+  readonly navLinks: { path: string; label: string; ownerOnly?: boolean }[] = [
     { path: '/app/inbox', label: 'WhatsApp Inbox' },
     { path: '/app/dashboard', label: 'Dashboard' },
     { path: '/app/settings', label: 'Business Settings' },
+    { path: '/app/business-profile', label: 'Business Profile' },
+    { path: '/app/staff', label: 'Staff', ownerOnly: true },
     { path: '/app/working-hours', label: 'Working Hours' },
     { path: '/app/holidays', label: 'Holidays' },
     { path: '/app/appointments', label: 'Appointments' },
@@ -50,6 +53,7 @@ export class ShellComponent {
   constructor(
     readonly auth: AuthService,
     readonly theme: ThemeService,
+    readonly branding: BrandingService,
     private readonly api: ApiService,
     private readonly realtime: RealtimeService,
     private readonly features: FeaturesService,
@@ -59,6 +63,7 @@ export class ShellComponent {
     this.fullBleed.set(this.router.url.startsWith('/app/inbox'));
     this.onSubscriptionPage.set(this.router.url.startsWith('/app/subscription'));
     this.refreshSubscriptionStatus();
+    this.branding.refresh();
 
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd), takeUntilDestroyed(destroyRef))

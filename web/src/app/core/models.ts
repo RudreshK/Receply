@@ -12,6 +12,17 @@ export interface TenantSettings {
   status: string;
 }
 
+export interface BusinessBranding {
+  tenantId: string;
+  name: string;
+  businessEmail: string | null;
+  website: string | null;
+  logoDataUrl: string | null;
+  ownerName: string | null;
+  designation: string | null;
+  ownerPhotoDataUrl: string | null;
+}
+
 export interface Branch {
   id: string;
   name: string;
@@ -70,16 +81,79 @@ export interface SubscriptionStatus {
   availablePlans: PlanOption[];
 }
 
+export interface LandingChatMessage {
+  role: 'user' | 'assistant';
+  text: string;
+}
+
+export interface LandingChatReply {
+  reply: string;
+  enquirySubmitted: boolean;
+}
+
+export interface BusinessListItem {
+  id: string;
+  name: string;
+  businessType: string;
+  status: string;
+  plan: string;
+  hasActiveAccess: boolean;
+  daysLeft: number | null;
+  createdOn: string;
+}
+
+export interface PlatformStats {
+  totalBusinesses: number;
+  newThisWeek: number;
+  newThisMonth: number;
+  pendingEnquiries: number;
+}
+
+export interface BusinessEnquiry {
+  id: string;
+  businessName: string;
+  businessType: string;
+  contactName: string;
+  phoneNumber: string;
+  email: string | null;
+  notes: string | null;
+  status: string;
+  convertedTenantId: string | null;
+  createdOn: string;
+}
+
+export interface StaffListItem {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  isActive: boolean;
+}
+
+export interface StaffRoleOption {
+  value: string;
+  label: string;
+}
+
+export const STAFF_ROLES: readonly StaffRoleOption[] = [
+  { value: 'Admin', label: 'Admin' },
+  { value: 'FrontDesk', label: 'Front Desk' },
+  { value: 'Provider', label: 'Provider' }
+];
+
 export interface BusinessTypeOption {
   value: string;
   label: string;
 }
 
+// Must match Receply.Domain.Tenancy.BusinessType exactly - these values are parsed server-side
+// with Enum.TryParse, so a mismatched value here fails signup/settings with a 400.
 export const BUSINESS_TYPES: readonly BusinessTypeOption[] = [
   { value: 'Clinic', label: 'Clinic' },
-  { value: 'ScanningCenter', label: 'Scanning Center' },
-  { value: 'Saloon', label: 'Saloon' },
+  { value: 'Salon', label: 'Salon' },
   { value: 'Gym', label: 'Gym' },
-  { value: 'ServiceCenter', label: 'Service Center' }
+  { value: 'CarService', label: 'Car Service' },
+  { value: 'Other', label: 'Other' }
 ];
 export const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;

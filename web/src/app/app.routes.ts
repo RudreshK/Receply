@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
+import { platformAdminGuard } from './core/platform-admin.guard';
 
 export const routes: Routes = [
   {
@@ -8,6 +9,18 @@ export const routes: Routes = [
   },
   { path: 'login', loadComponent: () => import('./features/login/login.component').then((m) => m.LoginComponent) },
   { path: 'signup', loadComponent: () => import('./features/signup/signup.component').then((m) => m.SignupComponent) },
+  // Platform-owner console - deliberately not linked from anywhere a business owner/staff member
+  // can see (no nav entry in ShellComponent), and gated by its own guard/session, not authGuard.
+  {
+    path: 'admin/login',
+    loadComponent: () =>
+      import('./features/platform-admin-login/platform-admin-login.component').then((m) => m.PlatformAdminLoginComponent)
+  },
+  {
+    path: 'admin',
+    canActivate: [platformAdminGuard],
+    loadComponent: () => import('./features/platform-admin/platform-admin.component').then((m) => m.PlatformAdminComponent)
+  },
   {
     path: 'app',
     loadComponent: () => import('./features/shell/shell.component').then((m) => m.ShellComponent),
@@ -25,6 +38,15 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then((m) => m.SettingsComponent)
+      },
+      {
+        path: 'business-profile',
+        loadComponent: () =>
+          import('./features/business-profile/business-profile.component').then((m) => m.BusinessProfileComponent)
+      },
+      {
+        path: 'staff',
+        loadComponent: () => import('./features/staff/staff.component').then((m) => m.StaffComponent)
       },
       {
         path: 'working-hours',

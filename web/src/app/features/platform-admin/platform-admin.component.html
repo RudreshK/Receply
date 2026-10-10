@@ -1,0 +1,163 @@
+<div class="admin-page">
+  <header class="topbar">
+    <div class="brand">Receply Admin</div>
+    <button type="button" class="btn-link" (click)="logout()">Sign out</button>
+  </header>
+
+  <div class="stats-row">
+    @if (stats(); as s) {
+      <div class="stat">
+        <div class="value">{{ s.totalBusinesses }}</div>
+        <div class="label">Total businesses</div>
+      </div>
+      <div class="stat">
+        <div class="value">{{ s.newThisWeek }}</div>
+        <div class="label">New this week</div>
+      </div>
+      <div class="stat">
+        <div class="value">{{ s.newThisMonth }}</div>
+        <div class="label">New this month</div>
+      </div>
+      <div class="stat stat--pending">
+        <div class="value">{{ s.pendingEnquiries }}</div>
+        <div class="label">Pending enquiries</div>
+      </div>
+    }
+  </div>
+
+  <div class="tabs">
+    <button type="button" class="tab" [class.tab--active]="tab() === 'businesses'" (click)="setTab('businesses')">Businesses</button>
+    <button type="button" class="tab" [class.tab--active]="tab() === 'enquiries'" (click)="setTab('enquiries')">Enquiries</button>
+  </div>
+
+  @if (tab() === 'businesses') {
+    <div class="panel">
+      @if (loading()) {
+        <p>Loading...</p>
+      } @else if (businesses().length === 0) {
+        <p class="muted">No businesses yet.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Plan</th>
+              <th>Days left</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of businesses(); track b.id) {
+              <tr>
+                <td class="name">{{ b.name }}</td>
+                <td>{{ b.businessType }}</td>
+                <td>
+                  <span class="badge" [class.badge--active]="b.hasActiveAccess">{{ b.hasActiveAccess ? 'Active' : b.status }}</span>
+                </td>
+                <td>{{ b.plan }}</td>
+                <td>{{ daysLeftLabel(b.daysLeft) }}</td>
+                <td>{{ b.createdOn | date: 'mediumDate' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  } @else {
+    <div class="layout">
+      <form class="panel form-panel" (ngSubmit)="createEnquiry()">
+        <h2>Log a new enquiry</h2>
+
+        <label for="businessName">Business name</label>
+        <input id="businessName" name="businessName" type="text" maxlength="200" required [(ngModel)]="businessName" />
+
+        <label for="businessType">Business type</label>
+        <select id="businessType" name="businessType" [(ngModel)]="businessType">
+          @for (type of businessTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+
+        <label for="contactName">Contact name</label>
+        <input id="contactName" name="contactName" type="text" maxlength="200" required [(ngModel)]="contactName" />
+
+        <label for="phoneNumber">Phone number</label>
+        <input id="phoneNumber" name="phoneNumber" type="text" maxlength="32" placeholder="+91XXXXXXXXXX" required [(ngModel)]="phoneNumber" />
+
+        <label for="email">Email (optional)</label>
+        <input id="email" name="email" type="email" maxlength="320" [(ngModel)]="email" />
+
+        <label for="notes">Notes (optional)</label>
+        <input id="notes" name="notes" type="text" maxlength="2000" [(ngModel)]="notes" />
+
+        <button type="submit" [disabled]="creatingEnquiry()">{{ creatingEnquiry() ? 'Logging...' : 'Log enquiry' }}</button>
+        @if (enquiryError()) {
+          <p class="err">{{ enquiryError() }}</p>
+        }
+      </form>
+
+      <div class="panel list-panel">
+        <h2>Enquiries</h2>
+        @if (enquiries().length === 0) {
+          <p class="muted">No enquiries logged yet.</p>
+        } @else {
+          <table>
+            <thead>
+              <tr>
+                <th>Business</th>
+                <th>Contact</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of enquiries(); track e.id) {
+                <tr>
+                  <td>
+                    <div class="name">{{ e.businessName }}</div>
+                    <div class="sub">{{ e.businessType }}</div>
+                  </td>
+                  <td>{{ e.contactName }}</td>
+                  <td>{{ e.phoneNumber }}</td>
+                  <td>
+                    <span class="badge" [class.badge--active]="e.status === 'Converted'">{{ e.status }}</span>
+                  </td>
+                  <td class="actions">
+                    @if (e.status === 'New') {
+                      <button type="button" class="btn-link" [disabled]="actioningId() === e.id" (click)="startConvert(e)">Create business</button>
+                      <button type="button" class="btn-link btn-link--danger" [disabled]="actioningId() === e.id" (click)="dismissEnquiry(e)">Dismiss</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  }
+
+  @if (convertingEnquiry(); as enquiry) {
+    <div class="modal-backdrop">
+      <div class="modal">
+        <h2>Create business for "{{ enquiry.businessName }}"</h2>
+        <p class="muted">This creates the tenant and signs up {{ enquiry.contactName }} ({{ enquiry.phoneNumber }}) as the Owner.</p>
+
+        <label for="timeZoneId">Time zone (IANA ID)</label>
+        <input id="timeZoneId" name="timeZoneId" type="text" placeholder="Asia/Kolkata" [(ngModel)]="convertTimeZoneId" />
+
+        @if (convertError()) {
+          <p class="err">{{ convertError() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="cancelConvert()">Cancel</button>
+          <button type="button" class="btn-primary" [disabled]="converting()" (click)="confirmConvert()">{{ converting() ? 'Creating...' : 'Create business' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -4,6 +4,40 @@ h1 {
   color: var(--text);
 }
 
+.dashboard-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.dashboard-brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.dashboard-brand-logo--placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.dashboard-brand-sub {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 .cards {
   display: flex;
   gap: 16px;

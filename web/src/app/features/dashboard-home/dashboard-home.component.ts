@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
+import { BrandingService } from '../../core/branding.service';
 import { DashboardStats } from '../../core/models';
 
 @Component({
@@ -17,7 +18,7 @@ export class DashboardHomeComponent implements OnInit {
   loading = signal(true);
   planLocked = signal(false);
 
-  constructor(private readonly api: ApiService) {}
+  constructor(private readonly api: ApiService, readonly branding: BrandingService) {}
 
   ngOnInit(): void {
     this.api.getDashboardStats().subscribe({
