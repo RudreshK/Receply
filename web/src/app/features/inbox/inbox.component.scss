@@ -454,18 +454,29 @@ button {
 
 .reply-form {
   display: flex;
+  align-items: flex-end;
   gap: 8px;
 
-  input {
+  textarea {
     flex: 1;
     box-sizing: border-box;
+    resize: none;
     font: inherit;
     font-size: 0.9375rem;
+    line-height: 1.4;
     padding: 9px 12px;
+    max-height: 120px;
     border: 1px solid var(--border);
     border-radius: 20px;
     background: var(--bg);
     color: var(--text);
+    scrollbar-width: thin;
+
+    // WhatsApp-style scrollbar: a plain thumb, no up/down arrow step buttons.
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-button { display: none; height: 0; width: 0; }
+    &::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+    &::-webkit-scrollbar-track { background: transparent; }
 
     &:disabled { opacity: 0.6; }
   }

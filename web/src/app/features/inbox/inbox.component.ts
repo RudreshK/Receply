@@ -72,6 +72,7 @@ const DEFAULT_LIST_WIDTH = 320;
 })
 export class InboxComponent implements OnInit {
   private readonly chatScroll = viewChild<ElementRef<HTMLElement>>('chatScroll');
+  private readonly replyInput = viewChild<ElementRef<HTMLTextAreaElement>>('replyInput');
 
   protected readonly session: Signal<StoredSession | null>;
   protected readonly connection: Signal<ConnectionStatus>;
@@ -230,6 +231,20 @@ export class InboxComponent implements OnInit {
     this.manualOverride.set(true);
   }
 
+  /** Enter sends the reply; Shift+Enter (or Ctrl/Cmd+Enter) inserts a newline instead, like most
+   * chat apps - a plain <input> can never hold a newline at all, which is why this is a <textarea>. */
+  protected onReplyKeydown(event: KeyboardEvent, conversationId: string): void {
+    if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      this.sendReply(conversationId);
+    }
+  }
+
+  protected autoGrowReply(textarea: HTMLTextAreaElement): void {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+  }
+
   protected sendReply(conversationId: string): void {
     const body = this.draft().trim();
     if (!body || this.sending()) return;
@@ -239,6 +254,8 @@ export class InboxComponent implements OnInit {
     this.conversationsApi.reply(conversationId, body).subscribe({
       next: () => {
         this.draft.set('');
+        const el = this.replyInput()?.nativeElement;
+        if (el) el.style.height = 'auto';
         this.sending.set(false);
         // The reply hands the thread to a human on the server; reflect that immediately without
         // waiting on the statusChanged push (which still arrives and confirms it).

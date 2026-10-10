@@ -187,6 +187,28 @@
   line-height: 1.4;
   max-height: 120px;
   outline: none;
+  scrollbar-width: thin; // Firefox: thin track, no up/down step buttons
+
+  // WhatsApp-style scrollbar: a plain thumb, no up/down arrow buttons (Chromium/Edge/Safari render
+  // those by default on an overflowing textarea unless explicitly hidden).
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .panel-input textarea:focus {

@@ -166,15 +166,18 @@
         @if (canReplyManually(conversation)) {
           <footer class="chat-footer reply">
             <form class="reply-form" (ngSubmit)="sendReply(conversation.conversationId)">
-              <input
-                type="text"
+              <textarea
+                #replyInput
+                rows="1"
                 placeholder="Type a reply…"
                 [ngModel]="draft()"
                 (ngModelChange)="draft.set($event)"
                 name="reply"
                 autocomplete="off"
                 [disabled]="sending()"
-              />
+                (keydown)="onReplyKeydown($event, conversation.conversationId)"
+                (input)="autoGrowReply(replyInput)"
+              ></textarea>
               <button type="submit" class="send" [disabled]="sending() || !draft().trim()">
                 {{ sending() ? 'Sending…' : 'Send' }}
               </button>
