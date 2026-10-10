@@ -29,14 +29,16 @@
       }
 
       <form class="panel-input" (ngSubmit)="send()">
-        <input
-          type="text"
-          placeholder="Type a message..."
+        <textarea
+          #draftInput
+          rows="1"
+          placeholder="Type a message... (Shift+Enter for a new line)"
           [(ngModel)]="draft"
           name="draft"
           [disabled]="sending()"
-          autocomplete="off"
-        />
+          (keydown)="onKeydown($event)"
+          (input)="autoGrow(draftInput)"
+        ></textarea>
         <button type="submit" [disabled]="sending() || !draft.trim()" aria-label="Send">&#10148;</button>
       </form>
     </div>

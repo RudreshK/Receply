@@ -13,6 +13,7 @@ import { LandingChatMessage } from '../../core/models';
 })
 export class LandingChatWidgetComponent {
   @ViewChild('scrollAnchor') private scrollAnchor?: ElementRef<HTMLDivElement>;
+  @ViewChild('draftInput') private draftInput?: ElementRef<HTMLTextAreaElement>;
 
   readonly open = signal(false);
   readonly messages = signal<LandingChatMessage[]>([
@@ -29,6 +30,20 @@ export class LandingChatWidgetComponent {
     this.open.set(!this.open());
   }
 
+  /** Enter sends the message; Shift+Enter (or Ctrl/Cmd+Enter) inserts a newline instead, like most
+   * chat apps - a plain <input> can never hold a newline at all, which is why this is a <textarea>. */
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      this.send();
+    }
+  }
+
+  autoGrow(textarea: HTMLTextAreaElement): void {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+  }
+
   send(): void {
     const text = this.draft.trim();
     if (!text || this.sending()) return;
@@ -38,6 +53,7 @@ export class LandingChatWidgetComponent {
     this.draft = '';
     this.sending.set(true);
     this.scrollToBottom();
+    this.resetInputHeight();
 
     this.api.sendLandingChatMessage(history, text).subscribe({
       next: (result) => {
@@ -61,5 +77,10 @@ export class LandingChatWidgetComponent {
     requestAnimationFrame(() => {
       this.scrollAnchor?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
     });
+  }
+
+  private resetInputHeight(): void {
+    const el = this.draftInput?.nativeElement;
+    if (el) el.style.height = 'auto';
   }
 }
