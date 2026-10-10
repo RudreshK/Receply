@@ -6,6 +6,7 @@ using Receply.Domain.Channels;
 using Receply.Domain.Common;
 using Receply.Domain.Conversations;
 using Receply.Domain.Crm;
+using Receply.Domain.Platform;
 using Receply.Domain.Scheduling;
 using Receply.Domain.Tenancy;
 using Receply.Infrastructure.Multitenancy;
@@ -36,6 +37,9 @@ public class ReceplyDbContext(DbContextOptions<ReceplyDbContext> options, ITenan
     public DbSet<Faq> Faqs => Set<Faq>();
     public DbSet<MessageTranslation> MessageTranslations => Set<MessageTranslation>();
     public DbSet<TenantFeatureFlag> TenantFeatureFlags => Set<TenantFeatureFlag>();
+    public DbSet<PlatformAdmin> PlatformAdmins => Set<PlatformAdmin>();
+    public DbSet<PlatformAdminLoginOtp> PlatformAdminLoginOtps => Set<PlatformAdminLoginOtp>();
+    public DbSet<BusinessEnquiry> BusinessEnquiries => Set<BusinessEnquiry>();
 
     /// <summary>Entities that opt out of optimistic concurrency tracking - immutable/high-volume rows where it adds no value.</summary>
     private static readonly Type[] RowVersionExemptTypes = [typeof(Message), typeof(MessageTranslation)];

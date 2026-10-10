@@ -52,6 +52,8 @@ public static class DependencyInjection
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.AddScoped<IEmailSender, SmtpEmailSender>();
 
+        services.Configure<PlatformAdminOptions>(configuration.GetSection(PlatformAdminOptions.SectionName));
+
         services.AddQuartz();
         services.AddQuartzHostedService(opts => opts.WaitForJobsToComplete = true);
 

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Receply.Domain.Channels;
 using Receply.Domain.Conversations;
 using Receply.Domain.Crm;
+using Receply.Domain.Platform;
 using Receply.Domain.Scheduling;
 using Receply.Domain.Tenancy;
 
@@ -34,6 +35,9 @@ public interface IApplicationDbContext
     DbSet<Faq> Faqs { get; }
     DbSet<MessageTranslation> MessageTranslations { get; }
     DbSet<TenantFeatureFlag> TenantFeatureFlags { get; }
+    DbSet<PlatformAdmin> PlatformAdmins { get; }
+    DbSet<PlatformAdminLoginOtp> PlatformAdminLoginOtps { get; }
+    DbSet<BusinessEnquiry> BusinessEnquiries { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
